@@ -122,52 +122,24 @@ html, body {
 </div>
 
 
- <script src="js/utils.js"></script>
- <script src="js/block.js"></script>
- <script src="js/pool.js"></script>
- <script src="js/particleEngine.js"></script>
- <script src="js/chunk.js"></script>
- <script src="js/world.js"></script>
- <script src="js/vox.js"></script>
- <script src="js/objects.js"></script>
- <script src="js/player.js"></script>
- <script src="js/enemies.js"></script>
- <script src="js/physblock.js"></script>
- <script src="js/shot.js"></script>
- <script src="js/loader.js"></script>
- <script src="js/items.js"></script>
- <script src="js/princess.js"></script>
- <script src="js/chunkManager.js"></script>
- <script src="js/procObjects.js"></script>
- <script src="js/mapManager.js"></script>
- <script src="js/main.js"></script>
+ <script src="src/utils.js"></script>
+ <script src="src/block.js"></script>
+ <script src="src/pool.js"></script>
+ <script src="src/particleEngine.js"></script>
+ <script src="src/chunk.js"></script>
+ <script src="src/world.js"></script>
+ <script src="src/vox.js"></script>
+ <script src="src/objects.js"></script>
+ <script src="src/player.js"></script>
+ <script src="src/enemies.js"></script>
+ <script src="src/physblock.js"></script>
+ <script src="src/shot.js"></script>
+ <script src="src/loader.js"></script>
+ <script src="src/items.js"></script>
+ <script src="src/princess.js"></script>
+ <script src="src/chunkManager.js"></script>
+ <script src="src/procObjects.js"></script>
+ <script src="src/mapManager.js"></script>
   </body>
-  <script>
-    $(document).ready( function() {
-        $('#menu').html($('#menu_content').html());
-      // MuteSound(true);
-
-        if(localStorage.getItem("reload") == 1) {
-            Start(localStorage.getItem("mapId"));
-            if(localStorage.getItem("sound") == 'true') {
-                   MuteSound();
-            }
-            if(localStorage.getItem("music") == 'true') {
-                   MuteSong(); 
-            }
-        }
-    });
-
-    var game = new Game();
-    function Start(mapId) {
-        $('#menu').hide();
-        var start = 0;
-        game.Init(mapId);
-    }
-
-    function Menu() {
-        $('#menu').html($('#menu_content').html());
-    }
-
-  </script>
+ <script src="dist/client.js"></script>
 </html>

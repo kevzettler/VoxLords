@@ -17,8 +17,6 @@ var port = 8081;
 var server = require("http");
 
 server = server.createServer(Handler);
-var io = require("socket.io").listen(server); 
-io = io.sockets.on("connection", SocketHandler);
 var fs = require("fs");
 var path = require("path");
 var logger = require('util');
@@ -34,17 +32,6 @@ logger.log("Started server on port "+port);
 
 //PlayerSync();
 
-
-//======================================================
-//
-// Server only stuff
-//
-//======================================================
-// Socket handler
-function SocketHandler(socket, data) {
-    var ip = socket.handshake.address;
-    logger.log("Incoming connection from "+ip.address+":"+ip.port);
-}
 
 //======================================================
 //

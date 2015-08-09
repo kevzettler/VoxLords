@@ -120,7 +120,6 @@ function Game() {
         $('#menu').html("");
         $('#main').css({"background": "url('gui/gui1/bg"+mapId+".png') no-repeat"});
         $('#main').css({"background-size": "cover"});
-        //$('#main').css({"background-position": "center"});
         this.clock = new THREE.Clock();
         this.stats = new Stats();
         $('#stats').append(this.stats.domElement);
@@ -630,73 +629,75 @@ function Game() {
         this.currentMap = new MapManager();
         this.currentMap.Create(map);
     };
+};
 
-    Game.prototype.onWindowResize = function() {
-        this.camera.aspect = window.innerWidth / window.innerHeight;
-        this.camera.updateProjectionMatrix();
-        this.renderer.setSize( window.innerWidth, window.innerHeight );
-    };
+Game.prototype.onWindowResize = function() {
+    this.camera.aspect = window.innerWidth / window.innerHeight;
+    this.camera.updateProjectionMatrix();
+    this.renderer.setSize( window.innerWidth, window.innerHeight );
+};
 
-     //==========================================================
-    // Render
-    //==========================================================
-    Game.prototype.render = function() {
-        this.renderer.render(this.scene, this.camera);
-    };
+//==========================================================
+// Render
+//==========================================================
+Game.prototype.render = function() {
+    this.renderer.render(this.scene, this.camera);
+};
 
-    //==========================================================
-    // Animate
-    //==========================================================
-    Game.prototype.animate = function() {
-        this.animId = requestAnimationFrame(this.animate.bind(this));
-        this.render();
-        this.update();
-    };
+//==========================================================
+// Animate
+//==========================================================
+Game.prototype.animate = function() {
+    this.animId = requestAnimationFrame(this.animate.bind(this));
+    this.render();
+    this.update();
+};
 
-    //==========================================================
-    // Update
-    //==========================================================
-    Game.prototype.update = function() {
-        var delta = this.clock.getDelta(),
-        time = this.clock.getElapsedTime() * 10;
+//==========================================================
+// Update
+//==========================================================
+Game.prototype.update = function() {
+    var delta = this.clock.getDelta(),
+    time = this.clock.getElapsedTime() * 10;
 
-        this.frameDelta += delta;
+    this.frameDelta += delta;
 
-        while(this.frameDelta >= this.invMaxFps) {
-            THREE.AnimationHandler.update(this.invMaxFps);
-            this.chunkManager.Draw(time, this.invMaxFps);
-            for(var i = 0; i < this.objects.length; i++) {
-                if(this.objects[i] != undefined) {
-                    if(this.objects[i].remove == 1) { 
-                        this.objects.splice(i, 1);
-                    } else {
-                        this.objects[i].Draw(time, this.invMaxFps, i);
+    while(this.frameDelta >= this.invMaxFps) {
+        THREE.AnimationHandler.update(this.invMaxFps);
+        this.chunkManager.Draw(time, this.invMaxFps);
+        for(var i = 0; i < this.objects.length; i++) {
+            if(this.objects[i] != undefined) {
+                if(this.objects[i].remove == 1) { 
+                    this.objects.splice(i, 1);
+                } else {
+                    this.objects[i].Draw(time, this.invMaxFps, i);
+                }
+            }
+        }
+        for(var i = 0; i < this.targets.length; i++) {
+            if(this.targets[i] != undefined) {
+                if(this.targets[i].that.remove == 1) { 
+                    this.targets.splice(i, 1);
+                } else if(this.targets[i].that.skipDraw > 0) {
+                    this.targets[i].that.skipDraw--;
+                    continue;
+                } else {
+                    if(this.targets[i].that.type != "player") {
+                        this.targets[i].that.Draw(time, this.invMaxFps);
                     }
                 }
             }
-            for(var i = 0; i < this.targets.length; i++) {
-                if(this.targets[i] != undefined) {
-                    if(this.targets[i].that.remove == 1) { 
-                        this.targets.splice(i, 1);
-                    } else if(this.targets[i].that.skipDraw > 0) {
-                        this.targets[i].that.skipDraw--;
-                        continue;
-                    } else {
-                        if(this.targets[i].that.type != "player") {
-                            this.targets[i].that.Draw(time, this.invMaxFps);
-                        }
-                    }
-                }
-            }
-            this.frameDelta -= this.invMaxFps;
-        }	
-        this.stats.update();
-    };
+        }
+        this.frameDelta -= this.invMaxFps;
+    }   
+    this.stats.update();
+};
 
-    Game.prototype.getDistance = function(v1, v2) {
-        var dx = v1.x - v2.x;
-        var dy = v1.y - v2.y;
-        var dz = v1.z - v2.z;
-        return Math.sqrt(dx*dx+dy*dy+dz*dz);
-    };
-}
+Game.prototype.getDistance = function(v1, v2) {
+    var dx = v1.x - v2.x;
+    var dy = v1.y - v2.y;
+    var dz = v1.z - v2.z;
+    return Math.sqrt(dx*dx+dy*dy+dz*dz);
+};
+
+module.exports = Game;
