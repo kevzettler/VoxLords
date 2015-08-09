@@ -51,36 +51,16 @@
 	window.game = game;
 	window.game.Init(4);
 
-	$(document).ready(function () {
-	    $('#menu').html($('#menu_content').html());
-	    // MuteSound(true);
-
-	    if (localStorage.getItem("reload") == 1) {
-	        Start(localStorage.getItem("mapId"));
-	        if (localStorage.getItem("sound") == 'true') {
-	            MuteSound();
-	        }
-	        if (localStorage.getItem("music") == 'true') {
-	            MuteSong();
-	        }
-	    }
-	});
-
-	function Start(mapId) {
-	    $('#menu').hide();
-	    var start = 0;
-	    game.Init(mapId);
-	}
-
 /***/ },
 /* 1 */
-/***/ function(module, exports) {
+/***/ function(module, exports, __webpack_require__) {
 
-	//==============================================================================
-	// Author: Nergal
-	// Date: 2014-11-17
-	//==============================================================================
-	"use strict";
+	'use strict';
+
+	var VoxLoader = __webpack_require__(2);
+	var SoundLoader = __webpack_require__(4);
+	var ChunkManager = __webpack_require__(5);
+	var MapManager = __webpack_require__(6);
 
 	function Game() {
 	    this.container;
@@ -126,7 +106,6 @@
 	};
 
 	Game.prototype.LoadScene = function (mapId) {
-	    debugger;
 	    var x = game.voxLoader.PercentLoaded();
 	    console.log("Loaded: " + x + "%");
 	    if (x < 100) {
@@ -377,334 +356,789 @@
 
 	Game.prototype.SetMap = function (id) {
 	    var map = new Object();
-	    if (id == 1) {
-	        map.mapId = 1;
-	        map.mapFile = "maps/map1.png";
-	        map.mapName = "UnderWorld: Home of Lord Diablox";
-	        map.playerPosition = new THREE.Vector3(14, 0.5, 107);
-	        map.playerModel = "player";
-	        map.princessModel = "princess";
-	        map.cageModel = "cage";
-	        map.cagePosition = new THREE.Vector3(107, 6, 28);
-	        map.princessPosition = new THREE.Vector3(107, 6, 27);
-	        map.castlePosition = new THREE.Vector3(88, 0.5, 106);
-	        map.castleModel = "castle";
-	        // Devil2 = axe devil, devil 1 = old man
-	        map.enemiesBefore = [["Devil2", 29, 1, 79, "SmallShot"], ["Devil2", 36, 1, 82, "SmallShot"], ["Devil2", 40, 1, 86, "SmallShot"], ["Devil2", 14, 1, 11, "SmallShot"], ["Devil2", 32, 1, 16, "SmallShot"], ["Devil2", 89, 1, 45, "SmallShot"], ["Devil2", 82, 1, 39, "SmallShot"], ["Devil2", 92, 2.5, 36, "SmallShot"], ["Devil1", 64, 1, 1, "SmallShot"], ["Devil1", 72, 2, 58, "SmallShot"]];
-	        map.enemiesAfter = [["Devil2", 95, 2, 64, "SmallShot"], ["Devil2", 87, 2, 72, "SmallShot"], ["Devil2", 107, 2, 79, "SmallShot"], ["Devil1", 96, 1, 90, "SmallShot"], ["Devil1", 86, 1, 88, "SmallShot"]];
-	        map.fogColor = 0xA80000;
-	        map.clearColor = 0xA80000;
-	        map.blockSize = 0.5;
-	        map.wallHeight = 20;
-	        map.useLava = true;
-	        map.useWater = false;
-	        map.waterPosition = 0;
-	        map.lavaPosition = 0;
-	        map.objects = function () {
-	            //   new Tree().Create(54,0.5,65, 1.5, "hell2");
-	            //   new Tree().Create(113,0.5,95, 1.5, "hell2");
-	            //   new Tree().Create(113,0.5,95, 1.5, "hell2");
-	            //   new Tree().Create(107,0.5,59, 1.5, "hell2");
-	        };
-	        map.items = function () {
-	            new HealthBox().Create(new THREE.Vector3(41, 1, 79));
-	            new HealthBox().Create(new THREE.Vector3(113, 6.5, 31));
-	            new Godmode().Create(new THREE.Vector3(79, 6.5, 75));
-	            new Godmode().Create(new THREE.Vector3(61, 6.5, 34));
-	            new Bomb().Create(new THREE.Vector3(67, 1, 20));
-	            new Bomb().Create(new THREE.Vector3(22, 1, 26));
-	            new Bomb().Create(new THREE.Vector3(83, 1, 88));
-	            //new WeaponBox().Create(new THREE.Vector3(75, 1, 50));
-	        };
-	        map.lights = function () {
-	            console.log("Initiate lights...");
-	            var ambientLight = new THREE.AmbientLight(0x330000);
-	            game.scene.add(ambientLight);
 
-	            var hemiLight = new THREE.HemisphereLight(0xffffff, 0xffffff, 0.9);
-	            hemiLight.color.setHSL(0.6, 1, 0.6);
-	            hemiLight.groundColor.setHSL(0.095, 1, 0.75);
-	            hemiLight.position.set(0, 500, 0);
-	            game.scene.add(hemiLight);
+	    map.mapId = 4;
+	    map.mapFile = "maps/map4.png";
+	    map.mapName = "Voxadu Beach: Home of Lord Bolvox";
+	    map.playerPosition = new THREE.Vector3(16, 0.5, 119);
+	    map.playerModel = "player";
+	    map.princessModel = "princess";
+	    map.cageModel = "cage";
+	    map.cagePosition = new THREE.Vector3(107, 2, 21);
+	    map.princessPosition = new THREE.Vector3(107, 2.5, 21);
+	    map.castlePosition = new THREE.Vector3(77, 3.5, 104);
+	    map.castleModel = "castle";
+	    // Devil2 = axe devil, devil 1 = old man
+	    map.enemiesBefore = [["Hula1", 23, 0.5, 67, "SmallShot"], ["Hula1", 20, 5, 53, "SmallShot"], ["Hula2", 14, 2.5, 21, "FloatingShot"], ["Hula2", 30, 2.5, 18, "FloatingShot"], ["Hula2", 44, 2, 58, "FloatingShot"], ["Hula1", 101, 1, 17, "SmallShot"], ["Hula1", 102, 1.5, 22, "SmallShot"], ["Hula1", 106, 2.5, 27, "SmallShot"]];
+	    map.enemiesAfter = [["Hula1", 72, 3.5, 91, "QuakeShot"], ["Hula1", 101, 3.5, 93, "FloatingShot"], ["Hula1", 93, 3.5, 91, "FloatingShot"], ["Hula2", 92, 3.5, 78, "SmallShot"], ["Hula2", 98, 3.5, 79, "SmallShot"], ["Hula2", 105, 3.5, 78, "SmallShot"], ["Hula2", 88, 5, 70, "QuakeShot"]];
+	    map.fogColor = 0xeddeab;
+	    map.clearColor = 0xeddeab;
+	    map.blockSize = 0.5;
+	    map.wallHeight = 20;
+	    map.useLava = false, map.useWater = true;
+	    map.waterPosition = 0.2;
+	    map.lavaPosition = 0;
+	    map.objects = function () {
+	        new Tree().Create(8, 2, 110, 2, "tree1");
+	        new Tree().Create(45, 2, 60, 2, "tree1");
+	        new Tree().Create(59, 2, 35, 2, "tree1");
+	        new Tree().Create(17, 2, 13, 2, "tree1");
+	        new Tree().Create(33, 2, 13, 2, "tree1");
+	        new Tree().Create(110, 2.5, 16, 2, "tree1");
+	        new Tree().Create(107, 2.5, 27, 2, "tree2");
+	        new Tree().Create(92, 3.5, 109, 2, "tree2");
+	        new Tree().Create(86, 3.5, 107, 2, "tree2");
+	    };
+	    map.items = function () {
+	        new HealthBox().Create(new THREE.Vector3(72, 2, 52));
+	        new HealthBox().Create(new THREE.Vector3(121, 1, 53));
+	        new WeaponBox().Create(new THREE.Vector3(92, 4, 97));
+	        new WeaponBox().Create(new THREE.Vector3(23, 3, 21));
+	        new Godmode().Create(new THREE.Vector3(101, 1, 39));
+	        new Godmode().Create(new THREE.Vector3(69, 3.5, 79));
+	        new Godmode().Create(new THREE.Vector3(25, 2.5, 120));
+	        new HealthBox().Create(new THREE.Vector3(69, 2.5, 18));
+	        new Bomb().Create(new THREE.Vector3(30, 1, 75));
+	        new HealthBox().Create(new THREE.Vector3(15, 3, 13));
+	    };
+	    map.lights = function () {
+	        console.log("Initiate lights...");
+	        var ambientLight = new THREE.AmbientLight(0x000033);
+	        game.scene.add(ambientLight);
 
-	            var dirLight = new THREE.DirectionalLight(0xffffff, 1);
-	            dirLight.color.setHSL(0.1, 1, 0.95);
-	            dirLight.position.set(10, 10.75, 10);
-	            dirLight.position.multiplyScalar(10);
-	            game.scene.add(dirLight);
+	        var hemiLight = new THREE.HemisphereLight(0xffffff, 0xffffff, 0.9);
+	        hemiLight.color.setHSL(0.6, 1, 0.6);
+	        hemiLight.groundColor.setHSL(0.095, 1, 0.75);
+	        hemiLight.position.set(0, 500, 0);
+	        game.scene.add(hemiLight);
 
-	            //dirLight.castShadow = false;
-	            dirLight.castShadow = true;
+	        var dirLight = new THREE.DirectionalLight(0xffffff, 1);
+	        dirLight.color.setHSL(0.1, 1, 0.95);
+	        dirLight.position.set(10, 10.75, 10);
+	        dirLight.position.multiplyScalar(10);
+	        game.scene.add(dirLight);
 
-	            dirLight.shadowMapWidth = 2048;
-	            dirLight.shadowMapHeight = 2048;
+	        //dirLight.castShadow = false;
+	        dirLight.castShadow = true;
 
-	            var d = 150;
+	        dirLight.shadowMapWidth = 2048;
+	        dirLight.shadowMapHeight = 2048;
 
-	            dirLight.shadowCameraLeft = -d;
-	            dirLight.shadowCameraRight = d;
-	            dirLight.shadowCameraTop = d;
-	            dirLight.shadowCameraBottom = -d;
+	        var d = 150;
 
-	            dirLight.shadowCameraFar = 3500;
-	            dirLight.shadowBias = -0.0001;
-	            dirLight.shadowDarkness = 0.45;
-	            //dirLight.shadowCameraVisible = true;
-	        };
-	    } else if (id == 2) {
-	            map.mapId = 2;
-	            map.mapFile = "maps/map2.png";
-	            map.mapName = "Island of St. Vox: Home of Lord Plantox";
-	            map.playerPosition = new THREE.Vector3(16, 0.5, 119);
-	            map.playerModel = "player";
-	            map.princessModel = "princess";
-	            map.cageModel = "cage";
-	            map.cagePosition = new THREE.Vector3(109, 4, 32);
-	            map.princessPosition = new THREE.Vector3(109, 5, 32);
-	            map.castlePosition = new THREE.Vector3(99, 5.5, 109);
-	            map.castleModel = "castle";
-	            // Devil2 = axe devil, devil 1 = old man
-	            map.enemiesBefore = [["Plantox2", 17, 4.5, 81, "SmallShot"], ["Plantox2", 29, 5, 78, "SmallShot"], ["Plantox1", 31, 5, 59, "SmallShot"], ["Plantox2", 37, 6, 27, "SmallShot"], ["Plantox2", 15, 3.5, 15, "SmallShot"], ["Plantox2", 34, 2.5, 14, "SmallShot"], ["Plantox2", 97, 2, 28, "SmallShot"], ["Plantox1", 100, 2, 38, "SmallShot"], ["Plantox1", 80, 3, 31, "SmallShot"]];
-	            map.enemiesAfter = [["Plantox2", 97, 2.5, 57, "SmallShot"], ["Plantox1", 75, 3, 56, "FloatingShot"], ["Plantox1", 66, 4, 79, "FloatingShot"], ["Plantox2", 104, 4, 86, "SmallShot"], ["Plantox2", 97, 4, 87, "SmallShot"], ["Plantox2", 85, 4, 87, "SmallShot"], ["Plantox2", 96, 5, 98, "QuakeShot"]];
-	            map.fogColor = 0x19bfde;
-	            map.clearColor = 0x19bfde;
-	            map.blockSize = 0.5;
-	            map.wallHeight = 20;
-	            map.useLava = false, map.useWater = true;
-	            map.waterPosition = 0.2;
-	            map.lavaPosition = 0;
-	            map.objects = function () {
-	                new Cloud().Create("cloud1", false);
-	                new Cloud().Create("cloud1", false);
-	                new Cloud().Create("cloud1", false);
-	                new Cloud().Create("cloud1", false);
-	                new Cloud().Create("cloud1", false);
-	                new Cloud().Create("cloud1", false);
-	                new Cloud().Create("cloud1", false);
-	                new Cloud().Create("cloud1", false);
+	        dirLight.shadowCameraLeft = -d;
+	        dirLight.shadowCameraRight = d;
+	        dirLight.shadowCameraTop = d;
+	        dirLight.shadowCameraBottom = -d;
 
-	                new Tree().Create(28, 4, 123, 2, "tree5");
-	                new Tree().Create(89, 6, 107, 2, "tree2");
-	                new Tree().Create(109, 6, 108, 2, "tree2");
-	                new Tree().Create(14, 4, 108, 2, "tree2");
-	                new Tree().Create(27, 3.5, 100, 2, "tree1");
-	                new Tree().Create(30, 4.5, 47, 2, "tree5");
-	                new Tree().Create(85, 3.5, 43, 2, "tree5");
-	                new Tree().Create(8, 3, 9, 2, "tree8");
-	                new Tree().Create(34, 2.5, 14, 2, "tree1");
-	                new Tree().Create(82, 1.5, 14, 2, "tree1");
-	                new Tree().Create(112, 2.5, 23, 2, "tree2");
-	                new Tree().Create(56, 2.5, 90, 2, "tree7");
-	                new Tree().Create(57, 2, 72, 2, "tree5");
-	            };
-	            map.items = function () {
-	                new HealthBox().Create(new THREE.Vector3(26, 6.5, 114));
-	                new HealthBox().Create(new THREE.Vector3(8, 4, 6));
-	                new HealthBox().Create(new THREE.Vector3(122, 4, 9));
-	                new HealthBox().Create(new THREE.Vector3(65, 4, 79));
-	                new Godmode().Create(new THREE.Vector3(112, 3.5, 39));
-	                new WeaponBox().Create(new THREE.Vector3(90, 5, 77));
-	            };
-	            map.lights = function () {
-	                console.log("Initiate lights...");
-	                var ambientLight = new THREE.AmbientLight(0x000033);
-	                game.scene.add(ambientLight);
-
-	                var hemiLight = new THREE.HemisphereLight(0xffffff, 0xffffff, 0.9);
-	                hemiLight.color.setHSL(0.6, 1, 0.6);
-	                hemiLight.groundColor.setHSL(0.095, 1, 0.75);
-	                hemiLight.position.set(0, 500, 0);
-	                game.scene.add(hemiLight);
-
-	                var dirLight = new THREE.DirectionalLight(0xffffff, 1);
-	                dirLight.color.setHSL(0.1, 1, 0.95);
-	                dirLight.position.set(10, 10.75, 10);
-	                dirLight.position.multiplyScalar(10);
-	                game.scene.add(dirLight);
-
-	                //dirLight.castShadow = false;
-	                dirLight.castShadow = true;
-
-	                dirLight.shadowMapWidth = 2048;
-	                dirLight.shadowMapHeight = 2048;
-
-	                var d = 150;
-
-	                dirLight.shadowCameraLeft = -d;
-	                dirLight.shadowCameraRight = d;
-	                dirLight.shadowCameraTop = d;
-	                dirLight.shadowCameraBottom = -d;
-
-	                dirLight.shadowCameraFar = 3500;
-	                dirLight.shadowBias = -0.0001;
-	                dirLight.shadowDarkness = 0.45;
-	                //dirLight.shadowCameraVisible = true;
-	            };
-	        } else if (id == 3) {
-	                map.mapId = 3;
-	                map.mapFile = "maps/map3.png";
-	                map.mapName = "North Pole: Home of Lord Santox";
-	                map.playerPosition = new THREE.Vector3(16, 0.5, 119);
-	                map.playerModel = "player";
-	                map.princessModel = "princess";
-	                map.cageModel = "cage";
-	                map.cagePosition = new THREE.Vector3(62, 4, 62);
-	                map.princessPosition = new THREE.Vector3(62, 4, 62);
-	                map.castlePosition = new THREE.Vector3(109, 4, 15);
-	                map.castleModel = "castle";
-	                map.enemiesBefore = [["Santa", 25, 2, 81, "FloatingShot", 2], ["Elf", 30, 2, 75, "SmallShot"], ["Elf", 15, 2, 70, "SmallShot"], ["Elf", 37, 2, 54, "FloatingShot", 1], ["Elf", 53, 4, 51, "SmallShot"], ["Elf2", 54, 4, 73, "SmallShot"], ["Elf2", 72, 4, 53, "SmallShot"], ["Elf2", 64, 4, 38, "SmallShot"]];
-	                map.enemiesAfter = [["Santa", 108, 4, 26, "FloatingShot", 1], ["Santa", 101, 4, 17, "FloatingShot", 1], ["Santa", 101, 4, 11, "FloatingShot", 1], ["Elf", 88, 4, 29, "SmallShot"], ["Elf", 97, 4, 61, "SmallShot"], ["Elf", 91, 2, 83, "SmallShot"]];
-	                map.fogColor = 0xb3f0f4;
-	                map.clearColor = 0xb3f0f4;
-	                map.blockSize = 0.5;
-	                map.wallHeight = 20;
-	                map.useLava = false, map.useWater = true;
-	                map.waterPosition = 0.2;
-	                map.lavaPosition = 0;
-	                map.objects = function () {
-	                    new Cloud().Create("cloud1", true);
-	                    new Cloud().Create("cloud1", true);
-	                    new Cloud().Create("cloud1", true);
-	                    new Cloud().Create("cloud1", true);
-	                    new Cloud().Create("cloud1", true);
-	                    new Cloud().Create("cloud1", true);
-	                    new Cloud().Create("cloud1", true);
-	                    new Cloud().Create("cloud1", true);
-	                };
-	                map.items = function () {
-	                    new HealthBox().Create(new THREE.Vector3(27, 4.5, 114));
-	                    new HealthBox().Create(new THREE.Vector3(21, 4.5, 49));
-	                    new HealthBox().Create(new THREE.Vector3(55, 4.5, 28));
-	                    new Godmode().Create(new THREE.Vector3(16, 3.5, 12));
-	                    new Godmode().Create(new THREE.Vector3(21, 3.5, 9));
-	                    new Godmode().Create(new THREE.Vector3(117, 4.5, 60));
-	                    new WeaponBox().Create(new THREE.Vector3(88, 2.5, 52));
-	                    new WeaponBox().Create(new THREE.Vector3(62, 4.5, 66));
-	                    new WeaponBox().Create(new THREE.Vector3(95, 4.5, 23));
-	                    new Bomb().Create(new THREE.Vector3(116, 4.5, 27));
-	                };
-	                map.lights = function () {
-	                    console.log("Initiate lights...");
-	                    var ambientLight = new THREE.AmbientLight(0x000033);
-	                    game.scene.add(ambientLight);
-
-	                    var hemiLight = new THREE.HemisphereLight(0xffffff, 0xffffff, 0.9);
-	                    hemiLight.color.setHSL(0.6, 1, 0.6);
-	                    hemiLight.groundColor.setHSL(0.095, 1, 0.75);
-	                    hemiLight.position.set(0, 500, 0);
-	                    game.scene.add(hemiLight);
-
-	                    var dirLight = new THREE.DirectionalLight(0xffffff, 1);
-	                    dirLight.color.setHSL(0.1, 1, 0.95);
-	                    dirLight.position.set(10, 10.75, 10);
-	                    dirLight.position.multiplyScalar(10);
-	                    game.scene.add(dirLight);
-
-	                    //dirLight.castShadow = false;
-	                    dirLight.castShadow = true;
-
-	                    dirLight.shadowMapWidth = 2048;
-	                    dirLight.shadowMapHeight = 2048;
-
-	                    var d = 150;
-
-	                    dirLight.shadowCameraLeft = -d;
-	                    dirLight.shadowCameraRight = d;
-	                    dirLight.shadowCameraTop = d;
-	                    dirLight.shadowCameraBottom = -d;
-
-	                    dirLight.shadowCameraFar = 3500;
-	                    dirLight.shadowBias = -0.0001;
-	                    dirLight.shadowDarkness = 0.45;
-	                    //dirLight.shadowCameraVisible = true;
-	                };
-	            } else if (id == 4) {
-	                    map.mapId = 4;
-	                    map.mapFile = "maps/map4.png";
-	                    map.mapName = "Voxadu Beach: Home of Lord Bolvox";
-	                    map.playerPosition = new THREE.Vector3(16, 0.5, 119);
-	                    map.playerModel = "player";
-	                    map.princessModel = "princess";
-	                    map.cageModel = "cage";
-	                    map.cagePosition = new THREE.Vector3(107, 2, 21);
-	                    map.princessPosition = new THREE.Vector3(107, 2.5, 21);
-	                    map.castlePosition = new THREE.Vector3(77, 3.5, 104);
-	                    map.castleModel = "castle";
-	                    // Devil2 = axe devil, devil 1 = old man
-	                    map.enemiesBefore = [["Hula1", 23, 0.5, 67, "SmallShot"], ["Hula1", 20, 5, 53, "SmallShot"], ["Hula2", 14, 2.5, 21, "FloatingShot"], ["Hula2", 30, 2.5, 18, "FloatingShot"], ["Hula2", 44, 2, 58, "FloatingShot"], ["Hula1", 101, 1, 17, "SmallShot"], ["Hula1", 102, 1.5, 22, "SmallShot"], ["Hula1", 106, 2.5, 27, "SmallShot"]];
-	                    map.enemiesAfter = [["Hula1", 72, 3.5, 91, "QuakeShot"], ["Hula1", 101, 3.5, 93, "FloatingShot"], ["Hula1", 93, 3.5, 91, "FloatingShot"], ["Hula2", 92, 3.5, 78, "SmallShot"], ["Hula2", 98, 3.5, 79, "SmallShot"], ["Hula2", 105, 3.5, 78, "SmallShot"], ["Hula2", 88, 5, 70, "QuakeShot"]];
-	                    map.fogColor = 0xeddeab;
-	                    map.clearColor = 0xeddeab;
-	                    map.blockSize = 0.5;
-	                    map.wallHeight = 20;
-	                    map.useLava = false, map.useWater = true;
-	                    map.waterPosition = 0.2;
-	                    map.lavaPosition = 0;
-	                    map.objects = function () {
-	                        new Tree().Create(8, 2, 110, 2, "tree1");
-	                        new Tree().Create(45, 2, 60, 2, "tree1");
-	                        new Tree().Create(59, 2, 35, 2, "tree1");
-	                        new Tree().Create(17, 2, 13, 2, "tree1");
-	                        new Tree().Create(33, 2, 13, 2, "tree1");
-	                        new Tree().Create(110, 2.5, 16, 2, "tree1");
-	                        new Tree().Create(107, 2.5, 27, 2, "tree2");
-	                        new Tree().Create(92, 3.5, 109, 2, "tree2");
-	                        new Tree().Create(86, 3.5, 107, 2, "tree2");
-	                    };
-	                    map.items = function () {
-	                        new HealthBox().Create(new THREE.Vector3(72, 2, 52));
-	                        new HealthBox().Create(new THREE.Vector3(121, 1, 53));
-	                        new WeaponBox().Create(new THREE.Vector3(92, 4, 97));
-	                        new WeaponBox().Create(new THREE.Vector3(23, 3, 21));
-	                        new Godmode().Create(new THREE.Vector3(101, 1, 39));
-	                        new Godmode().Create(new THREE.Vector3(69, 3.5, 79));
-	                        new Godmode().Create(new THREE.Vector3(25, 2.5, 120));
-	                        new HealthBox().Create(new THREE.Vector3(69, 2.5, 18));
-	                        new Bomb().Create(new THREE.Vector3(30, 1, 75));
-	                        new HealthBox().Create(new THREE.Vector3(15, 3, 13));
-	                    };
-	                    map.lights = function () {
-	                        console.log("Initiate lights...");
-	                        var ambientLight = new THREE.AmbientLight(0x000033);
-	                        game.scene.add(ambientLight);
-
-	                        var hemiLight = new THREE.HemisphereLight(0xffffff, 0xffffff, 0.9);
-	                        hemiLight.color.setHSL(0.6, 1, 0.6);
-	                        hemiLight.groundColor.setHSL(0.095, 1, 0.75);
-	                        hemiLight.position.set(0, 500, 0);
-	                        game.scene.add(hemiLight);
-
-	                        var dirLight = new THREE.DirectionalLight(0xffffff, 1);
-	                        dirLight.color.setHSL(0.1, 1, 0.95);
-	                        dirLight.position.set(10, 10.75, 10);
-	                        dirLight.position.multiplyScalar(10);
-	                        game.scene.add(dirLight);
-
-	                        //dirLight.castShadow = false;
-	                        dirLight.castShadow = true;
-
-	                        dirLight.shadowMapWidth = 2048;
-	                        dirLight.shadowMapHeight = 2048;
-
-	                        var d = 150;
-
-	                        dirLight.shadowCameraLeft = -d;
-	                        dirLight.shadowCameraRight = d;
-	                        dirLight.shadowCameraTop = d;
-	                        dirLight.shadowCameraBottom = -d;
-
-	                        dirLight.shadowCameraFar = 3500;
-	                        dirLight.shadowBias = -0.0001;
-	                        dirLight.shadowDarkness = 0.45;
-	                        //dirLight.shadowCameraVisible = true;
-	                    };
-	                }
+	        dirLight.shadowCameraFar = 3500;
+	        dirLight.shadowBias = -0.0001;
+	        dirLight.shadowDarkness = 0.45;
+	        //dirLight.shadowCameraVisible = true;
+	    };
 
 	    this.currentMap = new MapManager();
 	    this.currentMap.Create(map);
 	};
 
 	module.exports = Game;
+
+/***/ },
+/* 2 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	var Loader = __webpack_require__(3);
+
+	/////////////////////////////////////////////////////////////
+	// Vox models
+	/////////////////////////////////////////////////////////////
+	function VoxLoader() {
+	    Loader.call(this);
+	    this.models = new Array();
+
+	    VoxLoader.prototype.GetModel = function (name) {
+	        return this.models[name].chunk.Clone();
+	    };
+
+	    VoxLoader.prototype.Add = function (args) {
+	        this.models[args.name] = new Object();
+	        this.models[args.name].args = args;
+	        Loader.prototype.total++;
+
+	        var vox = new Vox();
+	        vox.LoadModel(args.file, this.Load.bind(this), args.name);
+	        this.models[args.name].vox = vox;
+	    };
+
+	    VoxLoader.prototype.Load = function (vox, name) {
+	        console.log("Voxel: " + name + " loaded!");
+	        this.models[name].vox = vox;
+	        this.models[name].chunk = vox.getChunk();
+	        this.models[name].chunk.Rebuild();
+	        this.models[name].mesh = vox.getMesh();
+	        this.models[name].mesh.geometry.center();
+	        this.Loaded();
+	    };
+	}
+	VoxLoader.prototype = new Loader();
+	VoxLoader.prototype.constructor = VoxLoader;
+	module.exports = VoxLoader;
+
+/***/ },
+/* 3 */
+/***/ function(module, exports) {
+
+	/////////////////////////////////////////////////////////////
+	// Autor: Nergal
+	// Date: 2015-01-19
+	/////////////////////////////////////////////////////////////
+	"use strict";
+
+	function Loader() {
+	    Loader.prototype.total = 0;
+	    Loader.prototype.loaded = 0;
+	    Loader.prototype.percentLoaded = 0;
+
+	    Loader.prototype.PercentLoaded = function () {
+	        return Math.round(Loader.prototype.loaded / Loader.prototype.total * 100);
+	    };
+
+	    Loader.prototype.Loaded = function () {
+	        Loader.prototype.loaded++;
+	    };
+	}
+
+	module.exports = Loader;
+
+/***/ },
+/* 4 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var Loader = __webpack_require__(3);
+
+	/////////////////////////////////////////////////////////////
+	// Sounds
+	/////////////////////////////////////////////////////////////
+	function SoundLoader() {
+	    Loader.call(this);
+	    this.sounds = new Array();
+	    this.context;
+	    this.muted = false;
+
+	    SoundLoader.prototype.StopSound = function (name) {
+	        var source = this.sounds[name].context;
+	        source.stop = source.noteOff;
+	        source.stop(0);
+	    };
+
+	    SoundLoader.prototype.PlaySound = function (name, position, radius) {
+	        if (this.muted) {
+	            return;
+	        }
+	        var source = this.sounds[name].context.createBufferSource();
+	        source.buffer = this.sounds[name].buffer;
+	        var gainNode = this.sounds[name].context.createGain();
+	        source.connect(gainNode);
+	        gainNode.connect(this.sounds[name].context.destination);
+
+	        if (position != undefined) {
+	            var vector = game.camera.localToWorld(new THREE.Vector3(0, 0, 0));
+	            var distance = position.distanceTo(vector);
+	            if (distance <= radius) {
+	                var vol = 1 * (1 - distance / radius);
+	                gainNode.gain.value = vol;
+	                source.start(0);
+	            } else {
+	                gainNode.gain.value = 0;
+	            }
+	        } else {
+	            gainNode.gain.value = 1;
+	            source.start(0);
+	        }
+	    };
+
+	    SoundLoader.prototype.Add = function (args) {
+	        this.sounds[args.name] = new Object();
+	        window.AudioContext = window.AudioContext || window.webkitAudioContext;
+	        if (this.context == undefined) {
+	            this.context = new AudioContext();
+	        }
+	        //var context = new AudioContext();
+	        var loader = new BufferLoader(this.context, [args.file], this.Load.bind(this, args.name));
+	        this.sounds[args.name].context = this.context;
+	        Loader.prototype.total++;
+	        loader.load();
+	    };
+
+	    SoundLoader.prototype.Load = function (name, buffer) {
+	        this.sounds[name].buffer = buffer[0];
+	        this.Loaded();
+	    };
+	}
+	SoundLoader.prototype = new Loader();
+	SoundLoader.prototype.constructor = SoundLoader;
+	module.exports = SoundLoader;
+
+/***/ },
+/* 5 */
+/***/ function(module, exports) {
+
+	"use strict";
+
+	function ChunkManager() {
+	    this.worldChunks = [];
+	    this.totalBlocks = 0;
+	    this.totalChunks = 0;
+	    this.activeBlocks = 0;
+	    this.activeTriangles = 0;
+	    this.updateChunks = [];
+	    this.maxChunks = 0;
+	};
+
+	ChunkManager.prototype.PercentLoaded = function () {
+	    console.log("TOTAL: " + this.totalChunks + " MAX: " + this.maxChunks);
+
+	    return Math.round(this.maxChunks / this.totalChunks * 100);
+	};
+
+	ChunkManager.prototype.Draw = function (time, delta) {
+	    if (this.updateChunks.length > 0) {
+	        var cid = this.updateChunks.pop();
+	        this.worldChunks[cid].Rebuild();
+	    }
+	};
+
+	ChunkManager.prototype.Create = function () {};
+
+	ChunkManager.prototype.Blood = function (x, z, power) {
+	    var aChunks = [];
+	    var aBlocksXZ = [];
+	    var aBlocksZ = [];
+
+	    x = Math.round(x);
+	    z = Math.round(z);
+	    var cid = 0;
+	    var totals = 0;
+	    var y = this.GetHeight(x, z);
+	    y = y / game.world.blockSize;
+	    for (var rx = x + power; rx >= x - power; rx -= game.world.blockSize) {
+	        for (var rz = z + power; rz >= z - power; rz -= game.world.blockSize) {
+	            for (var ry = y + power; ry >= y - power; ry -= game.world.blockSize) {
+	                if ((rx - x) * (rx - x) + (ry - y) * (ry - y) + (rz - z) * (rz - z) <= power * power) {
+	                    if (Math.random() > 0.7) {
+	                        // Set random shade to the blocks to look as burnt.
+	                        cid = this.GetWorldChunkID(rx, rz);
+	                        if (cid == undefined) {
+	                            continue;
+	                        }
+	                        var pos = this.Translate(rx, rz, cid);
+
+	                        var yy = Math.round(ry);
+	                        if (yy <= 0) {
+	                            yy = 0;
+	                        }
+	                        if (this.worldChunks[cid.id].blocks[pos.x][pos.z][yy] != undefined) {
+	                            if (this.worldChunks[cid.id].blocks[pos.x][pos.z][yy].active) {
+	                                this.worldChunks[cid.id].blocks[pos.x][pos.z][yy].r = 111 + Math.random() * 60;
+	                                this.worldChunks[cid.id].blocks[pos.x][pos.z][yy].g = 0;
+	                                this.worldChunks[cid.id].blocks[pos.x][pos.z][yy].b = 0;
+	                                aChunks.push(cid);
+	                            }
+	                        }
+	                    }
+	                }
+	            }
+	        }
+	    }
+	    var crebuild = {};
+	    for (var i = 0; i < aChunks.length; i++) {
+	        crebuild[aChunks[i].id] = 0;
+	    }
+	    for (var c in crebuild) {
+	        this.updateChunks.push(c);
+	    }
+	};
+
+	ChunkManager.prototype.ExplodeBombSmall = function (x, z) {
+	    x = Math.round(x);
+	    z = Math.round(z);
+	    var y = this.GetHeight(x, z);
+	    y = Math.round(y / game.world.blockSize);
+	    var cid = this.GetWorldChunkID(x, z);
+	    if (cid == undefined) {
+	        return;
+	    }
+	    var pos = this.Translate(x, z, cid);
+	    if (this.worldChunks[cid.id].blocks[pos.x][pos.z][y] == undefined) {
+	        return;
+	    }
+	    this.worldChunks[cid.id].blocks[pos.x][pos.z][y].setActive(false);
+	    this.worldChunks[cid.id].Rebuild();
+
+	    for (var i = 0; i < 6; i++) {
+	        var block = game.physBlockPool.Get();
+	        if (block != undefined) {
+	            block.Create(x, y / 2, z, this.worldChunks[cid.id].blockSize / 2, this.worldChunks[cid.id].blocks[pos.x][pos.z][y].r, this.worldChunks[cid.id].blocks[pos.x][pos.z][y].g, this.worldChunks[cid.id].blocks[pos.x][pos.z][y].b, 2, Math.random() * 180, 2);
+	        }
+	    }
+	};
+
+	ChunkManager.prototype.ExplodeBomb = function (x, z, power, blood, iny) {
+	    // Get all blocks in the explosion.
+	    // then for each block get chunk and remove the blocks
+	    // and rebuild the affected chunks.
+	    var aChunks = [];
+	    var aBlocksXZ = [];
+	    var aBlocksY = [];
+	    x = Math.round(x);
+	    z = Math.round(z);
+	    var cid = 0;
+
+	    var totals = 0;
+	    var y;
+	    if (iny == undefined) {
+	        var y = this.GetHeight(x, z);
+	        y = Math.round(y / game.world.blockSize);
+	    } else {
+	        y = iny;
+	    }
+	    var shade = 0.5;
+
+	    var yy = 0;
+	    var pos = 0;
+	    var val = 0;
+	    var pow = 0;
+	    var rand = 0;
+	    var block = undefined;
+	    for (var rx = x + power; rx >= x - power; rx -= game.world.blockSize) {
+	        for (var rz = z + power; rz >= z - power; rz -= game.world.blockSize) {
+	            for (var ry = y + power; ry >= y - power; ry -= game.world.blockSize) {
+	                val = (rx - x) * (rx - x) + (ry - y) * (ry - y) + (rz - z) * (rz - z);
+	                pow = power * power;
+	                if (val <= pow) {
+	                    cid = this.GetWorldChunkID(rx, rz);
+	                    if (cid == undefined) {
+	                        continue;
+	                    }
+	                    pos = this.Translate(rx, rz, cid);
+	                    if (ry <= 0) {
+	                        yy = 0;
+	                    } else {
+	                        yy = Math.round(ry);
+	                    }
+	                    if (this.worldChunks[cid.id].blocks[pos.x] == undefined) {
+	                        continue;
+	                    }
+	                    if (this.worldChunks[cid.id].blocks[pos.x][pos.z] == undefined) {
+	                        continue;
+	                    }
+
+	                    if (this.worldChunks[cid.id].blocks[pos.x][pos.z][yy] != undefined) {
+	                        if (this.worldChunks[cid.id].blocks[pos.x][pos.z][yy].isActive()) {
+	                            aBlocksXZ.push(pos);
+	                            aChunks.push(cid);
+	                            aBlocksY.push(yy);
+	                            totals++;
+	                            if (Math.random() > 0.95) {
+	                                // Create PhysBlock
+	                                block = game.physBlockPool.Get();
+	                                if (block != undefined) {
+	                                    block.Create(rx, yy, rz, this.worldChunks[cid.id].blockSize, this.worldChunks[cid.id].blocks[pos.x][pos.z][yy].r, this.worldChunks[cid.id].blocks[pos.x][pos.z][yy].g, this.worldChunks[cid.id].blocks[pos.x][pos.z][yy].b, 3, Math.random() * 180, power);
+	                                }
+	                            }
+	                        } else {
+	                            //console.log("NO ACTIVE CID: "+cid.id+ " X: "+pos.z + " Z: "+pos.z + " Y: "+yy);
+	                        }
+	                    }
+	                } else if (val <= pow * 1.2 && val >= pow) {
+	                        // Set random shade to the blocks to look as burnt.
+	                        cid = this.GetWorldChunkID(rx, rz);
+	                        if (cid == undefined) {
+	                            continue;
+	                        }
+	                        pos = this.Translate(rx, rz, cid);
+
+	                        yy = Math.round(ry);
+	                        if (yy <= 0) {
+	                            yy = 0;
+	                        }
+	                        if (pos == undefined) {
+	                            continue;
+	                        }
+	                        if (this.worldChunks[cid.id].blocks[pos.x] == undefined) {
+	                            continue;
+	                        }
+	                        if (this.worldChunks[cid.id].blocks[pos.x][pos.z] == undefined) {
+	                            continue;
+	                        }
+	                        if (this.worldChunks[cid.id].blocks[pos.x][pos.z][yy] != undefined) {
+	                            if (this.worldChunks[cid.id].blocks[pos.x][pos.z][yy].isActive()) {
+	                                if (blood) {
+	                                    rand = Math.random() * 60;
+	                                    if (rand > 20) {
+	                                        aBlocksXZ.push(pos);
+	                                        aChunks.push(cid);
+	                                        aBlocksY.push(yy);
+	                                        this.worldChunks[cid.id].blocks[pos.x][pos.z][yy].r = 111 + rand;
+	                                        this.worldChunks[cid.id].blocks[pos.x][pos.z][yy].g = 0;
+	                                        this.worldChunks[cid.id].blocks[pos.x][pos.z][yy].b = 0;
+	                                    }
+	                                } else {
+	                                    aBlocksXZ.push(pos);
+	                                    aChunks.push(cid);
+	                                    aBlocksY.push(yy);
+	                                    this.worldChunks[cid.id].blocks[pos.x][pos.z][yy].r *= shade;
+	                                    this.worldChunks[cid.id].blocks[pos.x][pos.z][yy].g *= shade;
+	                                    this.worldChunks[cid.id].blocks[pos.x][pos.z][yy].b *= shade;
+	                                }
+	                            }
+	                        }
+	                    }
+	            }
+	        }
+	    }
+
+	    // Deactivate all and rebuild chunks
+	    var crebuild = {};
+	    for (var i = 0; i < aChunks.length; i++) {
+	        this.worldChunks[aChunks[i].id].blocks[aBlocksXZ[i].x][aBlocksXZ[i].z][aBlocksY[i]].setActive(false);
+	        // Check if on border
+	        if (aBlocksXZ[i].x == this.worldChunks[aChunks[i].id].chunkSizeX - 1) {
+	            crebuild[aChunks[i].id + 1] = 0;
+	        } else if (aBlocksXZ[i].x == 0) {
+	            crebuild[aChunks[i].id - 1] = 0;
+	        }
+
+	        if (aBlocksXZ[i].z == this.worldChunks[aChunks[i].id].chunkSizeZ - 1) {} else if (aBlocksXZ[i].z == 0) {}
+
+	        if (aBlocksY[i] == this.worldChunks[aChunks[i].id].chunkSizeY - 1) {
+	            crebuild[aChunks[i].id + Math.sqrt(game.world.map.length)] = 0;
+	        } else if (aBlocksY[i] == 0) {
+	            crebuild[aChunks[i].id - Math.sqrt(game.world.map.length)] = 0;
+	        }
+
+	        crebuild[aChunks[i].id] = 0;
+	    }
+	    for (var c in crebuild) {
+	        this.updateChunks.push(c);
+	    }
+	};
+
+	ChunkManager.prototype.AddWorldChunk = function (chunk) {
+	    this.totalChunks++;
+	    this.totalBlocks += chunk.blocks.length * chunk.blocks.length * chunk.blocks.length;
+	    this.activeBlocks += chunk.NoOfActiveBlocks();
+	    this.worldChunks.push(chunk);
+	};
+
+	ChunkManager.prototype.BuildAllChunks = function () {
+	    for (var i = 0; i < this.worldChunks.length; i++) {
+	        this.worldChunks[i].Rebuild();
+	        this.activeTriangles += this.worldChunks[i].GetActiveTriangles();
+	    }
+	    this.AddTargets();
+	    console.log("ACTIVE TRIANGLES: " + this.activeTriangles);
+	    console.log("ACTIVE BLOCKS: " + this.activeBlocks);
+	};
+
+	ChunkManager.prototype.AddTargets = function () {
+	    for (var i = 0; i < this.worldChunks.length; i++) {
+	        var chunk = this.worldChunks[i];
+	    }
+	};
+
+	ChunkManager.prototype.GetWorldChunkID = function (x, z) {
+	    if (game.worldMap == undefined) {
+	        return;
+	    }
+	    var mp = game.world.chunkSize * game.world.blockSize;
+	    var w_x = Math.floor(Math.abs(x) / mp);
+	    var w_z = Math.floor(Math.abs(z) / mp);
+	    if (game.worldMap[w_x] == undefined) {
+	        return;
+	    }
+	    if (game.worldMap[w_x][w_z] == undefined) {
+	        return;
+	    }
+	    var cid = game.worldMap[w_x][w_z];
+	    return cid;
+	};
+
+	ChunkManager.prototype.GetChunk = function (x, z) {
+	    var mp = game.world.chunkSize * game.world.blockSize;
+	    var w_x = Math.floor(Math.abs(x) / mp);
+	    var w_z = Math.floor(Math.abs(z) / mp);
+	    if (game.worldMap[w_x][w_z] == undefined) {
+	        return;
+	    }
+	    var cid = game.worldMap[w_x][w_z];
+	    return this.worldChunks[cid.id];
+	};
+
+	ChunkManager.prototype.Translate = function (x, z, cid) {
+	    var x1 = Math.round((z - this.worldChunks[cid.id].posX) / game.world.blockSize);
+	    var z1 = Math.round((x - this.worldChunks[cid.id].posY) / game.world.blockSize);
+	    x1 = Math.abs(x1 - 1);
+	    z1 = Math.abs(z1 - 1);
+	    return { x: x1, z: z1 };
+	};
+
+	ChunkManager.prototype.GetHeight = function (x, z) {
+	    var cid = this.GetWorldChunkID(x, z);
+	    if (cid == undefined) {
+	        return undefined;
+	    }
+	    if (this.worldChunks[cid.id] == undefined) {
+	        return undefined;
+	    }
+	    var tmp = this.Translate(x, z, cid);
+
+	    var x1 = Math.round(tmp.x);
+	    var z1 = Math.round(tmp.z);
+	    if (this.worldChunks[cid.id].blocks[x1] != undefined) {
+	        if (this.worldChunks[cid.id].blocks[x1][z1] != undefined) {
+	            var y = this.worldChunks[cid.id].blocks[x1][z1].height * game.world.blockSize;
+	        }
+	    }
+
+	    if (y > 0) {
+	        return y;
+	    } else {
+	        return 0;
+	    }
+	};
+
+	ChunkManager.prototype.CheckActive = function (x, z, y) {
+	    var cid = this.GetWorldChunkID(x, z);
+	    if (cid == undefined) {
+	        return false;
+	    }
+	    var tmp = this.Translate(x, z, cid); //x+1
+	    var x1 = tmp.x;
+	    var z1 = tmp.z;
+	    if (this.worldChunks[cid.id] == undefined || this.worldChunks[cid.id].blocks[x1][z1][y] == undefined) {
+	        return false;
+	    } else {
+	        this.worldChunks[cid.id].blocks[x1][z1][y].r = 255;
+	        return !this.worldChunks[cid.id].blocks[x1][z1][y].isActive();
+	    }
+	};
+
+	module.exports = ChunkManager;
+
+/***/ },
+/* 6 */
+/***/ function(module, exports) {
+
+	"use strict";
+
+	function MapManager() {
+	    this.mapName = "Unknown";
+	    this.mapFile = "map1.png";
+	    this.startPosition = undefined;
+	    this.playerModel = "player.vox";
+	    this.princessModel = "princess.vox";
+	    this.cageModel = "cage.vox";
+	    this.cagePosition = undefined;
+	    this.castleModel = "castle.vox";
+	    this.castlePosition = undefined;
+	    this.voxModels = [];
+	    this.enemiesBefore = [];
+	    this.enemiesAfter = [];
+	    this.percentLoaded = 0;
+	    this.clearColor = 0x000000;
+	    this.fogColor = 0x000000;
+	    this.blockSize = 0.5;
+	    this.wallHeight = 20;
+	    this.useLava = true;
+	    this.useWater = false;
+	    this.enemiesKilled = 0;
+	    this.princess = undefined;
+	    this.waterPosition = 0;
+	    this.lavaPosition = 0;
+	    this.id = 0;
+	};
+
+	MapManager.prototype.GetTotalEnemies = function () {
+	    return this.enemiesBefore.length;
+	};
+
+	MapManager.prototype.GetEnemiesLeft = function () {
+	    return this.enemiesBefore.length - this.enemiesKilled;
+	};
+
+	MapManager.prototype.Create = function (args) {
+	    this.mapName = args.mapName;
+	    this.mapFile = args.mapFile;
+	    this.playerPosition = args.playerPosition;
+	    this.playerModel = args.playerModel;
+	    this.princessPosition = args.princessPosition;
+	    this.princessModel = args.princessModel;
+	    this.cageModel = args.cageModel;
+	    this.cagePosition = args.cagePosition;
+	    this.castleModel = args.castleModel;
+	    this.castlePosition = args.castlePosition;
+	    this.enemiesBefore = args.enemiesBefore;
+	    this.enemiesAfter = args.enemiesAfter;
+	    this.fogColor = args.fogColor;
+	    this.clearColor = args.clearColor;
+	    this.blockSize = args.blockSize;
+	    this.wallHeight = args.wallHeight;
+	    this.useLava = args.useLava;
+	    this.useWater = args.useWater;
+	    this.waterPosition = args.waterPosition;
+	    this.lavaPosition = args.lavaPosition;
+	    this.id = args.mapId;
+
+	    game.scene.fog = new THREE.Fog(this.fogColor, 40, 60);
+	    game.renderer.setClearColor(this.clearColor, 1);
+
+	    // Init lights
+	    args.lights();
+
+	    // Spawn items
+	    args.items();
+	    if (args.objects != undefined) {
+	        args.objects();
+	    }
+
+	    this.SpawnWorld();
+	    this.BuildWorldChunks();
+	};
+
+	MapManager.prototype.BuildWorldChunks = function () {
+	    var x = game.chunkManager.PercentLoaded();
+	    console.log("World loaded: " + x + "%");
+	    if (x < 100 || game.chunkManager.maxChunks == 0) {
+	        var that = this;
+	        setTimeout(function () {
+	            that.BuildWorldChunks();
+	        }, 500);
+	        return;
+	    }
+	    game.chunkManager.BuildAllChunks();
+
+	    this.SpawnPrincess();
+	    this.SpawnCage();
+	    this.SpawnEnemiesBefore();
+	    this.SpawnCastle();
+
+	    if (this.useLava) {
+	        var lava = new Lava();
+	        lava.Create(game.scene);
+	        game.objects.push(lava);
+	    }
+	    if (this.useWater) {
+	        var water = new Water();
+	        water.Create(game.scene);
+	        game.objects.push(water);
+	    }
+	    this.SpawnPlayer();
+	    $('#statusEnemies').fadeIn(600);
+	    $('#statusEnemies').text("Enemies left: " + this.GetEnemiesLeft());
+	    game.setStatusCenter(this.mapName, "#FF0000");
+	    $('#statusCenter').fadeIn(1000);
+	    setTimeout(function () {
+	        $('#statusCenter').fadeOut(2000);
+	    }, 3000);
+	    $('#loading').hide();
+	};
+
+	MapManager.prototype.Loaded = function (type) {
+	    // TBD: Update percent loaded on site.
+	    // $('#loaded').text("Loading "+ type + "("+ this.percentLoaded + "%)");
+	};
+
+	MapManager.prototype.SpawnEnemiesBefore = function () {
+	    // For each in this.enemies
+	    for (var i = 0; i < this.enemiesBefore.length; i++) {
+	        console.log("Spawning enemy: " + this.enemiesBefore[i][0]);
+	        var enemy = new window[this.enemiesBefore[i][0]]();
+	        enemy.Create(this.enemiesBefore[i][1], this.enemiesBefore[i][2], this.enemiesBefore[i][3], this.enemiesBefore[i][4]);
+	        if (this.enemiesBefore[i][5] != undefined) {
+	            enemy.setDamage(this.enemiesBefore[i][5]);
+	        }
+	    }
+	};
+
+	MapManager.prototype.SpawnEnemiesAfter = function () {
+	    // For each in this.enemies
+	    for (var i = 0; i < this.enemiesAfter.length; i++) {
+	        console.log("Spawning enemy: " + this.enemiesAfter[i][0]);
+	        var enemy = new window[this.enemiesAfter[i][0]]();
+	        enemy.Create(this.enemiesAfter[i][1], this.enemiesAfter[i][2], this.enemiesAfter[i][3], this.enemiesAfter[i][4]);
+	        if (this.enemiesAfter[i][5] != undefined) {
+	            enemy.setDamage(this.enemiesAfter[i][5]);
+	        }
+	    }
+	};
+
+	MapManager.prototype.SpawnWorld = function () {
+	    console.log("Spawning world.");
+	    // Load top
+	    game.world = new World();
+	    // game.world.Load("maps/test5.png", 20, 0.5); // 10924 triangles
+	    game.world.Load(this.mapFile, this.wallHeight, this.blockSize); // 10924 triangles
+	    // TBD: Fix so that we don't depend on timeout.
+	};
+
+	MapManager.prototype.SpawnPrincess = function () {
+	    console.log("Spawning princess.");
+	    this.princess = new Princess();
+	    this.princess.Create(this.princessPosition);
+	};
+
+	MapManager.prototype.SpawnCastle = function () {
+	    console.log("Spawning castle.");
+	    var castle = game.voxLoader.GetModel(this.castleModel);
+	    game.scene.add(castle.mesh);
+	    castle.mesh.scale.set(5, 5, 5);
+	    castle.mesh.that = castle;
+	    castle.mesh.position.set(this.castlePosition.x, this.castlePosition.y, this.castlePosition.z);
+	};
+
+	MapManager.prototype.SpawnCage = function () {
+	    console.log("Spawning cage.");
+	    var cage = game.voxLoader.GetModel(this.cageModel);
+	    game.scene.add(cage.mesh);
+	    cage.mesh.that = cage;
+	    cage.Draw = function () {
+	        return;
+	    };
+	    cage.princess = this.princess;
+	    cage.isHit = false;
+	    cage.Hit = function (pos) {
+	        if (game.currentMap.GetEnemiesLeft() != 0) {
+	            game.setStatus("Kill all enemies before rescuing the princess.");
+	            return;
+	        }
+	        //pos.z += 4;
+	        if (!this.isHit) {
+	            this.princess.Saved();
+	            this.Explode(new THREE.Vector3(this.mesh.position.x, this.mesh.position.y, this.mesh.position.z));
+	            this.isHit = true;
+	            game.currentMap.SpawnEnemiesAfter();
+	            game.setStatus("Transport Voxilia to the castle.");
+	            $('#statusEnemies').hide();
+	        }
+	    };
+	    game.targets.push(cage.mesh);
+
+	    cage.mesh.position.set(this.cagePosition.x, this.cagePosition.y, this.cagePosition.z);
+	};
+
+	MapManager.prototype.SpawnPlayer = function () {
+	    game.player = new Player();
+	    game.player.Create(this.playerModel, this.playerPosition);
+	};
+
+	MapManager.prototype = new MapManager();
+	MapManager.prototype.constructor = MapManager;
+	module.exports = MapManager;
 
 /***/ }
 /******/ ]);

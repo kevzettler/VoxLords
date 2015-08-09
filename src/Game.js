@@ -1,8 +1,7 @@
-//==============================================================================
-// Author: Nergal
-// Date: 2014-11-17
-//==============================================================================
-"use strict";
+const VoxLoader = require('./VoxLoader');
+const SoundLoader = require('./SoundLoader');
+const ChunkManager = require('./ChunkManager');
+const MapManager = require('./MapManager');
 
 function Game() {
     this.container;
@@ -49,7 +48,6 @@ function Game() {
 
 
 Game.prototype.LoadScene = function(mapId) {
-    debugger;
     var x = game.voxLoader.PercentLoaded();
     console.log("Loaded: "+x+"%");
     if(x < 100) {
@@ -298,405 +296,106 @@ Game.prototype.getDistance = function(v1, v2) {
 
 Game.prototype.SetMap = function(id) {
     var map = new Object();
-    if(id == 1) {
-        map.mapId = 1;
-        map.mapFile = "maps/map1.png";
-        map.mapName = "UnderWorld: Home of Lord Diablox";
-        map.playerPosition = new THREE.Vector3(14, 0.5, 107);
-        map.playerModel = "player";
-        map.princessModel = "princess";
-        map.cageModel = "cage";
-        map.cagePosition = new THREE.Vector3(107,6,28);
-        map.princessPosition = new THREE.Vector3(107, 6,27);
-        map.castlePosition = new THREE.Vector3(88,0.5,106);
-        map.castleModel = "castle";
-        // Devil2 = axe devil, devil 1 = old man
-        map.enemiesBefore = [
-            ["Devil2", 29, 1, 79, "SmallShot"],
-            ["Devil2", 36, 1, 82, "SmallShot"],
-            ["Devil2", 40, 1, 86, "SmallShot"],
-            ["Devil2", 14, 1, 11, "SmallShot"],
-            ["Devil2", 32, 1, 16, "SmallShot"],
-            ["Devil2", 89, 1, 45, "SmallShot"],
-            ["Devil2", 82, 1, 39, "SmallShot"],
-            ["Devil2", 92, 2.5, 36, "SmallShot"],
-            ["Devil1", 64, 1, 1, "SmallShot"],
-            ["Devil1", 72, 2, 58, "SmallShot"],
-        ];
-        map.enemiesAfter = [
-            ["Devil2", 95, 2, 64, "SmallShot"],
-            ["Devil2", 87, 2, 72, "SmallShot"],
-            ["Devil2", 107, 2, 79, "SmallShot"],
 
-            ["Devil1", 96, 1, 90, "SmallShot"],
-            ["Devil1", 86, 1, 88, "SmallShot"],
+    map.mapId = 4;
+    map.mapFile = "maps/map4.png";
+    map.mapName = "Voxadu Beach: Home of Lord Bolvox";
+    map.playerPosition = new THREE.Vector3(16, 0.5, 119);
+    map.playerModel = "player";
+    map.princessModel = "princess";
+    map.cageModel = "cage";
+    map.cagePosition = new THREE.Vector3(107,2,21);
+    map.princessPosition = new THREE.Vector3(107, 2.5, 21);
+    map.castlePosition = new THREE.Vector3(77,3.5,104);
+    map.castleModel = "castle";
+    // Devil2 = axe devil, devil 1 = old man
+    map.enemiesBefore = [
+        ["Hula1", 23, 0.5, 67, "SmallShot"],
+        ["Hula1", 20, 5, 53, "SmallShot"],
+        ["Hula2", 14, 2.5, 21, "FloatingShot"],
+        ["Hula2", 30, 2.5, 18, "FloatingShot"],
+        ["Hula2", 44, 2, 58, "FloatingShot"],
 
-        ];
-        map.fogColor = 0xA80000;
-        map.clearColor = 0xA80000;
-        map.blockSize = 0.5;
-        map.wallHeight = 20;
-        map.useLava = true;
-        map.useWater = false;
-        map.waterPosition = 0;
-        map.lavaPosition = 0;
-        map.objects = function() {
-         //   new Tree().Create(54,0.5,65, 1.5, "hell2");
-         //   new Tree().Create(113,0.5,95, 1.5, "hell2");
-         //   new Tree().Create(113,0.5,95, 1.5, "hell2");
-         //   new Tree().Create(107,0.5,59, 1.5, "hell2");
-        };
-        map.items = function() {
-           new HealthBox().Create(new THREE.Vector3(41, 1, 79));
-           new HealthBox().Create(new THREE.Vector3(113, 6.5, 31));
-           new Godmode().Create(new THREE.Vector3(79, 6.5, 75));
-           new Godmode().Create(new THREE.Vector3(61, 6.5, 34));
-           new Bomb().Create(new THREE.Vector3(67, 1, 20));
-           new Bomb().Create(new THREE.Vector3(22, 1, 26));
-           new Bomb().Create(new THREE.Vector3(83, 1, 88));
-            //new WeaponBox().Create(new THREE.Vector3(75, 1, 50));
-        };
-        map.lights = function() {
-            console.log("Initiate lights...");
-            var ambientLight = new THREE.AmbientLight( 0x330000 );
-            game.scene.add( ambientLight );
+        ["Hula1", 101, 1, 17, "SmallShot"],
+        ["Hula1", 102, 1.5, 22, "SmallShot"],
+        ["Hula1", 106, 2.5, 27, "SmallShot"],
 
-            var hemiLight = new THREE.HemisphereLight( 0xffffff, 0xffffff, 0.9 );
-            hemiLight.color.setHSL( 0.6, 1, 0.6 );
-            hemiLight.groundColor.setHSL( 0.095, 1, 0.75 );
-            hemiLight.position.set( 0, 500, 0 );
-            game.scene.add( hemiLight );
+    ];
+    map.enemiesAfter = [
+        ["Hula1", 72, 3.5, 91, "QuakeShot"],
+        ["Hula1", 101, 3.5, 93, "FloatingShot"],
+        ["Hula1", 93, 3.5, 91, "FloatingShot"],
+        ["Hula2", 92, 3.5, 78, "SmallShot"],
+        ["Hula2", 98, 3.5, 79, "SmallShot"],
+        ["Hula2", 105, 3.5, 78, "SmallShot"],
+        ["Hula2", 88, 5, 70, "QuakeShot"],
+    ];
+    map.fogColor = 0xeddeab;
+    map.clearColor = 0xeddeab;
+    map.blockSize = 0.5;
+    map.wallHeight = 20;
+    map.useLava = false,
+    map.useWater = true;
+    map.waterPosition = 0.2;
+    map.lavaPosition = 0;
+    map.objects = function() {
+        new Tree().Create(8,2,110, 2, "tree1");
+        new Tree().Create(45,2,60, 2, "tree1");
+        new Tree().Create(59,2,35, 2, "tree1");
+        new Tree().Create(17,2,13, 2, "tree1");
+        new Tree().Create(33,2,13, 2, "tree1");
+        new Tree().Create(110,2.5,16, 2, "tree1");
+        new Tree().Create(107,2.5,27, 2, "tree2");
+        new Tree().Create(92,3.5,109, 2, "tree2");
+        new Tree().Create(86,3.5,107, 2, "tree2");
+    };
+    map.items = function() {
+       new HealthBox().Create(new THREE.Vector3(72, 2, 52));
+       new HealthBox().Create(new THREE.Vector3(121, 1, 53));
+       new WeaponBox().Create(new THREE.Vector3(92, 4, 97));
+       new WeaponBox().Create(new THREE.Vector3(23, 3, 21));
+       new Godmode().Create(new THREE.Vector3(101, 1, 39));
+       new Godmode().Create(new THREE.Vector3(69, 3.5, 79));
+       new Godmode().Create(new THREE.Vector3(25, 2.5, 120));
+       new HealthBox().Create(new THREE.Vector3(69, 2.5, 18));
+       new Bomb().Create(new THREE.Vector3(30, 1, 75));
+       new HealthBox().Create(new THREE.Vector3(15, 3, 13));
+    };
+    map.lights = function() {
+        console.log("Initiate lights...");
+        var ambientLight = new THREE.AmbientLight( 0x000033 );
+        game.scene.add( ambientLight );
 
-            var dirLight = new THREE.DirectionalLight( 0xffffff, 1 );
-            dirLight.color.setHSL( 0.1, 1, 0.95 );
-            dirLight.position.set( 10, 10.75, 10 );
-            dirLight.position.multiplyScalar( 10 );
-            game.scene.add( dirLight );
+        var hemiLight = new THREE.HemisphereLight( 0xffffff, 0xffffff, 0.9 );
+        hemiLight.color.setHSL( 0.6, 1, 0.6 );
+        hemiLight.groundColor.setHSL( 0.095, 1, 0.75 );
+        hemiLight.position.set( 0, 500, 0 );
+        game.scene.add( hemiLight );
 
-            //dirLight.castShadow = false;
-            dirLight.castShadow = true;
+        var dirLight = new THREE.DirectionalLight( 0xffffff, 1 );
+        dirLight.color.setHSL( 0.1, 1, 0.95 );
+        dirLight.position.set( 10, 10.75, 10 );
+        dirLight.position.multiplyScalar( 10 );
+        game.scene.add( dirLight );
 
-            dirLight.shadowMapWidth = 2048;
-            dirLight.shadowMapHeight = 2048;
+        //dirLight.castShadow = false;
+        dirLight.castShadow = true;
 
-            var d = 150;
+        dirLight.shadowMapWidth = 2048;
+        dirLight.shadowMapHeight = 2048;
 
-            dirLight.shadowCameraLeft = -d;
-            dirLight.shadowCameraRight = d;
-            dirLight.shadowCameraTop = d;
-            dirLight.shadowCameraBottom = -d;
+        var d = 150;
 
-            dirLight.shadowCameraFar = 3500;
-            dirLight.shadowBias = -0.0001;
-            dirLight.shadowDarkness = 0.45;
-            //dirLight.shadowCameraVisible = true;
-        };
-    } else if(id == 2)  {
-        map.mapId = 2;
-        map.mapFile = "maps/map2.png";
-        map.mapName = "Island of St. Vox: Home of Lord Plantox";
-        map.playerPosition = new THREE.Vector3(16, 0.5, 119);
-        map.playerModel = "player";
-        map.princessModel = "princess";
-        map.cageModel = "cage";
-        map.cagePosition = new THREE.Vector3(109,4,32);
-        map.princessPosition = new THREE.Vector3(109, 5,32);
-        map.castlePosition = new THREE.Vector3(99,5.5,109);
-        map.castleModel = "castle";
-        // Devil2 = axe devil, devil 1 = old man
-        map.enemiesBefore = [
-            ["Plantox2", 17, 4.5, 81, "SmallShot"],
-            ["Plantox2", 29, 5, 78, "SmallShot"],
-            ["Plantox1", 31, 5, 59, "SmallShot"],
-            ["Plantox2", 37, 6, 27, "SmallShot"],
-            ["Plantox2", 15, 3.5, 15, "SmallShot"],
-            ["Plantox2", 34, 2.5, 14, "SmallShot"],
-            ["Plantox2", 97, 2, 28, "SmallShot"],
-            ["Plantox1", 100, 2, 38, "SmallShot"],
-            ["Plantox1", 80, 3, 31, "SmallShot"],
+        dirLight.shadowCameraLeft = -d;
+        dirLight.shadowCameraRight = d;
+        dirLight.shadowCameraTop = d;
+        dirLight.shadowCameraBottom = -d;
 
-        ];
-        map.enemiesAfter = [
-            ["Plantox2", 97, 2.5, 57, "SmallShot"],
-            ["Plantox1", 75, 3, 56, "FloatingShot"],
-            ["Plantox1", 66, 4, 79, "FloatingShot"],
-            ["Plantox2", 104, 4, 86, "SmallShot"],
-            ["Plantox2", 97, 4, 87, "SmallShot"],
-            ["Plantox2", 85, 4, 87, "SmallShot"],
-            ["Plantox2", 96, 5, 98, "QuakeShot"],
-        ];
-        map.fogColor = 0x19bfde;
-        map.clearColor = 0x19bfde;
-        map.blockSize = 0.5;
-        map.wallHeight = 20;
-        map.useLava = false,
-        map.useWater = true;
-        map.waterPosition = 0.2;
-        map.lavaPosition = 0;
-        map.objects = function() {
-            new Cloud().Create("cloud1", false);
-            new Cloud().Create("cloud1", false);
-            new Cloud().Create("cloud1", false);
-            new Cloud().Create("cloud1", false);
-            new Cloud().Create("cloud1", false);
-            new Cloud().Create("cloud1", false);
-            new Cloud().Create("cloud1", false);
-            new Cloud().Create("cloud1", false);
-
-            new Tree().Create(28,4,123, 2, "tree5");
-            new Tree().Create(89,6,107, 2, "tree2");
-            new Tree().Create(109,6,108, 2, "tree2");
-            new Tree().Create(14,4,108, 2, "tree2");
-            new Tree().Create(27, 3.5,100, 2, "tree1");
-            new Tree().Create(30, 4.5, 47, 2, "tree5");
-            new Tree().Create(85, 3.5, 43, 2, "tree5");
-            new Tree().Create(8, 3, 9, 2, "tree8");
-            new Tree().Create(34, 2.5, 14, 2, "tree1");
-            new Tree().Create(82, 1.5, 14, 2, "tree1");
-            new Tree().Create(112, 2.5, 23, 2, "tree2");
-            new Tree().Create(56, 2.5, 90, 2, "tree7");
-            new Tree().Create(57, 2, 72, 2, "tree5");
-        };
-        map.items = function() {
-           new HealthBox().Create(new THREE.Vector3(26, 6.5, 114));
-           new HealthBox().Create(new THREE.Vector3(8, 4, 6));
-           new HealthBox().Create(new THREE.Vector3(122, 4, 9));
-           new HealthBox().Create(new THREE.Vector3(65, 4, 79));
-           new Godmode().Create(new THREE.Vector3(112, 3.5, 39));
-           new WeaponBox().Create(new THREE.Vector3(90, 5, 77));
-        };
-        map.lights = function() {
-            console.log("Initiate lights...");
-            var ambientLight = new THREE.AmbientLight( 0x000033 );
-            game.scene.add( ambientLight );
-
-            var hemiLight = new THREE.HemisphereLight( 0xffffff, 0xffffff, 0.9 );
-            hemiLight.color.setHSL( 0.6, 1, 0.6 );
-            hemiLight.groundColor.setHSL( 0.095, 1, 0.75 );
-            hemiLight.position.set( 0, 500, 0 );
-            game.scene.add( hemiLight );
-
-            var dirLight = new THREE.DirectionalLight( 0xffffff, 1 );
-            dirLight.color.setHSL( 0.1, 1, 0.95 );
-            dirLight.position.set( 10, 10.75, 10 );
-            dirLight.position.multiplyScalar( 10 );
-            game.scene.add( dirLight );
-
-            //dirLight.castShadow = false;
-            dirLight.castShadow = true;
-
-            dirLight.shadowMapWidth = 2048;
-            dirLight.shadowMapHeight = 2048;
-
-            var d = 150;
-
-            dirLight.shadowCameraLeft = -d;
-            dirLight.shadowCameraRight = d;
-            dirLight.shadowCameraTop = d;
-            dirLight.shadowCameraBottom = -d;
-
-            dirLight.shadowCameraFar = 3500;
-            dirLight.shadowBias = -0.0001;
-            dirLight.shadowDarkness = 0.45;
-            //dirLight.shadowCameraVisible = true;
-        };
-    } else if(id == 3) {
-        map.mapId = 3;
-        map.mapFile = "maps/map3.png";
-        map.mapName = "North Pole: Home of Lord Santox";
-        map.playerPosition = new THREE.Vector3(16, 0.5, 119);
-        map.playerModel = "player";
-        map.princessModel = "princess";
-        map.cageModel = "cage";
-        map.cagePosition = new THREE.Vector3(62,4,62);
-        map.princessPosition = new THREE.Vector3(62, 4, 62);
-        map.castlePosition = new THREE.Vector3(109,4,15);
-        map.castleModel = "castle";
-        map.enemiesBefore = [
-            ["Santa", 25, 2, 81, "FloatingShot", 2],
-            ["Elf", 30, 2, 75, "SmallShot"],
-            ["Elf", 15, 2, 70, "SmallShot"],
-            ["Elf", 37, 2, 54, "FloatingShot", 1],
-            ["Elf", 53, 4, 51, "SmallShot"],
-            ["Elf2", 54, 4, 73, "SmallShot"],
-            ["Elf2", 72, 4, 53, "SmallShot"],
-            ["Elf2", 64, 4, 38, "SmallShot"],
-        ];
-        map.enemiesAfter = [
-            ["Santa", 108, 4, 26, "FloatingShot", 1],
-            ["Santa", 101, 4, 17, "FloatingShot", 1],
-            ["Santa", 101, 4, 11, "FloatingShot", 1],
-            ["Elf", 88, 4, 29, "SmallShot"],
-            ["Elf", 97, 4, 61, "SmallShot"],
-            ["Elf", 91, 2, 83, "SmallShot"],
-        ];
-        map.fogColor = 0xb3f0f4;
-        map.clearColor = 0xb3f0f4;
-        map.blockSize = 0.5;
-        map.wallHeight = 20;
-        map.useLava = false,
-        map.useWater = true;
-        map.waterPosition = 0.2;
-        map.lavaPosition = 0;
-        map.objects = function() {
-            new Cloud().Create("cloud1", true);
-            new Cloud().Create("cloud1", true);
-            new Cloud().Create("cloud1", true);
-            new Cloud().Create("cloud1", true);
-            new Cloud().Create("cloud1", true);
-            new Cloud().Create("cloud1", true);
-            new Cloud().Create("cloud1", true);
-            new Cloud().Create("cloud1", true);
-        };
-        map.items = function() {
-           new HealthBox().Create(new THREE.Vector3(27, 4.5, 114));
-           new HealthBox().Create(new THREE.Vector3(21, 4.5, 49));
-           new HealthBox().Create(new THREE.Vector3(55, 4.5, 28));
-           new Godmode().Create(new THREE.Vector3(16, 3.5, 12));
-           new Godmode().Create(new THREE.Vector3(21, 3.5, 9));
-           new Godmode().Create(new THREE.Vector3(117, 4.5, 60));
-           new WeaponBox().Create(new THREE.Vector3(88, 2.5, 52));
-           new WeaponBox().Create(new THREE.Vector3(62, 4.5, 66));
-           new WeaponBox().Create(new THREE.Vector3(95, 4.5, 23));
-           new Bomb().Create(new THREE.Vector3(116, 4.5, 27));
-
-        };
-        map.lights = function() {
-            console.log("Initiate lights...");
-            var ambientLight = new THREE.AmbientLight( 0x000033 );
-            game.scene.add( ambientLight );
-
-            var hemiLight = new THREE.HemisphereLight( 0xffffff, 0xffffff, 0.9 );
-            hemiLight.color.setHSL( 0.6, 1, 0.6 );
-            hemiLight.groundColor.setHSL( 0.095, 1, 0.75 );
-            hemiLight.position.set( 0, 500, 0 );
-            game.scene.add( hemiLight );
-
-            var dirLight = new THREE.DirectionalLight( 0xffffff, 1 );
-            dirLight.color.setHSL( 0.1, 1, 0.95 );
-            dirLight.position.set( 10, 10.75, 10 );
-            dirLight.position.multiplyScalar( 10 );
-            game.scene.add( dirLight );
-
-            //dirLight.castShadow = false;
-            dirLight.castShadow = true;
-
-            dirLight.shadowMapWidth = 2048;
-            dirLight.shadowMapHeight = 2048;
-
-            var d = 150;
-
-            dirLight.shadowCameraLeft = -d;
-            dirLight.shadowCameraRight = d;
-            dirLight.shadowCameraTop = d;
-            dirLight.shadowCameraBottom = -d;
-
-            dirLight.shadowCameraFar = 3500;
-            dirLight.shadowBias = -0.0001;
-            dirLight.shadowDarkness = 0.45;
-            //dirLight.shadowCameraVisible = true;
-        };
-    } else if(id == 4) {
-        map.mapId = 4;
-        map.mapFile = "maps/map4.png";
-        map.mapName = "Voxadu Beach: Home of Lord Bolvox";
-        map.playerPosition = new THREE.Vector3(16, 0.5, 119);
-        map.playerModel = "player";
-        map.princessModel = "princess";
-        map.cageModel = "cage";
-        map.cagePosition = new THREE.Vector3(107,2,21);
-        map.princessPosition = new THREE.Vector3(107, 2.5, 21);
-        map.castlePosition = new THREE.Vector3(77,3.5,104);
-        map.castleModel = "castle";
-        // Devil2 = axe devil, devil 1 = old man
-        map.enemiesBefore = [
-            ["Hula1", 23, 0.5, 67, "SmallShot"],
-            ["Hula1", 20, 5, 53, "SmallShot"],
-            ["Hula2", 14, 2.5, 21, "FloatingShot"],
-            ["Hula2", 30, 2.5, 18, "FloatingShot"],
-            ["Hula2", 44, 2, 58, "FloatingShot"],
-
-            ["Hula1", 101, 1, 17, "SmallShot"],
-            ["Hula1", 102, 1.5, 22, "SmallShot"],
-            ["Hula1", 106, 2.5, 27, "SmallShot"],
-
-        ];
-        map.enemiesAfter = [
-            ["Hula1", 72, 3.5, 91, "QuakeShot"],
-            ["Hula1", 101, 3.5, 93, "FloatingShot"],
-            ["Hula1", 93, 3.5, 91, "FloatingShot"],
-            ["Hula2", 92, 3.5, 78, "SmallShot"],
-            ["Hula2", 98, 3.5, 79, "SmallShot"],
-            ["Hula2", 105, 3.5, 78, "SmallShot"],
-            ["Hula2", 88, 5, 70, "QuakeShot"],
-        ];
-        map.fogColor = 0xeddeab;
-        map.clearColor = 0xeddeab;
-        map.blockSize = 0.5;
-        map.wallHeight = 20;
-        map.useLava = false,
-        map.useWater = true;
-        map.waterPosition = 0.2;
-        map.lavaPosition = 0;
-        map.objects = function() {
-            new Tree().Create(8,2,110, 2, "tree1");
-            new Tree().Create(45,2,60, 2, "tree1");
-            new Tree().Create(59,2,35, 2, "tree1");
-            new Tree().Create(17,2,13, 2, "tree1");
-            new Tree().Create(33,2,13, 2, "tree1");
-            new Tree().Create(110,2.5,16, 2, "tree1");
-            new Tree().Create(107,2.5,27, 2, "tree2");
-            new Tree().Create(92,3.5,109, 2, "tree2");
-            new Tree().Create(86,3.5,107, 2, "tree2");
-        };
-        map.items = function() {
-           new HealthBox().Create(new THREE.Vector3(72, 2, 52));
-           new HealthBox().Create(new THREE.Vector3(121, 1, 53));
-           new WeaponBox().Create(new THREE.Vector3(92, 4, 97));
-           new WeaponBox().Create(new THREE.Vector3(23, 3, 21));
-           new Godmode().Create(new THREE.Vector3(101, 1, 39));
-           new Godmode().Create(new THREE.Vector3(69, 3.5, 79));
-           new Godmode().Create(new THREE.Vector3(25, 2.5, 120));
-           new HealthBox().Create(new THREE.Vector3(69, 2.5, 18));
-           new Bomb().Create(new THREE.Vector3(30, 1, 75));
-           new HealthBox().Create(new THREE.Vector3(15, 3, 13));
-        };
-        map.lights = function() {
-            console.log("Initiate lights...");
-            var ambientLight = new THREE.AmbientLight( 0x000033 );
-            game.scene.add( ambientLight );
-
-            var hemiLight = new THREE.HemisphereLight( 0xffffff, 0xffffff, 0.9 );
-            hemiLight.color.setHSL( 0.6, 1, 0.6 );
-            hemiLight.groundColor.setHSL( 0.095, 1, 0.75 );
-            hemiLight.position.set( 0, 500, 0 );
-            game.scene.add( hemiLight );
-
-            var dirLight = new THREE.DirectionalLight( 0xffffff, 1 );
-            dirLight.color.setHSL( 0.1, 1, 0.95 );
-            dirLight.position.set( 10, 10.75, 10 );
-            dirLight.position.multiplyScalar( 10 );
-            game.scene.add( dirLight );
-
-            //dirLight.castShadow = false;
-            dirLight.castShadow = true;
-
-            dirLight.shadowMapWidth = 2048;
-            dirLight.shadowMapHeight = 2048;
-
-            var d = 150;
-
-            dirLight.shadowCameraLeft = -d;
-            dirLight.shadowCameraRight = d;
-            dirLight.shadowCameraTop = d;
-            dirLight.shadowCameraBottom = -d;
-
-            dirLight.shadowCameraFar = 3500;
-            dirLight.shadowBias = -0.0001;
-            dirLight.shadowDarkness = 0.45;
-            //dirLight.shadowCameraVisible = true;
-        };
-    } 
+        dirLight.shadowCameraFar = 3500;
+        dirLight.shadowBias = -0.0001;
+        dirLight.shadowDarkness = 0.45;
+        //dirLight.shadowCameraVisible = true;
+    };
 
     this.currentMap = new MapManager();
     this.currentMap.Create(map);
