@@ -48,7 +48,8 @@
 
 	var Game = __webpack_require__(1);
 	var game = new Game();
-	game.Init(4);
+	window.game = game;
+	window.game.Init(4);
 
 	$(document).ready(function () {
 	    $('#menu').html($('#menu_content').html());
@@ -69,10 +70,6 @@
 	    $('#menu').hide();
 	    var start = 0;
 	    game.Init(mapId);
-	}
-
-	function Menu() {
-	    $('#menu').html($('#menu_content').html());
 	}
 
 /***/ },
@@ -274,6 +271,7 @@
 	    };
 
 	    Game.prototype.LoadScene = function (mapId) {
+	        debugger;
 	        var x = game.voxLoader.PercentLoaded();
 	        console.log("Loaded: " + x + "%");
 	        if (x < 100) {
@@ -289,6 +287,7 @@
 	        $('#status_4').text("Active triangles: " + this.chunkManager.activeTriangles);
 
 	        setTimeout(function () {
+	            debugger;
 	            $('#container').fadeIn(1000);
 	            $('#menu').hide();
 	            game.setStatus("Kill all enemies and save princess Voxilia");
