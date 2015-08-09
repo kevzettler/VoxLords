@@ -3,9 +3,6 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
-    <meta name="description" content="">
-    <meta name="author" content="">
-    <!-- <link rel="stylesheet" type="text/css" href="css/style.css"> -->
     <title>VoxLords</title>
 
     <script src="libs/three.min.js"></script>
@@ -36,23 +33,6 @@ html, body {
     -ms-user-select: none;
     user-select: none;
 }
-@font-face
-{
-    font-family: vox; 
-    src: url(gui/gui1/vox.ttf);
-}
-.vox_font {
-    font-family: vox;
-}
-
-a {
-    color: #677672;
-    text-decoration: none;
-}
-
-a:hover {
-    color: #D0D0D0;
-}
 
 .progress-bar {
     background-color: #1a1a1a;
@@ -74,7 +54,6 @@ a:hover {
 .green span {
       background-color: #677672;
 }
-.twitter-share-button[style] { vertical-align: text-bottom !important; }
     </style>
   </head>
   <body>
@@ -85,20 +64,6 @@ a:hover {
 
 
 <div style="position: absolute; margin-bottom: 0px;" id="stats"></div>
-<!-- <canvas id="myCanvas" style="border:1px solid #d3d3d3;"> -->
-<!-- <div id="status" style="align: left; margin-left: 100px; position: absolute; display: block; z-index: 100;">
-    <div id="status_1"></div>
-    <div id="status_2"></div>
-    <div id="status_3"></div>
-    <div id="status_4"></div>
-    <div id="button_1"></div>
-</div>
--->
-<div id="header" style="position: relative; z-index: 100; text-align: center; width: 80%; height: 7%; margin: 0 auto; margin-top: 10px;">
-    <img style="position: relative; margin-bottom: 0px; z-index: 100;" src="gui/gui1/border.png"/>
-    <p style="text-shadow: 2px 2px #21373f; position: relative; font-size: 30px; color: #677672; margin: 0 auto; margin-top: -50px; z-index: 100;" class="vox_font">VoxLords <b style="font-size: 15px;"></b></p>
-</div>
-
 <div id="main" style=
     "
     background: url('gui/gui1/bg.png') no-repeat;
@@ -143,7 +108,7 @@ a:hover {
  <!-- Credits -->
  <div style="display: none;" id="credits">
      <img style="position: relative; margin-bottom: 0px; z-index: 100;" src="gui/gui1/story.png"/>
-    <p style="text-shadow: 1px 1px #21373f; position: relative; font-size: 30px; color: #677672; margin: 0 auto; margin-top: -180px; z-index: 100;" class="vox_font">Credits</p>
+    <p style="text-shadow: 1px 1px #21373f; position: relative; font-size: 30px; color: #677672; margin: 0 auto; margin-top: -180px; z-index: 100;" 
     <p style="width: 300px; position: relative; font-size: 12px; color: #000000; margin: 0 auto; margin-top: 0px; z-index: 100;"><a style="color: #000000;" href="http://threejs.org">ThreeJS Library</a></p>
     <p style="width: 300px; position: relative; font-size: 12px; color: #000000; margin: 0 auto; margin-top: 0px; z-index: 100;"><a style="color: #000000;" href="http://soundbible.com">Soundbible</a></p>
     <p style="width: 300px; position: relative; font-size: 12px; color: #000000; margin: 0 auto; margin-top: 0px; z-index: 100;"><a style="color: #000000;" href="http://opengameart.org">Open Game Art</a></p>
