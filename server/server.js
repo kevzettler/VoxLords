@@ -54,9 +54,9 @@ function SocketHandler(socket, data) {
 function Handler(req, res)
 {                     
 //console.log("REQUEST: "+req.url);
-    var file = ".." + req.url;
-    if(file === "../") {
-	file = "../index.html";
+    var file = "." + req.url;
+    if(file === "./") {
+	file = "./index.html";
     }
     var name = path.extname(file);
     var contentType;

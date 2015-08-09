@@ -14,10 +14,8 @@ function Game() {
     this.controls;
 
     // Scene settings
-    this.screenWidth = $('#main').innerWidth();
-    this.screenHeight = $('#main').innerHeight();
-    //this.screenWidth = window.innerWidth;
-    //this.screenHeight = window.innerHeight;
+    this.screenWidth = window.innerWidth;
+    this.screenHeight = window.innerHeight;
     this.viewAngle = 40;
     this.aspect = this.screenWidth/this.screenHeight;
     this.near = 1;
@@ -203,17 +201,14 @@ function Game() {
             return;
         }
         this.SetMap(mapId);
-       // $('#status_1').text("Total blocks: "+this.chunkManager.totalBlocks);
-       // $('#status_2').text("Active blocks: "+this.chunkManager.activeBlocks);
-       // $('#status_3').text("Total chunks: "+this.chunkManager.totalChunks);
-       // $('#status_4').text("Active triangles: "+this.chunkManager.activeTriangles);
-
+        $('#status_1').text("Total blocks: "+this.chunkManager.totalBlocks);
+        $('#status_2').text("Active blocks: "+this.chunkManager.activeBlocks);
+        $('#status_3').text("Total chunks: "+this.chunkManager.totalChunks);
+        $('#status_4').text("Active triangles: "+this.chunkManager.activeTriangles);
+ 
         setTimeout(function() {
             $('#container').fadeIn(1000);
             $('#menu').hide();
-            //if(!this.songMuted) {
-            //    document.getElementById("song").volume = 0.4; 
-            //}
             game.setStatus("Kill all enemies and save princess Voxilia");
             $('#weapons').fadeIn(1000);
         }, 3000);

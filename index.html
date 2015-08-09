@@ -13,14 +13,7 @@
     <script src="//cdn.webglstats.com/stat.js" defer="defer" async="async"></script> 
      <style>
 html, body {
-    cusor: none;
-    background-color: #000000;
     color: #ffffff;
-    font-family:Monospace;
-    font-size:13px;
-    text-align:center;
-    font-weight: bold;
-
     background-color: #000000;
     margin: 0 auto;
     overflow: hidden; 
@@ -34,25 +27,9 @@ html, body {
     user-select: none;
 }
 
-.progress-bar {
-    background-color: #1a1a1a;
-    height: 25px;
-    padding: 5px;
-    width: 350px;
-    margin: 50px 0;         
-    border-radius: 5px;
-    box-shadow: 0 1px 5px #000 inset, 0 1px 0 #444;           
-}
-
-.progress-bar span {
-    display: inline-block;
+#main {
+    width: 100%;
     height: 100%;
-    border-radius: 3px;
-    box-shadow: 0 1px 0 rgba(255, 255, 255, .5) inset;
-    transition: width .4s ease-in-out;    
-}
-.green span {
-      background-color: #677672;
 }
     </style>
   </head>
@@ -64,17 +41,8 @@ html, body {
 
 
 <div style="position: absolute; margin-bottom: 0px;" id="stats"></div>
-<div id="main" style=
-    "
-    background: url('gui/gui1/bg.png') no-repeat;
-    background-size: cover;
-    text-align: center;
-    border: 6px #7e897d double;
-    -moz-box-shadow: 1px 5px 22px 12px #21373f;
-    -webkit-box-shadow: 1px 5px 22px 12px #21373f;
-    box-shadow: 1px 5px 22px 12px #21373f;
-    width: 80%; height: 70%; margin: 0 auto; margin-top: 50px;">
- <div id="menu" style="margin: 0 auto; margin-top: 2%;">
+<div id="main">
+     <div id="menu" style="margin: 0 auto; margin-top: 2%;">
  </div>
  <p id="statusCenter" style="position: absolute; align: center; text-shadow: 1px 1px #000000; display: none; font-size: 30px; color: #FF3333; margin: 0 auto; opacity: 0.9; margin-top: 30px; z-index: 100; width: 80%; " class="vox_font"></p> 
  <p id="status" style="position: absolute; align: center; display: none; text-shadow: 1px 1px #000000; font-size: 30px; color: #FDD017; margin: 0 auto; opacity: 0.9; margin-top: 5px; z-index: 100;" class="vox_font"></p>
@@ -196,41 +164,9 @@ html, body {
         var start = 0;
         game.Init(mapId);
     }
-    
-    function Credits() {
-        $('#menu').html($('#credits').html());
-    }
-
-    function SelectMap() {
-        $('#menu').html($('#selectMap').html());
-    }
 
     function Menu() {
         $('#menu').html($('#menu_content').html());
-    }
-    function MuteSound() {
-        if(!game.soundLoader.muted) {
-           // document.getElementById("song").volume = 0.0; 
-            game.soundLoader.muted = true;
-            localStorage.setItem("sound", game.soundLoader.muted);
-            $('#muteSound').html('<img src="gui/gui1/box_unchecked.png"/>Sound');
-        } else {
-            //document.getElementById("song").volume = 0.4; 
-            game.soundLoader.muted = false;
-            localStorage.setItem("sound", game.soundLoader.muted);
-            $('#muteSound').html('<img src="gui/gui1/box_checked.png"/>Sound');
-        }
-    }
-    function MuteSong() {
-        if(!game.songMuted) {
-            game.songMuted = true;
-            document.getElementById("song").volume = 0.0; 
-            $('#muteSong').html('<img src="gui/gui1/box_unchecked.png"/>Music');
-        } else {
-            game.songMuted = false;
-            document.getElementById("song").volume = 0.4; 
-            $('#muteSong').html('<img src="gui/gui1/box_checked.png"/>Music');
-        }
     }
 
   </script>

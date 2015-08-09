@@ -1,0 +1,20 @@
+{
+  "name": "VoxLords",
+  "version": "1.0.0",
+  "description": "Play the game here: http://voxlords.webgl.nu",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "server": "node ./server/server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/kevzettler/VoxLords.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/kevzettler/VoxLords/issues"
+  },
+  "homepage": "https://github.com/kevzettler/VoxLords"
+}
