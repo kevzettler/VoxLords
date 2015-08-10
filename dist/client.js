@@ -425,7 +425,6 @@
 	        dirLight.position.multiplyScalar(10);
 	        game.scene.add(dirLight);
 
-	        //dirLight.castShadow = false;
 	        dirLight.castShadow = true;
 
 	        dirLight.shadowMapWidth = 2048;
