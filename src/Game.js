@@ -2,6 +2,14 @@ const VoxLoader = require('./VoxLoader');
 const SoundLoader = require('./SoundLoader');
 const ChunkManager = require('./ChunkManager');
 const MapManager = require('./MapManager');
+const PhysBlockPool = require('./PhysBlockPool');
+const AmmoPool = require('./AmmoPool');
+
+//objects
+const Cloud = require('./Cloud');
+const Tree = require('./Tree');
+const Lava = require('./Lava');
+const Water = require('./Water');
 
 function Game() {
     this.container;
@@ -61,7 +69,6 @@ Game.prototype.LoadScene = function(mapId) {
     $('#status_4').text("Active triangles: "+this.chunkManager.activeTriangles);
 
     setTimeout(function() {
-        debugger;
         $('#container').fadeIn(1000);
         $('#menu').hide();
         game.setStatus("Kill all enemies and save princess Voxilia");

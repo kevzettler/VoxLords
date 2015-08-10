@@ -1,3 +1,6 @@
+const Water = require('./Water');
+const Lava = require('./Lava');
+
 function MapManager() {
     this.mapName = "Unknown";
     this.mapFile = "map1.png";
@@ -195,7 +198,4 @@ MapManager.prototype.SpawnPlayer = function() {
     game.player.Create(this.playerModel, this.playerPosition);
 };
 
-MapManager.prototype = new MapManager();
-MapManager.prototype.constructor = MapManager;
 module.exports = MapManager;
-
