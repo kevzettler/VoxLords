@@ -1,6 +1,7 @@
 const util = require('util');
 const Chunk = require('./Chunk');
 const Block = require('./Block');
+const THREE = require('three');
 
 // Chunks of other types such as crates/weapons/mob/player
 function ChunkWorld() {

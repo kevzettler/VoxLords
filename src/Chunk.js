@@ -1,4 +1,5 @@
 const Block = require('./Block');
+const THREE = require('three');
 
 function Chunk() {
     this.wireframe = false;

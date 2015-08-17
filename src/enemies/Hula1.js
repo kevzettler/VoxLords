@@ -13,6 +13,7 @@ function Hula1() {
     this.health = this.maxHealth;
     this.scale = 2;
 };
+util.inherits(Hula1, Enemy);
 
 Hula1.prototype.Draw = function(time, delta) {
     Enemy.prototype.Draw.call(this);
@@ -23,5 +24,4 @@ Hula1.prototype.Draw = function(time, delta) {
     }
 
 };
-util.inherits(Hula1, Enemy);
 module.exports = Hula1;

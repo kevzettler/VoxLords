@@ -1,3 +1,5 @@
+const THREE = require('three');
+
 function Object3D() {
     // THREE.Mesh.apply(this, arguments); inherite from mesh
     this.mesh;

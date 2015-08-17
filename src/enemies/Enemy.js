@@ -1,3 +1,5 @@
+const THREE = require('three');
+
 function Enemy() {
     this.type = "enemy";
     this.mesh = undefined;

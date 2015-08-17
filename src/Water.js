@@ -1,11 +1,12 @@
+const util = require('util');
 const Object3D = require('./Object3D');
+const THREE = require('three');
 
-/////////////////////////////////////////////////////////////
-// Water
-/////////////////////////////////////////////////////////////
 function Water() {
     Object3D.call(this);
 };
+util.inherits(Water, Object3D);
+
 
 Water.prototype.Create = function(scene) {
     var width = 400;
@@ -26,8 +27,12 @@ Water.prototype.Create = function(scene) {
     texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
     texture.repeat.set( 30, 30 );
 
-    var material = new THREE.MeshBasicMaterial( { color: 0x00CCFF, map: texture, transparent: true, opacity: 0.5} );
-    //var material = new THREE.MeshBasicMaterial( { map: texture, transparent: false, opacity: 1} );
+    var material = new THREE.MeshBasicMaterial( { 
+        color: 0x00CCFF, 
+        map: texture, 
+        transparent: true, 
+        opacity: 0.5
+    } );
 
     var mesh = new THREE.Mesh(geometry, material);
     mesh.position.set(50, game.currentMap.waterPosition, 50);
@@ -38,7 +43,6 @@ Water.prototype.Create = function(scene) {
 
 Water.prototype.Draw = function(time, delta, i) {
     for ( var i = 0, l = this.mesh.geometry.vertices.length; i < l; i ++ ) {
-       // this.mesh.geometry.vertices[ i ].y = 0.1 * Math.sin( i / 5 + ( time + i ) / 7 );    
         this.mesh.geometry.vertices[ i ].y = 0.2 * Math.sin( i / 5 + ( time + i ) / 4 );
     }
     this.mesh.geometry.verticesNeedUpdate = true;

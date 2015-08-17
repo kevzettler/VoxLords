@@ -1,6 +1,7 @@
 const SmallShot = require('./SmallShot');
 const QuakeShot = require('./QuakeShot');
 const FloatingShot = require('./FloatingShot');
+const THREE = require('three');
 
 function Player() {
     this.type = "player";
@@ -290,7 +291,7 @@ Player.prototype.Draw = function(time, delta) {
         //         enemy.Create(100-Math.random()*50, 1, 100-Math.random()*50, "SmallShot");
         //     }
         // }
-        
+
         if ( this.keyboard.pressed("D") ) {
             this.mesh.translateX(-moveDistance);
         }

@@ -1,3 +1,5 @@
+const THREE = require('three');
+
 function PhysBlock() {
     this.opacity = 1.0;
     this.color = '0xFFFFFF';

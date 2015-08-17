@@ -12,16 +12,16 @@ function Hula2() {
     this.maxHealth = 3;
     this.health = this.maxHealth;
     this.scale = 1.5;
-
-    Hula2.prototype.Draw = function(time, delta) {
-        Enemy.prototype.Draw.call(this);
-
-        var dist = GetDistance(this.mesh.position, game.player.mesh.position);
-        if(dist < 5) {
-            this.Explode();
-        }
-
-    };
 }
 util.inherits(Hula2, Enemy);
+
+Hula2.prototype.Draw = function(time, delta) {
+    Enemy.prototype.Draw.call(this);
+
+    var dist = GetDistance(this.mesh.position, game.player.mesh.position);
+    if(dist < 5) {
+        this.Explode();
+    }
+
+}; 
 module.exports = Hula2;

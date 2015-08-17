@@ -2,6 +2,7 @@ const Water = require('./Water');
 const Lava = require('./Lava');
 const World = require('./World');
 const Player = require('./Player');
+const THREE = require('three');
 
 const Enemies = {
     Hula1 : require('./enemies/Hula1'),
@@ -116,10 +117,10 @@ MapManager.prototype.BuildWorldChunks = function() {
 
     debugger;
     this.SpawnPlayer();
-    $('#statusEnemies').fadeIn(600);
-    $('#statusEnemies').text("Enemies left: "+this.GetEnemiesLeft());
-    game.setStatusCenter(this.mapName, "#FF0000");
-    $('#statusCenter').fadeIn(1000);
+//    $('#statusEnemies').fadeIn(600);
+//    $('#statusEnemies').text("Enemies left: "+this.GetEnemiesLeft());
+//    game.setStatusCenter(this.mapName, "#FF0000");
+//    $('#statusCenter').fadeIn(1000);
     setTimeout(function() {
         $('#statusCenter').fadeOut(2000);
     }, 3000);

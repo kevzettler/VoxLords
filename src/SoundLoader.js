@@ -1,4 +1,6 @@
 const Loader = require('./Loader');
+const THREE = require('three');
+const BufferLoader = require('./BufferLoader');
 
 /////////////////////////////////////////////////////////////
 // Sounds

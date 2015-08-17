@@ -4,6 +4,7 @@ const ChunkManager = require('./ChunkManager');
 const MapManager = require('./MapManager');
 const PhysBlockPool = require('./PhysBlockPool');
 const AmmoPool = require('./AmmoPool');
+const THREE = require('three');
 
 //objects
 const Cloud = require('./Cloud');
@@ -108,10 +109,10 @@ Game.prototype.Init = function(mapId) {
     this.voxLoader.Add({file: "box_hp.vox", name: "healthbox"});
     this.voxLoader.Add({file: "princess.vox", name: "princess"});
     this.voxLoader.Add({file: "player1.vox", name: "player"});
-    this.voxLoader.Add({file: "santa.vox", name: "santa"});
-    this.voxLoader.Add({file: "elf.vox", name: "elf"});
-    this.voxLoader.Add({file: "devil1.vox", name: "devil1"});
-    this.voxLoader.Add({file: "devil2.vox", name: "devil2"});
+    // this.voxLoader.Add({file: "santa.vox", name: "santa"});
+    // this.voxLoader.Add({file: "elf.vox", name: "elf"});
+    // this.voxLoader.Add({file: "devil1.vox", name: "devil1"});
+    // this.voxLoader.Add({file: "devil2.vox", name: "devil2"});
     this.voxLoader.Add({file: "cage.vox", name: "cage"});
     this.voxLoader.Add({file: "box_explode.vox", name: "bomb"});
     this.voxLoader.Add({file: "box_godmode.vox", name: "godmode"});
@@ -129,8 +130,8 @@ Game.prototype.Init = function(mapId) {
     this.voxLoader.Add({file: "hell1.vox", name: "hell1"});
     this.voxLoader.Add({file: "hell2.vox", name: "hell2"});
     this.voxLoader.Add({file: "cloud1.vox", name: "cloud1"});
-    this.voxLoader.Add({file: "plantox1.vox", name: "plantox1"});
-    this.voxLoader.Add({file: "plantox2.vox", name: "plantox2"});
+    // this.voxLoader.Add({file: "plantox1.vox", name: "plantox1"});
+    // this.voxLoader.Add({file: "plantox2.vox", name: "plantox2"});
    
     // Load sounds
     this.soundLoader.Add({file: "sound/explosion2.mp3", name: "explode"});
@@ -156,7 +157,6 @@ Game.prototype.Init = function(mapId) {
     this.renderer.shadowMapType = THREE.PCFSoftShadowMap;
     this.keyboard = new THREEx.KeyboardState();
     this.container = document.getElementById('container');
-    //this.container.innerHTML = '';
     this.container.appendChild(this.renderer.domElement);
 
     THREEx.WindowResize(this.renderer, this.camera);

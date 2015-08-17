@@ -12,6 +12,7 @@ function Cloud() {
     this.speed = 0;
     this.snow = true;
 }
+util.inherits(Cloud, Object3D);
 
 Cloud.prototype.Draw = function(time, delta) {
     this.mesh.position.z += this.speed;
@@ -63,5 +64,4 @@ Cloud.prototype.Create = function(type, snow) {
     this.mesh.position.y = 10+Math.random()*2;
 };
 
-util.inherits(Cloud, Object3D);
 module.exports = Cloud;

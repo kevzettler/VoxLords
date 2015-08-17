@@ -1,3 +1,5 @@
+const THREE = require('three');
+
 function AmmoPool() {
     this.size = 0;
     this.ammo = [];
