@@ -1,3 +1,5 @@
+const SmallShot = require('./SmallShot');
+
 function Player() {
     this.type = "player";
     this.mesh = undefined;
@@ -296,7 +298,7 @@ Player.prototype.Draw = function(time, delta) {
 
 
 Player.prototype.Die = function(fall) {
-    if(this.godMode) {
+    if(true) {
         return;
     }
     if(fall) {

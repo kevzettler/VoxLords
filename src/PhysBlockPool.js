@@ -1,3 +1,5 @@
+const PhysBlock = require('./PhysBlock');
+
 function PhysBlockPool() {
     this.size = 0;
     this.blocks = [];

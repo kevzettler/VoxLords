@@ -10,7 +10,9 @@ function ChunkManager() {
 
 ChunkManager.prototype.PercentLoaded = function() {
     console.log("TOTAL: "+this.totalChunks + " MAX: "+this.maxChunks);
-    
+    if(this.totalChunks == 0){
+        return 0;
+    }
     return Math.round((this.maxChunks/this.totalChunks)*100);
 };
 
@@ -261,6 +263,8 @@ ChunkManager.prototype.AddWorldChunk = function(chunk) {
 };
 
 ChunkManager.prototype.BuildAllChunks = function() {
+    debugger;
+    //KJZ worldchunks is empty for some reason??
     for(var i = 0; i < this.worldChunks.length; i++) {
         this.worldChunks[i].Rebuild();
         this.activeTriangles += this.worldChunks[i].GetActiveTriangles();

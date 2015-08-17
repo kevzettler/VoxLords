@@ -1,9 +1,10 @@
+const ChunkWorld = require('./ChunkWorld');
+
 function World() {
     this.width = 0;
     this.height = 0;
     this.name = "Unknown";
     this.map = undefined;
-    //this.chunkSize = 16;
     this.chunkSize = 16;
     this.chunks = 0;
     this.blocks = 0;
@@ -16,6 +17,7 @@ function World() {
 };
 
 World.prototype.Load = function(filename, wallHeight, blockSize) {
+    debugger;
     this.wallHeight = wallHeight;
     this.blockSize = blockSize;
     this.readWorld(filename);
@@ -23,12 +25,17 @@ World.prototype.Load = function(filename, wallHeight, blockSize) {
 };
 
 World.prototype.readMap = function() {
+    debugger;
     if(this.map == undefined) {
         var that = this;
-        setTimeout(function() { that.readMap()}, 500);
+        setTimeout(function() {
+            that.readMap()
+        }, 500);
         console.log("loading map...");
         return;
     }
+
+    debugger; //KJZ DO WE EVER GET HERE?
     
     game.worldMap = new Array(this.map.length);
     for(var i = 0; i < game.worldMap.length; i++) {
@@ -37,6 +44,7 @@ World.prototype.readMap = function() {
     this.mapHeight = this.blockSize*this.map.length;
     this.mapWidth = this.blockSize*this.map.length;
 
+    debugger;
     for(var cy = 0; cy < this.map.length; cy+=this.chunkSize) {
         var alpha = 0;
         var total = 0;
@@ -58,6 +66,8 @@ World.prototype.readMap = function() {
                 ix++;
             }
             var cSize = this.blockSize;
+
+            //KJZ DON"T THINK THIS IS GETTING EXECUTED?
             if(total != alpha) {
                 var c = new ChunkWorld();
                 c.Create(this.chunkSize, cSize, cx * cSize-this.blockSize/2, cy * cSize-this.blockSize/2, chunk, this.wallHeight, this.chunks);
@@ -77,17 +87,19 @@ World.prototype.readMap = function() {
 }; 
 
 World.prototype.readWorld = function(filename) {
+    debugger;
     // Read png file binary and get color for each pixel
     // one pixel = one block
     // Read RGBA (alpha is height)
     // 255 = max height
     // a < 50 = floor
     var image = new Image();
-    image.src = filename;
+    image.src = "/"+filename;
 
     var ctx = document.createElement('canvas').getContext('2d');
     var that = this;
     image.onload = function() {
+        debugger;
         ctx.canvas.width  = image.width;
         ctx.canvas.height = image.height;
         ctx.drawImage(image, 0, 0);
@@ -95,7 +107,7 @@ World.prototype.readWorld = function(filename) {
         that.height = image.height;
         that.map = new Array();
         var imgData = ctx.getImageData(0, 0, that.width, that.height);
-
+        
         game.worldMap = new Array();
         for(var y = 0; y < that.height; y++) {
             var pos = y * that.width * 4;
@@ -109,10 +121,12 @@ World.prototype.readWorld = function(filename) {
                 that.map[y][x] = {'r': r, 'g': g, 'b': b, 'a': a};
             }
         }
+
         console.log("Read world complete.");
         game.chunkManager.maxChunks = (that.height / that.chunkSize)*(that.height/that.chunkSize);
+        debugger;
         
-        }
+    };
 };
 module.exports = World;
 

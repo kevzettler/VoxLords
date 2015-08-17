@@ -1,5 +1,12 @@
 const Water = require('./Water');
 const Lava = require('./Lava');
+const World = require('./World');
+const Player = require('./Player');
+
+const Enemies = {
+    Hula1 : require('./enemies/Hula1'),
+    Hula2 : require('./enemies/Hula2')
+};
 
 function MapManager() {
     this.mapName = "Unknown";
@@ -77,12 +84,17 @@ MapManager.prototype.Create = function(args) {
 
 MapManager.prototype.BuildWorldChunks = function() {
     var x = game.chunkManager.PercentLoaded();
-    console.log("World loaded: "+x+"%");
+    console.log("World loaded: "+x+"% ", game.chunkManager.maxChunks);
     if(x < 100 || game.chunkManager.maxChunks == 0) {
         var that = this;
-        setTimeout(function() { that.BuildWorldChunks(); }, 500);
+        debugger;
+        setTimeout(function() { 
+            that.BuildWorldChunks(); 
+            debugger;
+        }, 500);
         return;
     }
+
     game.chunkManager.BuildAllChunks();
 
     this.SpawnPrincess();
@@ -90,17 +102,19 @@ MapManager.prototype.BuildWorldChunks = function() {
     this.SpawnEnemiesBefore();
     this.SpawnCastle();
 
-
     if(this.useLava) {
         var lava = new Lava();
         lava.Create(game.scene); 
         game.objects.push(lava);
     }
+
     if(this.useWater) {
         var water = new Water();
         water.Create(game.scene); 
         game.objects.push(water);
     }
+
+    debugger;
     this.SpawnPlayer();
     $('#statusEnemies').fadeIn(600);
     $('#statusEnemies').text("Enemies left: "+this.GetEnemiesLeft());
@@ -112,16 +126,16 @@ MapManager.prototype.BuildWorldChunks = function() {
     $('#loading').hide();
 };
 
-MapManager.prototype.Loaded = function(type) {
-    // TBD: Update percent loaded on site.
-    // $('#loaded').text("Loading "+ type + "("+ this.percentLoaded + "%)");
-};
+// MapManager.prototype.Loaded = function(type) {
+//     // TBD: Update percent loaded on site.
+//     // $('#loaded').text("Loading "+ type + "("+ this.percentLoaded + "%)");
+// };
 
 MapManager.prototype.SpawnEnemiesBefore = function() {
     // For each in this.enemies
     for(var i = 0; i < this.enemiesBefore.length; i++) {
         console.log("Spawning enemy: "+this.enemiesBefore[i][0]);
-        var enemy = new window[this.enemiesBefore[i][0]]();
+        var enemy = new Enemies[this.enemiesBefore[i][0]]();
         enemy.Create(this.enemiesBefore[i][1], this.enemiesBefore[i][2], this.enemiesBefore[i][3], this.enemiesBefore[i][4]);
         if(this.enemiesBefore[i][5] != undefined) {
             enemy.setDamage(this.enemiesBefore[i][5]);
@@ -133,7 +147,7 @@ MapManager.prototype.SpawnEnemiesAfter = function() {
     // For each in this.enemies
     for(var i = 0; i < this.enemiesAfter.length; i++) {
         console.log("Spawning enemy: "+this.enemiesAfter[i][0]);
-        var enemy = new window[this.enemiesAfter[i][0]]();
+        var enemy = new Enemies[this.enemiesAfter[i][0]]();
         enemy.Create(this.enemiesAfter[i][1], this.enemiesAfter[i][2], this.enemiesAfter[i][3], this.enemiesAfter[i][4]);
         if(this.enemiesAfter[i][5] != undefined) {
             enemy.setDamage(this.enemiesAfter[i][5]);
@@ -145,7 +159,7 @@ MapManager.prototype.SpawnWorld = function() {
     console.log("Spawning world.");
     // Load top
     game.world = new World();
-   // game.world.Load("maps/test5.png", 20, 0.5); // 10924 triangles
+    debugger;
     game.world.Load(this.mapFile, this.wallHeight, this.blockSize); // 10924 triangles
     // TBD: Fix so that we don't depend on timeout.
 };

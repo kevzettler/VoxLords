@@ -1,3 +1,4 @@
+const util = require('util');
 const Object3D = require('./Object3D');
 
 ////////////////////////////////////////////////////////////
@@ -62,4 +63,5 @@ Cloud.prototype.Create = function(type, snow) {
     this.mesh.position.y = 10+Math.random()*2;
 };
 
+util.inherits(Cloud, Object3D);
 module.exports = Cloud;

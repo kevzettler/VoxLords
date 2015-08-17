@@ -1,4 +1,6 @@
+const util = require('util');
 const Loader = require('./Loader');
+const Vox = require('./Vox');
 
 /////////////////////////////////////////////////////////////
 // Vox models
@@ -32,6 +34,6 @@ function VoxLoader() {
     };
 
 }
-VoxLoader.prototype = new Loader();
-VoxLoader.prototype.constructor = VoxLoader;
+
+util.inherits(VoxLoader, Loader);
 module.exports = VoxLoader;
