@@ -7,6 +7,7 @@ function ChunkWorld() {
   Chunk.call(this);
   this.wallHeight = 1;
 };
+util.inherits(ChunkWorld,Chunk);
 
 //Pretty sure this is getting h ammered by chunks Create method wtf
 ChunkWorld.prototype.Create = function(chunkSize, blockSize, posX, posY, map, wallHeight, id) {
@@ -655,12 +656,5 @@ ChunkWorld.prototype.Rebuild = function() {
    this.activeTriangles = b;
 };
 
-Object.keys(Chunk.prototype).forEach(function(method){
-    if(typeof ChunkWorld.prototype[method] === 'undefined'){
-        ChunkWorld.prototype[method] = Chunk.prototype[method];
-    }
-});
 
-//ChunkWorld.prototype = new Chunk();
-//ChunkWorld.prototype.constructor = ChunkWorld;
 module.exports = ChunkWorld;

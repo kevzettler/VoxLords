@@ -1,3 +1,4 @@
+const util = require('util');
 const Shot = require('./Shot');
 
 function FloatingShot() {
@@ -10,6 +11,7 @@ function FloatingShot() {
     this.offset = 1;
     this.sound = "swoosh";    
 };
+util.inherits(FloatingShot, Shot);
 
 FloatingShot.prototype.Draw = function(time,delta) {
    this.life -= 0.01;

@@ -1,4 +1,6 @@
 const SmallShot = require('./SmallShot');
+const QuakeShot = require('./QuakeShot');
+const FloatingShot = require('./FloatingShot');
 
 function Player() {
     this.type = "player";
@@ -279,15 +281,16 @@ Player.prototype.Draw = function(time, delta) {
             $('#weapon3').fadeTo(0, 1);
         }
 
-        if ( this.keyboard.pressed("L") ) {
-            if(Math.random() > 0.5) {
-                var enemy = new Devil1();
-                enemy.Create(100-Math.random()*50, 1, 100-Math.random()*50, "SmallShot");
-            } else {
-                var enemy = new Devil2();
-                enemy.Create(100-Math.random()*50, 1, 100-Math.random()*50, "SmallShot");
-            }
-        }
+        // if ( this.keyboard.pressed("L") ) {
+        //     if(Math.random() > 0.5) {
+        //         var enemy = new Devil1();
+        //         enemy.Create(100-Math.random()*50, 1, 100-Math.random()*50, "SmallShot");
+        //     } else {
+        //         var enemy = new Devil2();
+        //         enemy.Create(100-Math.random()*50, 1, 100-Math.random()*50, "SmallShot");
+        //     }
+        // }
+        
         if ( this.keyboard.pressed("D") ) {
             this.mesh.translateX(-moveDistance);
         }
@@ -298,7 +301,7 @@ Player.prototype.Draw = function(time, delta) {
 
 
 Player.prototype.Die = function(fall) {
-    if(true) {
+    if(this.godMode) {//god mode
         return;
     }
     if(fall) {

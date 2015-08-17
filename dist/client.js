@@ -2984,6 +2984,7 @@
 	    Chunk.call(this);
 	    this.wallHeight = 1;
 	};
+	util.inherits(ChunkWorld, Chunk);
 
 	//Pretty sure this is getting h ammered by chunks Create method wtf
 	ChunkWorld.prototype.Create = function (chunkSize, blockSize, posX, posY, map, wallHeight, id) {
@@ -3559,23 +3560,17 @@
 	    this.activeTriangles = b;
 	};
 
-	Object.keys(Chunk.prototype).forEach(function (method) {
-	    if (typeof ChunkWorld.prototype[method] === 'undefined') {
-	        ChunkWorld.prototype[method] = Chunk.prototype[method];
-	    }
-	});
-
-	//ChunkWorld.prototype = new Chunk();
-	//ChunkWorld.prototype.constructor = ChunkWorld;
 	module.exports = ChunkWorld;
 
 /***/ },
 /* 20 */
 /***/ function(module, exports, __webpack_require__) {
 
-	"use strict";
+	'use strict';
 
 	var SmallShot = __webpack_require__(29);
+	var QuakeShot = __webpack_require__(31);
+	var FloatingShot = __webpack_require__(32);
 
 	function Player() {
 	    this.type = "player";
@@ -3853,15 +3848,16 @@
 	            $('#weapon3').fadeTo(0, 1);
 	        }
 
-	        if (this.keyboard.pressed("L")) {
-	            if (Math.random() > 0.5) {
-	                var enemy = new Devil1();
-	                enemy.Create(100 - Math.random() * 50, 1, 100 - Math.random() * 50, "SmallShot");
-	            } else {
-	                var enemy = new Devil2();
-	                enemy.Create(100 - Math.random() * 50, 1, 100 - Math.random() * 50, "SmallShot");
-	            }
-	        }
+	        // if ( this.keyboard.pressed("L") ) {
+	        //     if(Math.random() > 0.5) {
+	        //         var enemy = new Devil1();
+	        //         enemy.Create(100-Math.random()*50, 1, 100-Math.random()*50, "SmallShot");
+	        //     } else {
+	        //         var enemy = new Devil2();
+	        //         enemy.Create(100-Math.random()*50, 1, 100-Math.random()*50, "SmallShot");
+	        //     }
+	        // }
+
 	        if (this.keyboard.pressed("D")) {
 	            this.mesh.translateX(-moveDistance);
 	        }
@@ -3871,7 +3867,8 @@
 	};
 
 	Player.prototype.Die = function (fall) {
-	    if (true) {
+	    if (this.godMode) {
+	        //god mode
 	        return;
 	    }
 	    if (fall) {
@@ -4622,8 +4619,9 @@
 /* 29 */
 /***/ function(module, exports, __webpack_require__) {
 
-	"use strict";
+	'use strict';
 
+	var util = __webpack_require__(3);
 	var Shot = __webpack_require__(30);
 
 	function SmallShot() {
@@ -4636,10 +4634,10 @@
 	    this.offset = 1;
 	    this.speed = 2;
 	};
+	util.inherits(SmallShot, Shot);
 
 	SmallShot.prototype.Draw = function (time, delta) {
 	    this.life -= 0.01;
-	    //this.mesh.position.y = this.offset;
 
 	    if (this.life <= 0) {
 	        this.Remove();
@@ -4674,6 +4672,7 @@
 	    this.mesh.position.x += this.direction.x * this.speed;
 	    this.mesh.position.z += this.direction.z * this.speed;
 	};
+
 	module.exports = SmallShot;
 
 /***/ },
@@ -4767,6 +4766,129 @@
 	};
 
 	module.exports = Shot;
+
+/***/ },
+/* 31 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var util = __webpack_require__(3);
+	var Shot = __webpack_require__(30);
+
+	function QuakeShot() {
+	    Shot.call(this);
+	    this.damage = 2;
+	    this.size = 0.3;
+	    this.life = 0.5;
+	    this.speed = 0.5;
+	    this.color = 0x3399FF;
+	    this.offset = 0.5;
+	    this.sound = "swoosh";
+	};
+	util.inherits(QuakeShot, Shot);
+
+	QuakeShot.prototype.Draw = function (time, delta) {
+	    this.life -= 0.01;
+
+	    if (this.life <= 0) {
+	        this.Remove();
+	        return;
+	    }
+
+	    if (this.hitObject != undefined) {
+	        var distance = GetDistance(this.mesh.position, this.hitObject.position);
+	        if (this.distance != undefined) {
+	            if (this.distance <= 0 || distance > this.distance) {
+	                if (this.hitObject.that.Hit != undefined) {
+	                    //this.hitObject.that.Hit(this.mesh.position, this.damage);
+	                    this.hitObject.that.Hit(this.shooter, this.damage);
+	                }
+	                this.Remove();
+	                // this.Explode();
+	                // this.remove = 1;
+	                // game.scene.remove(this.mesh);
+	            }
+	        }
+	        this.distance = distance;
+	    }
+	    var dsx = this.direction.x * this.speed;
+	    var dsz = this.direction.z * this.speed;
+
+	    var height = game.chunkManager.GetHeight(this.mesh.position.x, this.mesh.position.z);
+	    if (height == undefined) {
+	        height = 0;
+	    }
+	    if (this.life <= this.life_max / 1.5) {
+	        game.chunkManager.ExplodeBomb(this.mesh.position.x, this.mesh.position.z, this.damage, false, this.mesh.position.y + 2);
+	    }
+	    this.mesh.position.x += dsx;
+	    // if(height != 0) {
+	    //   this.mesh.position.y = height + this.offset;
+	    // }
+	    this.mesh.position.z += dsz;
+	};
+
+	module.exports = QuakeShot;
+
+/***/ },
+/* 32 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var util = __webpack_require__(3);
+	var Shot = __webpack_require__(30);
+
+	function FloatingShot() {
+	    Shot.call(this);
+	    this.damage = 3;
+	    this.size = 0.5;
+	    this.life = 0.5;
+	    this.color = 0xCC0000;
+	    this.speed = 0.5;
+	    this.offset = 1;
+	    this.sound = "swoosh";
+	};
+	util.inherits(FloatingShot, Shot);
+
+	FloatingShot.prototype.Draw = function (time, delta) {
+	    this.life -= 0.01;
+
+	    if (this.life <= 0) {
+	        game.chunkManager.ExplodeBomb(this.mesh.position.x, this.mesh.position.z, this.damage, false);
+	        game.soundLoader.PlaySound("explode", this.mesh.position, 300);
+	        this.Remove();
+	        return;
+	    }
+
+	    if (this.hitObject != undefined) {
+	        var distance = GetDistance(this.mesh.position, this.hitObject.position);
+	        if (this.distance != undefined) {
+	            if (this.distance <= 0 || distance > this.distance) {
+	                if (this.hitObject.that.Hit != undefined) {
+	                    //this.hitObject.that.Hit(this.mesh.position, this.damage);
+	                    this.hitObject.that.Hit(this.shooter, this.damage);
+	                    game.chunkManager.ExplodeBomb(this.mesh.position.x, this.mesh.position.z, this.damage, false);
+	                }
+	                this.Remove();
+	                // this.Explode();
+	                // this.remove = 1;
+	                // game.scene.remove(this.mesh);
+	            }
+	        }
+	        this.distance = distance;
+	    }
+	    var height = game.chunkManager.GetHeight(this.mesh.position.x, this.mesh.position.z);
+	    if (height == undefined) {
+	        height = 0;
+	    }
+	    this.mesh.position.x += this.direction.x * this.speed;
+	    this.mesh.position.y = height + this.offset;
+	    this.mesh.position.z += this.direction.z * this.speed;
+	};
+
+	module.exports = FloatingShot;
 
 /***/ }
 /******/ ]);

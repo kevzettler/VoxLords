@@ -1,3 +1,4 @@
+const util = require('util');
 const Shot = require('./Shot');
 
 function SmallShot() {
@@ -10,10 +11,10 @@ function SmallShot() {
     this.offset = 1;
     this.speed = 2;
 };
+util.inherits(SmallShot, Shot);
 
 SmallShot.prototype.Draw = function(time,delta) {
    this.life -= 0.01;
-   //this.mesh.position.y = this.offset;
 
    if(this.life <= 0) {
         this.Remove();
@@ -49,5 +50,6 @@ SmallShot.prototype.Draw = function(time,delta) {
 
    this.mesh.position.x += this.direction.x * this.speed;
        this.mesh.position.z += this.direction.z * this.speed;
-    };
+};
+
 module.exports = SmallShot;

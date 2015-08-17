@@ -1,3 +1,4 @@
+const util = require('util');
 const Shot = require('./Shot');
 
 function QuakeShot() {
@@ -10,6 +11,7 @@ function QuakeShot() {
     this.offset = 0.5;
     this.sound = "swoosh";
 };
+util.inherits(QuakeShot, Shot);
 
 QuakeShot.prototype.Draw = function(time,delta) {
    this.life -= 0.01;
@@ -51,5 +53,7 @@ QuakeShot.prototype.Draw = function(time,delta) {
   //   this.mesh.position.y = height + this.offset;
   // }
    this.mesh.position.z += dsz;
-    };
+};
+
+
 module.exports = QuakeShot;
