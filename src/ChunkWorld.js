@@ -1,7 +1,7 @@
 const util = require('util');
 const Chunk = require('./Chunk');
 const Block = require('./Block');
-const THREE = require('three');
+const THREE = require('./ThreeHelpers');
 
 // Chunks of other types such as crates/weapons/mob/player
 function ChunkWorld() {
@@ -12,7 +12,6 @@ util.inherits(ChunkWorld,Chunk);
 
 //Pretty sure this is getting h ammered by chunks Create method wtf
 ChunkWorld.prototype.Create = function(chunkSize, blockSize, posX, posY, map, wallHeight, id) {
-    debugger;
     this.cid = id;
     this.chunkSize = chunkSize;
     this.chunkSizeX = chunkSize;

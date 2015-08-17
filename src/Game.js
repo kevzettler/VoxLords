@@ -4,7 +4,13 @@ const ChunkManager = require('./ChunkManager');
 const MapManager = require('./MapManager');
 const PhysBlockPool = require('./PhysBlockPool');
 const AmmoPool = require('./AmmoPool');
-const THREE = require('three');
+const THREE = require('./ThreeHelpers');
+const HealthBox = require('./items/HealthBox');
+const WeaponBox = require('./items/WeaponBox');
+const Godmode = require('./items/GodMode');
+const Bomb = require('./items/Bomb');
+
+
 
 //objects
 const Cloud = require('./Cloud');

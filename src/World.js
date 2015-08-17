@@ -17,7 +17,6 @@ function World() {
 };
 
 World.prototype.Load = function(filename, wallHeight, blockSize) {
-    debugger;
     this.wallHeight = wallHeight;
     this.blockSize = blockSize;
     this.readWorld(filename);
@@ -25,7 +24,6 @@ World.prototype.Load = function(filename, wallHeight, blockSize) {
 };
 
 World.prototype.readMap = function() {
-    debugger;
     if(this.map == undefined) {
         var that = this;
         setTimeout(function() {
@@ -35,8 +33,6 @@ World.prototype.readMap = function() {
         return;
     }
 
-    debugger; //KJZ DO WE EVER GET HERE?
-    
     game.worldMap = new Array(this.map.length);
     for(var i = 0; i < game.worldMap.length; i++) {
         game.worldMap[i] = new Array();
@@ -44,7 +40,6 @@ World.prototype.readMap = function() {
     this.mapHeight = this.blockSize*this.map.length;
     this.mapWidth = this.blockSize*this.map.length;
 
-    debugger;
     for(var cy = 0; cy < this.map.length; cy+=this.chunkSize) {
         var alpha = 0;
         var total = 0;
@@ -87,7 +82,6 @@ World.prototype.readMap = function() {
 }; 
 
 World.prototype.readWorld = function(filename) {
-    debugger;
     // Read png file binary and get color for each pixel
     // one pixel = one block
     // Read RGBA (alpha is height)
@@ -99,7 +93,6 @@ World.prototype.readWorld = function(filename) {
     var ctx = document.createElement('canvas').getContext('2d');
     var that = this;
     image.onload = function() {
-        debugger;
         ctx.canvas.width  = image.width;
         ctx.canvas.height = image.height;
         ctx.drawImage(image, 0, 0);
@@ -124,7 +117,6 @@ World.prototype.readWorld = function(filename) {
 
         console.log("Read world complete.");
         game.chunkManager.maxChunks = (that.height / that.chunkSize)*(that.height/that.chunkSize);
-        debugger;
         
     };
 };

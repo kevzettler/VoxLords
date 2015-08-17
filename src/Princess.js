@@ -1,4 +1,5 @@
-const THREE = require('three');
+const THREE = require('./ThreeHelpers');
+const Utils = require('./Utils');
 
 function Princess() {
     this.scale = 1;
@@ -73,7 +74,7 @@ Princess.prototype.Saved = function() {
 
 Princess.prototype.Walk = function() {
     if(this.saved && !game.player.dead) {
-        var dist = GetDistance(this.mesh.position, game.player.mesh.position);
+        var dist = Utils.GetDistance(this.mesh.position, game.player.mesh.position);
         if(dist > 2) {
             var playerPos = game.player.mesh.position.clone();
             this.mesh.lookAt(new THREE.Vector3(playerPos.x, 360, playerPos.z));
@@ -170,7 +171,7 @@ Princess.prototype.Create = function(pos) {
 
 Princess.prototype.Draw = function(time, delta) {
    // this.mesh.rotation.z = (time/10);
-    var dist = GetDistance(this.mesh.position, game.player.mesh.position);
+    var dist = Utils.GetDistance(this.mesh.position, game.player.mesh.position);
     if(dist > 20) {
         // Optimization for performance, skipping frames when far away.
         this.skipDraw = Math.floor(dist/5);

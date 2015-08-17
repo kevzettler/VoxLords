@@ -1,4 +1,4 @@
-const THREE = require('three');
+const THREE = require('./ThreeHelpers');
 
 function AmmoPool() {
     this.size = 0;

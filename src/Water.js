@@ -1,6 +1,6 @@
 const util = require('util');
 const Object3D = require('./Object3D');
-const THREE = require('three');
+const THREE = require('./ThreeHelpers');
 
 function Water() {
     Object3D.call(this);

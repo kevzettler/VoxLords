@@ -1,4 +1,4 @@
-const THREE = require('three');
+const THREE = require('./ThreeHelpers');
 
 function Object3D() {
     // THREE.Mesh.apply(this, arguments); inherite from mesh

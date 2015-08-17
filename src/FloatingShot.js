@@ -1,5 +1,6 @@
 const util = require('util');
 const Shot = require('./Shot');
+const Utils = require('./Utils');
 
 function FloatingShot() {
     Shot.call(this);
@@ -24,7 +25,7 @@ FloatingShot.prototype.Draw = function(time,delta) {
    }
 
    if(this.hitObject != undefined) {
-       var distance = GetDistance(this.mesh.position, this.hitObject.position);
+       var distance = Utils.GetDistance(this.mesh.position, this.hitObject.position);
        if(this.distance != undefined) {
            if(this.distance <= 0 || distance > this.distance) {
                if(this.hitObject.that.Hit != undefined) {

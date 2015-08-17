@@ -1,7 +1,8 @@
 const SmallShot = require('./SmallShot');
 const QuakeShot = require('./QuakeShot');
 const FloatingShot = require('./FloatingShot');
-const THREE = require('three');
+const THREE = require('./ThreeHelpers');
+const Utils = require('./Utils');
 
 function Player() {
     this.type = "player";
@@ -162,7 +163,7 @@ Player.prototype.Create = function(model, pos) {
     var that = this;
     setTimeout(function() {
         that.AddBindings();
-        LockPointer();
+        Utils.LockPointer();
     }, 1500);
     console.log("Player loaded...");
 };
@@ -383,8 +384,7 @@ Player.prototype.OnMouseMove = function(jevent) {
         var y = movementY*0.001;
         
         var xAxis = new THREE.Vector3(0,0,1);
-        rotateAroundObjectAxis(this.mesh, xAxis, -(Math.PI / 2)*x);
-        //this.UpdatePos(-1);
+        Utils.rotateAroundObjectAxis(this.mesh, xAxis, -(Math.PI / 2)*x);
     }
 };
 

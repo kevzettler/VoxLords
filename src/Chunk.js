@@ -1,5 +1,6 @@
 const Block = require('./Block');
-const THREE = require('three');
+const THREE = require('./ThreeHelpers');
+const Utils = require('./Utils');
 
 function Chunk() {
     this.wireframe = false;
@@ -614,7 +615,7 @@ Chunk.prototype.Rebuild = function() {
    this.mesh = mesh;
    this.GetBoundingBox();
    this.isBuilt = true;
-   Log("VOX Model CREATED TRIANGLES: "+b);
+   Utils.Log("VOX Model CREATED TRIANGLES: "+b);
 }; 
 
 Chunk.prototype.Destroy = function() {

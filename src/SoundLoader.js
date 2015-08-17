@@ -1,5 +1,5 @@
 const Loader = require('./Loader');
-const THREE = require('three');
+const THREE = require('./ThreeHelpers');
 const BufferLoader = require('./BufferLoader');
 
 /////////////////////////////////////////////////////////////

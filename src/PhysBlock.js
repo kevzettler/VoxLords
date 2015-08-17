@@ -1,4 +1,5 @@
-const THREE = require('three');
+const THREE = require('./ThreeHelpers');
+const Utils = require('./Utils');
 
 function PhysBlock() {
     this.opacity = 1.0;
@@ -39,9 +40,9 @@ PhysBlock.prototype.Create2 = function(x,y,z,size, r, g, b, life, angle,force) {
     this.life = life+Math.random()*1;
     size = (size-Math.random()*size/1.5);
 
-    var col = rgbToHex(Math.round(r), Math.round(g), Math.round(b));
+    var col = Utils.rgbToHex(Math.round(r), Math.round(g), Math.round(b));
     this.mesh.material.color.setHex(col);
-    this.mesh.material.ambient.setHex(col);
+    //this.mesh.material.ambient.setHex(col); //deprecated?
     this.mesh.material.needsUpdate = true;
     this.mesh.scale.set(size,size,size);
     this.mesh.position.set(x,y,z);
@@ -62,7 +63,7 @@ PhysBlock.prototype.Create = function(x,y,z,size, r, g, b, life, angle,force) {
     this.life = life+Math.random()*1;
     size = (size-Math.random()*size/1.5);
 
-    var col = rgbToHex(Math.round(r), Math.round(g), Math.round(b));
+    var col = Utils.rgbToHex(Math.round(r), Math.round(g), Math.round(b));
     this.mesh.material.color.setHex(col);
     this.mesh.material.needsUpdate = true;
     this.mesh.scale.set(size,size,size);

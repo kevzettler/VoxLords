@@ -1,4 +1,5 @@
-const THREE = require('three');
+const THREE = require('../ThreeHelpers');
+const Utils = require('../Utils');
 
 function Enemy() {
     this.type = "enemy";
@@ -148,7 +149,7 @@ Enemy.prototype.Create = function(x, y ,z, shotType) {
 };
 
 Enemy.prototype.Draw = function(time, delta) {
-    var dist = GetDistance(this.mesh.position, game.player.mesh.position);
+    var dist = Utils.GetDistance(this.mesh.position, game.player.mesh.position);
     if(dist > 20) {
         // Optimization for performance, skipping frames when far away.
         this.skipDraw = Math.floor(dist/4);

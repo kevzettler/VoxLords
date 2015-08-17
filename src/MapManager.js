@@ -2,7 +2,8 @@ const Water = require('./Water');
 const Lava = require('./Lava');
 const World = require('./World');
 const Player = require('./Player');
-const THREE = require('three');
+const Princess = require('./Princess');
+const THREE = require('./ThreeHelpers');
 
 const Enemies = {
     Hula1 : require('./enemies/Hula1'),
@@ -88,10 +89,8 @@ MapManager.prototype.BuildWorldChunks = function() {
     console.log("World loaded: "+x+"% ", game.chunkManager.maxChunks);
     if(x < 100 || game.chunkManager.maxChunks == 0) {
         var that = this;
-        debugger;
         setTimeout(function() { 
             that.BuildWorldChunks(); 
-            debugger;
         }, 500);
         return;
     }
@@ -115,7 +114,6 @@ MapManager.prototype.BuildWorldChunks = function() {
         game.objects.push(water);
     }
 
-    debugger;
     this.SpawnPlayer();
 //    $('#statusEnemies').fadeIn(600);
 //    $('#statusEnemies').text("Enemies left: "+this.GetEnemiesLeft());
@@ -160,7 +158,6 @@ MapManager.prototype.SpawnWorld = function() {
     console.log("Spawning world.");
     // Load top
     game.world = new World();
-    debugger;
     game.world.Load(this.mapFile, this.wallHeight, this.blockSize); // 10924 triangles
     // TBD: Fix so that we don't depend on timeout.
 };

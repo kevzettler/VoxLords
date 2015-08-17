@@ -46,7 +46,6 @@
 
 	'use strict';
 
-	__webpack_require__(34);
 	var Game = __webpack_require__(1);
 	var game = new Game();
 	window.game = game;
@@ -64,7 +63,11 @@
 	var MapManager = __webpack_require__(15);
 	var PhysBlockPool = __webpack_require__(29);
 	var AmmoPool = __webpack_require__(31);
-	var THREE = __webpack_require__(12);
+	var THREE = __webpack_require__(43);
+	var HealthBox = __webpack_require__(37);
+	var WeaponBox = __webpack_require__(39);
+	var Godmode = __webpack_require__(40);
+	var Bomb = __webpack_require__(41);
 
 	//objects
 	var Cloud = __webpack_require__(32);
@@ -1407,7 +1410,8 @@
 	'use strict';
 
 	var Block = __webpack_require__(11);
-	var THREE = __webpack_require__(12);
+	var THREE = __webpack_require__(43);
+	var Utils = __webpack_require__(36);
 
 	function Chunk() {
 	    this.wireframe = false;
@@ -1948,7 +1952,7 @@
 	    this.mesh = mesh;
 	    this.GetBoundingBox();
 	    this.isBuilt = true;
-	    Log("VOX Model CREATED TRIANGLES: " + b);
+	    Utils.Log("VOX Model CREATED TRIANGLES: " + b);
 	};
 
 	Chunk.prototype.Destroy = function () {
@@ -37216,7 +37220,7 @@
 	'use strict';
 
 	var Loader = __webpack_require__(7);
-	var THREE = __webpack_require__(12);
+	var THREE = __webpack_require__(43);
 	var BufferLoader = __webpack_require__(35);
 
 	/////////////////////////////////////////////////////////////
@@ -37537,8 +37541,6 @@
 	};
 
 	ChunkManager.prototype.BuildAllChunks = function () {
-	    debugger;
-	    //KJZ worldchunks is empty for some reason??
 	    for (var i = 0; i < this.worldChunks.length; i++) {
 	        this.worldChunks[i].Rebuild();
 	        this.activeTriangles += this.worldChunks[i].GetActiveTriangles();
@@ -37643,7 +37645,8 @@
 	var Lava = __webpack_require__(18);
 	var World = __webpack_require__(19);
 	var Player = __webpack_require__(21);
-	var THREE = __webpack_require__(12);
+	var Princess = __webpack_require__(42);
+	var THREE = __webpack_require__(43);
 
 	var Enemies = {
 	    Hula1: __webpack_require__(26),
@@ -37729,10 +37732,8 @@
 	    console.log("World loaded: " + x + "% ", game.chunkManager.maxChunks);
 	    if (x < 100 || game.chunkManager.maxChunks == 0) {
 	        var that = this;
-	        debugger;
 	        setTimeout(function () {
 	            that.BuildWorldChunks();
-	            debugger;
 	        }, 500);
 	        return;
 	    }
@@ -37756,7 +37757,6 @@
 	        game.objects.push(water);
 	    }
 
-	    debugger;
 	    this.SpawnPlayer();
 	    //    $('#statusEnemies').fadeIn(600);
 	    //    $('#statusEnemies').text("Enemies left: "+this.GetEnemiesLeft());
@@ -37801,7 +37801,6 @@
 	    console.log("Spawning world.");
 	    // Load top
 	    game.world = new World();
-	    debugger;
 	    game.world.Load(this.mapFile, this.wallHeight, this.blockSize); // 10924 triangles
 	    // TBD: Fix so that we don't depend on timeout.
 	};
@@ -37866,7 +37865,7 @@
 
 	var util = __webpack_require__(3);
 	var Object3D = __webpack_require__(17);
-	var THREE = __webpack_require__(12);
+	var THREE = __webpack_require__(43);
 
 	function Water() {
 	    Object3D.call(this);
@@ -37921,7 +37920,7 @@
 
 	'use strict';
 
-	var THREE = __webpack_require__(12);
+	var THREE = __webpack_require__(43);
 
 	function Object3D() {
 	    // THREE.Mesh.apply(this, arguments); inherite from mesh
@@ -37949,7 +37948,7 @@
 	'use strict';
 
 	var Object3D = __webpack_require__(17);
-	var THREE = __webpack_require__(12);
+	var THREE = __webpack_require__(43);
 	/////////////////////////////////////////////////////////////
 	// Lava
 	/////////////////////////////////////////////////////////////
@@ -38021,7 +38020,6 @@
 	};
 
 	World.prototype.Load = function (filename, wallHeight, blockSize) {
-	    debugger;
 	    this.wallHeight = wallHeight;
 	    this.blockSize = blockSize;
 	    this.readWorld(filename);
@@ -38029,7 +38027,6 @@
 	};
 
 	World.prototype.readMap = function () {
-	    debugger;
 	    if (this.map == undefined) {
 	        var that = this;
 	        setTimeout(function () {
@@ -38039,8 +38036,6 @@
 	        return;
 	    }
 
-	    debugger; //KJZ DO WE EVER GET HERE?
-
 	    game.worldMap = new Array(this.map.length);
 	    for (var i = 0; i < game.worldMap.length; i++) {
 	        game.worldMap[i] = new Array();
@@ -38048,7 +38043,6 @@
 	    this.mapHeight = this.blockSize * this.map.length;
 	    this.mapWidth = this.blockSize * this.map.length;
 
-	    debugger;
 	    for (var cy = 0; cy < this.map.length; cy += this.chunkSize) {
 	        var alpha = 0;
 	        var total = 0;
@@ -38090,7 +38084,6 @@
 	};
 
 	World.prototype.readWorld = function (filename) {
-	    debugger;
 	    // Read png file binary and get color for each pixel
 	    // one pixel = one block
 	    // Read RGBA (alpha is height)
@@ -38102,7 +38095,6 @@
 	    var ctx = document.createElement('canvas').getContext('2d');
 	    var that = this;
 	    image.onload = function () {
-	        debugger;
 	        ctx.canvas.width = image.width;
 	        ctx.canvas.height = image.height;
 	        ctx.drawImage(image, 0, 0);
@@ -38127,7 +38119,6 @@
 
 	        console.log("Read world complete.");
 	        game.chunkManager.maxChunks = that.height / that.chunkSize * (that.height / that.chunkSize);
-	        debugger;
 	    };
 	};
 	module.exports = World;
@@ -38141,7 +38132,7 @@
 	var util = __webpack_require__(3);
 	var Chunk = __webpack_require__(10);
 	var Block = __webpack_require__(11);
-	var THREE = __webpack_require__(12);
+	var THREE = __webpack_require__(43);
 
 	// Chunks of other types such as crates/weapons/mob/player
 	function ChunkWorld() {
@@ -38152,7 +38143,6 @@
 
 	//Pretty sure this is getting h ammered by chunks Create method wtf
 	ChunkWorld.prototype.Create = function (chunkSize, blockSize, posX, posY, map, wallHeight, id) {
-	    debugger;
 	    this.cid = id;
 	    this.chunkSize = chunkSize;
 	    this.chunkSizeX = chunkSize;
@@ -38735,7 +38725,8 @@
 	var SmallShot = __webpack_require__(22);
 	var QuakeShot = __webpack_require__(24);
 	var FloatingShot = __webpack_require__(25);
-	var THREE = __webpack_require__(12);
+	var THREE = __webpack_require__(43);
+	var Utils = __webpack_require__(36);
 
 	function Player() {
 	    this.type = "player";
@@ -38895,7 +38886,7 @@
 	    var that = this;
 	    setTimeout(function () {
 	        that.AddBindings();
-	        LockPointer();
+	        Utils.LockPointer();
 	    }, 1500);
 	    console.log("Player loaded...");
 	};
@@ -39113,8 +39104,7 @@
 	        var y = movementY * 0.001;
 
 	        var xAxis = new THREE.Vector3(0, 0, 1);
-	        rotateAroundObjectAxis(this.mesh, xAxis, -(Math.PI / 2) * x);
-	        //this.UpdatePos(-1);
+	        Utils.rotateAroundObjectAxis(this.mesh, xAxis, -(Math.PI / 2) * x);
 	    }
 	};
 
@@ -39188,6 +39178,7 @@
 
 	var util = __webpack_require__(3);
 	var Shot = __webpack_require__(23);
+	var Utils = __webpack_require__(36);
 
 	function SmallShot() {
 	    Shot.call(this);
@@ -39210,7 +39201,7 @@
 	    }
 
 	    if (this.hitObject != undefined) {
-	        var distance = GetDistance(this.mesh.position, this.hitObject.position);
+	        var distance = Utils.GetDistance(this.mesh.position, this.hitObject.position);
 	        if (this.distance != undefined) {
 	            if (this.distance <= 0 || distance > this.distance) {
 	                if (this.hitObject.that.Hit != undefined) {
@@ -39340,6 +39331,7 @@
 
 	var util = __webpack_require__(3);
 	var Shot = __webpack_require__(23);
+	var Utils = __webpack_require__(36);
 
 	function QuakeShot() {
 	    Shot.call(this);
@@ -39362,7 +39354,7 @@
 	    }
 
 	    if (this.hitObject != undefined) {
-	        var distance = GetDistance(this.mesh.position, this.hitObject.position);
+	        var distance = Utils.GetDistance(this.mesh.position, this.hitObject.position);
 	        if (this.distance != undefined) {
 	            if (this.distance <= 0 || distance > this.distance) {
 	                if (this.hitObject.that.Hit != undefined) {
@@ -39404,6 +39396,7 @@
 
 	var util = __webpack_require__(3);
 	var Shot = __webpack_require__(23);
+	var Utils = __webpack_require__(36);
 
 	function FloatingShot() {
 	    Shot.call(this);
@@ -39428,7 +39421,7 @@
 	    }
 
 	    if (this.hitObject != undefined) {
-	        var distance = GetDistance(this.mesh.position, this.hitObject.position);
+	        var distance = Utils.GetDistance(this.mesh.position, this.hitObject.position);
 	        if (this.distance != undefined) {
 	            if (this.distance <= 0 || distance > this.distance) {
 	                if (this.hitObject.that.Hit != undefined) {
@@ -39463,6 +39456,7 @@
 
 	var util = __webpack_require__(3);
 	var Enemy = __webpack_require__(27);
+	var Utils = __webpack_require__(36);
 
 	function Hula1() {
 	    Enemy.call(this);
@@ -39481,7 +39475,7 @@
 	Hula1.prototype.Draw = function (time, delta) {
 	    Enemy.prototype.Draw.call(this);
 
-	    var dist = GetDistance(this.mesh.position, game.player.mesh.position);
+	    var dist = Utils.GetDistance(this.mesh.position, game.player.mesh.position);
 	    if (dist < 5) {
 	        this.Explode();
 	    }
@@ -39494,7 +39488,8 @@
 
 	'use strict';
 
-	var THREE = __webpack_require__(12);
+	var THREE = __webpack_require__(43);
+	var Utils = __webpack_require__(36);
 
 	function Enemy() {
 	    this.type = "enemy";
@@ -39641,7 +39636,7 @@
 	};
 
 	Enemy.prototype.Draw = function (time, delta) {
-	    var dist = GetDistance(this.mesh.position, game.player.mesh.position);
+	    var dist = Utils.GetDistance(this.mesh.position, game.player.mesh.position);
 	    if (dist > 20) {
 	        // Optimization for performance, skipping frames when far away.
 	        this.skipDraw = Math.floor(dist / 4);
@@ -39701,6 +39696,7 @@
 
 	var util = __webpack_require__(3);
 	var Enemy = __webpack_require__(27);
+	var Utils = __webpack_require__(36);
 
 	function Hula2() {
 	    Enemy.call(this);
@@ -39719,7 +39715,7 @@
 	Hula2.prototype.Draw = function (time, delta) {
 	    Enemy.prototype.Draw.call(this);
 
-	    var dist = GetDistance(this.mesh.position, game.player.mesh.position);
+	    var dist = Utils.GetDistance(this.mesh.position, game.player.mesh.position);
 	    if (dist < 5) {
 	        this.Explode();
 	    }
@@ -39779,7 +39775,8 @@
 
 	'use strict';
 
-	var THREE = __webpack_require__(12);
+	var THREE = __webpack_require__(43);
+	var Utils = __webpack_require__(36);
 
 	function PhysBlock() {
 	    this.opacity = 1.0;
@@ -39822,9 +39819,9 @@
 	    this.life = life + Math.random() * 1;
 	    size = size - Math.random() * size / 1.5;
 
-	    var col = rgbToHex(Math.round(r), Math.round(g), Math.round(b));
+	    var col = Utils.rgbToHex(Math.round(r), Math.round(g), Math.round(b));
 	    this.mesh.material.color.setHex(col);
-	    this.mesh.material.ambient.setHex(col);
+	    //this.mesh.material.ambient.setHex(col); //deprecated?
 	    this.mesh.material.needsUpdate = true;
 	    this.mesh.scale.set(size, size, size);
 	    this.mesh.position.set(x, y, z);
@@ -39847,7 +39844,7 @@
 	    this.life = life + Math.random() * 1;
 	    size = size - Math.random() * size / 1.5;
 
-	    var col = rgbToHex(Math.round(r), Math.round(g), Math.round(b));
+	    var col = Utils.rgbToHex(Math.round(r), Math.round(g), Math.round(b));
 	    this.mesh.material.color.setHex(col);
 	    this.mesh.material.needsUpdate = true;
 	    this.mesh.scale.set(size, size, size);
@@ -39894,7 +39891,7 @@
 
 	'use strict';
 
-	var THREE = __webpack_require__(12);
+	var THREE = __webpack_require__(43);
 
 	function AmmoPool() {
 	    this.size = 0;
@@ -40062,270 +40059,7 @@
 	module.exports = Tree;
 
 /***/ },
-/* 34 */
-/***/ function(module, exports, __webpack_require__) {
-
-	"use strict";
-
-	var THREE = __webpack_require__(12);
-
-	//==============================================================================
-	// Author: Nergal
-	// Date: 2014-06-12
-	//==============================================================================
-	// Rotate an object around an arbitrary axis in object space
-	function rotateAroundObjectAxis(object, axis, radians) {
-	    var rotObjectMatrix = new THREE.Matrix4();
-	    rotObjectMatrix.makeRotationAxis(axis.normalize(), radians);
-	    object.matrix.multiply(rotObjectMatrix);
-	    object.rotation.setFromRotationMatrix(object.matrix);
-	}
-
-	// Rotate an object around an arbitrary axis in world space      
-	function rotateAroundWorldAxis(object, axis, radians) {
-	    var rotWorldMatrix = new THREE.Matrix4();
-	    rotWorldMatrix.makeRotationAxis(axis.normalize(), radians);
-	    rotWorldMatrix.multiply(object.matrix); // pre-multiply
-	    object.matrix = rotWorldMatrix;
-	    object.rotation.setFromRotationMatrix(object.matrix);
-	}
-
-	function GetDistance(v1, v2) {
-	    var dx = v1.x - v2.x;
-	    var dy = v1.y - v2.y;
-	    var dz = v1.z - v2.z;
-	    return Math.sqrt(dx * dx + dy * dy + dz * dz);
-	}
-
-	function UniqueArr(a) {
-	    var temp = {};
-	    for (var i = 0; i < a.length; i++) temp[a[i]] = true;
-	    var r = [];
-	    for (var k in temp) r.push(k);
-	    return r;
-	}
-
-	function timeStamp() {
-	    var now = new Date();
-	    var date = [now.getMonth() + 1, now.getDate(), now.getFullYear()];
-	    var time = [now.getHours(), now.getMinutes(), now.getSeconds()];
-	    time[0] = time[0] < 12 ? time[0] : time[0] - 12;
-	    time[0] = time[0] || 12;
-	    for (var i = 1; i < 3; i++) {
-	        if (time[i] < 10) {
-	            time[i] = "0" + time[i];
-	        }
-	    }
-	    return date.join("/") + " " + time.join(":");
-	}
-
-	function Log(msg) {
-
-	    if (typeof msg != 'object') {
-	        console.log("[" + timeStamp() + "] " + msg);
-	    } else {
-	        console.log(msg);
-	    }
-	}
-
-	THREE.PerspectiveCamera.prototype.setRotateX = function (deg) {
-	    if (typeof deg == 'number' && parseInt(deg) == deg) {
-	        this.rotation.x = deg * (Math.PI / 180);
-	    }
-	};
-	THREE.PerspectiveCamera.prototype.setRotateY = function (deg) {
-	    if (typeof deg == 'number' && parseInt(deg) == deg) {
-	        this.rotation.y = deg * (Math.PI / 180);
-	    }
-	};
-	THREE.PerspectiveCamera.prototype.setRotateZ = function (deg) {
-	    if (typeof deg == 'number' && parseInt(deg) == deg) {
-	        this.rotation.z = deg * (Math.PI / 180);
-	    }
-	};
-	THREE.PerspectiveCamera.prototype.getRotateX = function () {
-	    return Math.round(this.rotation.x * (180 / Math.PI));
-	};
-	THREE.PerspectiveCamera.prototype.getRotateY = function () {
-	    return Math.round(this.rotation.y * (180 / Math.PI));
-	};
-	THREE.PerspectiveCamera.prototype.getRotateZ = function () {
-	    return Math.round(this.rotation.z * (180 / Math.PI));
-	};
-
-	function MsgBoard(msg) {
-	    $('#msgboard').fadeIn(1000);
-	    $('#msgboard_msg').html("<font color='#FF0000'>" + msg + "</font>");
-	    setTimeout(function () {
-	        $('#msgboard').fadeOut(1000);
-	    }, 2000);
-	}
-
-	function CreateBoundingBox2(obj) {
-	    var object3D = obj.mesh;
-	    var box = null;
-	    object3D.geometry.computeBoundingBox();
-	    box = geometry.boundingBox;
-
-	    var x = box.max.x - box.min.x;
-	    var y = box.max.y - box.min.y;
-	    var z = box.max.z - box.min.z;
-
-	    /*
-	        obj.bsize_x = (x/2)*obj.mesh.scale.x;
-	        obj.bsize_y = (y/2)*obj.mesh.scale.y;
-	        obj.bsize_z = (z/2)*obj.mesh.scale.z;
-	    */
-	    obj.bbox = box;
-
-	    var bcube = new THREE.Mesh(new THREE.BoxGeometry(x, y, z), new THREE.MeshNormalMaterial({ visible: false, wireframe: true, color: 0xAA3333 }));
-
-	    game.scene.add(bcube);
-	    var bboxCenter = box.center();
-	    bcube.translateX(bboxCenter.x);
-	    bcube.translateY(bboxCenter.y);
-	    bcube.translateZ(bboxCenter.z);
-	    obj.bcube = bcube;
-	    object3D.add(bcube);
-
-	    bcube.that = obj.mesh.that;
-	    //    return bcube;
-	}
-	function CreateBoundingBox(obj) {
-	    var object3D = obj.mesh;
-	    var box = null;
-	    object3D.traverse(function (obj3D) {
-	        var geometry = obj3D.geometry;
-	        if (geometry === undefined) {
-	            return;
-	        }
-	        geometry.computeBoundingBox();
-	        if (box === null) {
-	            box = geometry.boundingBox;
-	        } else {
-	            box.union(geometry.boundingBox);
-	        }
-	    });
-
-	    var x = box.max.x - box.min.x;
-	    var y = box.max.y - box.min.y;
-	    var z = box.max.z - box.min.z;
-
-	    /*
-	        obj.bsize_x = (x/2)*obj.mesh.scale.x;
-	        obj.bsize_y = (y/2)*obj.mesh.scale.y;
-	        obj.bsize_z = (z/2)*obj.mesh.scale.z;
-	    */
-	    obj.bbox = box;
-
-	    var bcube = new THREE.Mesh(new THREE.BoxGeometry(x, y, z), new THREE.MeshNormalMaterial({ visible: false, wireframe: true, color: 0xAA3333 }));
-	    var bboxCenter = box.center();
-	    bcube.translateX(bboxCenter.x);
-	    bcube.translateY(bboxCenter.y);
-	    bcube.translateZ(bboxCenter.z);
-	    obj.bcube = bcube;
-	    object3D.add(bcube);
-
-	    bcube.that = obj.mesh.that;
-
-	    game.targets.push(bcube);
-	    //    return bcube;
-	}
-
-	function rgbToHex(r, g, b) {
-	    if (r < 0) r = 0;
-	    if (g < 0) g = 0;
-	    return "0x" + componentToHex(r) + componentToHex(g) + componentToHex(b);
-	}
-
-	function rgbToHex2(r, g, b) {
-	    if (r < 0) r = 0;
-	    if (g < 0) g = 0;
-	    return "#" + componentToHex(r) + componentToHex(g) + componentToHex(b);
-	}
-
-	function componentToHex(c) {
-	    var hex = c.toString(16);
-	    return hex.length == 1 ? "0" + hex : hex;
-	}
-
-	function GetWorldYVector(vector) {
-	    var world = game.terrain.GetNoise();
-	    var x = Math.round(vector.x / 10) + world.length / 2;
-	    var z = Math.round(vector.z / 10) + world.length / 2;
-	    var y = 0;
-	    if (x < world.length - 1) {
-	        if (world[x] != undefined && z < world[x].length - 1) {
-	            y = world[x][z] * 200;
-	        }
-	    } else {
-	        y = 0;
-	    }
-	    return y;
-	}
-
-	function GetWorldY(mesh) {
-	    var world = game.terrain.GetNoise();
-	    var x = Math.round(mesh.position.x / 10) + world.length / 2;
-	    var z = Math.round(mesh.position.z / 10) + world.length / 2;
-	    var y = 0;
-	    if (x < world.length - 1) {
-	        if (world[x] != undefined && z < world[x].length - 1) {
-	            y = world[x][z] * 200;
-	        }
-	    } else {
-	        y = 0;
-	    }
-	    return y;
-	}
-
-	function ReleasePointer() {
-	    var instructions = document.getElementsByTagName("body")[0];
-	    instructions.removeEventListener('click', instrClick);
-	    keys_enabled = 0;
-	    document.exitPointerLock = document.exitPointerLock || document.mozExitPointerLock || document.webkitExitPointerLock;
-	    document.exitPointerLock();
-	}
-
-	// http://www.html5rocks.com/en/tutorials/pointerlock/intro/
-	function LockPointer() {
-	    var instructions = document.getElementsByTagName("body")[0];
-	    /*
-	        var havePointerLock = 'pointerLockElement' in document || 'mozPointerLockElement' in document || 'webkitPointerLockElement' in document;
-	        if ( havePointerLock ) {
-	    	var element = document.body;
-	    	var pointerlockchange = function ( event ) {
-	    	    if ( document.pointerLockElement === element || document.mozPointerLockElement === element || document.webkitPointerLockElement === element ) {
-	    		$('#info').hide();
-	    		$('#scoreboard').hide();
-	    		keys_enabled = 1;
-	    		return;
-	    	    } else {
-	    
-	    		if(!$('#helpboard').is(":visible")) {
-	    		    $('#info').show();
-	    		}
-	    		keys_enabled = 0;
-	    	    }
-	    	}
-	    */
-	    /*
-	    	document.addEventListener( 'pointerlockchange', pointerlockchange, false );
-	    	document.addEventListener( 'mozpointerlockchange', pointerlockchange, false );
-	    	document.addEventListener( 'webkitpointerlockchange', pointerlockchange, false );
-	    */
-	    instructions.addEventListener('click', instrClick, false);
-	    //  }
-	}
-
-	function instrClick(event) {
-	    var element = document.body;
-	    keys_enabled = 1;
-	    element.requestPointerLock = element.requestPointerLock || element.mozRequestPointerLock || element.webkitRequestPointerLock;
-	    element.requestPointerLock();
-	}
-
-/***/ },
+/* 34 */,
 /* 35 */
 /***/ function(module, exports) {
 
@@ -40375,6 +40109,653 @@
 	};
 
 	module.exports = BufferLoader;
+
+/***/ },
+/* 36 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	var THREE = __webpack_require__(43);
+
+	var Utils = {
+	    // Rotate an object around an arbitrary axis in object space
+	    rotateAroundObjectAxis: function rotateAroundObjectAxis(object, axis, radians) {
+	        var rotObjectMatrix = new THREE.Matrix4();
+	        rotObjectMatrix.makeRotationAxis(axis.normalize(), radians);
+	        object.matrix.multiply(rotObjectMatrix);
+	        object.rotation.setFromRotationMatrix(object.matrix);
+	    },
+
+	    // Rotate an object around an arbitrary axis in world space      
+	    rotateAroundWorldAxis: function rotateAroundWorldAxis(object, axis, radians) {
+	        var rotWorldMatrix = new THREE.Matrix4();
+	        rotWorldMatrix.makeRotationAxis(axis.normalize(), radians);
+	        rotWorldMatrix.multiply(object.matrix); // pre-multiply
+	        object.matrix = rotWorldMatrix;
+	        object.rotation.setFromRotationMatrix(object.matrix);
+	    },
+
+	    GetDistance: function GetDistance(v1, v2) {
+	        var dx = v1.x - v2.x;
+	        var dy = v1.y - v2.y;
+	        var dz = v1.z - v2.z;
+	        return Math.sqrt(dx * dx + dy * dy + dz * dz);
+	    },
+
+	    UniqueArr: function UniqueArr(a) {
+	        var temp = {};
+	        for (var i = 0; i < a.length; i++) temp[a[i]] = true;
+	        var r = [];
+	        for (var k in temp) r.push(k);
+	        return r;
+	    },
+
+	    timeStamp: function timeStamp() {
+	        var now = new Date();
+	        var date = [now.getMonth() + 1, now.getDate(), now.getFullYear()];
+	        var time = [now.getHours(), now.getMinutes(), now.getSeconds()];
+	        time[0] = time[0] < 12 ? time[0] : time[0] - 12;
+	        time[0] = time[0] || 12;
+	        for (var i = 1; i < 3; i++) {
+	            if (time[i] < 10) {
+	                time[i] = "0" + time[i];
+	            }
+	        }
+	        return date.join("/") + " " + time.join(":");
+	    },
+
+	    Log: function Log(msg) {
+
+	        if (typeof msg != 'object') {
+	            console.log("[" + this.timeStamp() + "] " + msg);
+	        } else {
+	            console.log(msg);
+	        }
+	    },
+
+	    MsgBoard: function MsgBoard(msg) {
+	        $('#msgboard').fadeIn(1000);
+	        $('#msgboard_msg').html("<font color='#FF0000'>" + msg + "</font>");
+	        setTimeout(function () {
+	            $('#msgboard').fadeOut(1000);
+	        }, 2000);
+	    },
+
+	    // CreateBoundingBox2: function(obj) {
+	    //     var object3D = obj.mesh;
+	    //     var box = null;
+	    //     object3D.geometry.computeBoundingBox();
+	    //     box = geometry.boundingBox;
+
+	    //     var x = box.max.x - box.min.x;
+	    //     var y = box.max.y - box.min.y;
+	    //     var z = box.max.z - box.min.z;
+
+	    //     obj.bbox = box;
+
+	    //     var bcube = new THREE.Mesh( new THREE.BoxGeometry( x, y, z ),
+	    // 				new THREE.MeshNormalMaterial({ visible: false, wireframe: true, color: 0xAA3333}) );
+
+	    //                 game.scene.add(bcube);
+	    //     var bboxCenter = box.center();
+	    //     bcube.translateX(bboxCenter.x);
+	    //     bcube.translateY(bboxCenter.y);
+	    //     bcube.translateZ(bboxCenter.z);
+	    //     obj.bcube = bcube;
+	    //     object3D.add(bcube);
+
+	    //     bcube.that = obj.mesh.that;
+	    // },
+
+	    // CreateBoundingBox: function(obj) {
+	    //     var object3D = obj.mesh;
+	    //     var box = null;
+	    //     object3D.traverse(function (obj3D) {
+	    //         var geometry = obj3D.geometry;
+	    //         if (geometry === undefined)  {
+	    // 	    return;
+	    // 	}
+	    //         geometry.computeBoundingBox();
+	    //         if (box === null) {
+	    // 	    box = geometry.boundingBox;
+	    //         } else {
+	    // 	    box.union(geometry.boundingBox);
+	    //         }
+	    //     });
+
+	    //     var x = box.max.x - box.min.x;
+	    //     var y = box.max.y - box.min.y;
+	    //     var z = box.max.z - box.min.z;
+
+	    //     obj.bbox = box;
+
+	    //     var bcube = new THREE.Mesh( new THREE.BoxGeometry( x, y, z ),
+	    // 				new THREE.MeshNormalMaterial({ visible: false, wireframe: true, color: 0xAA3333}) );
+	    //     var bboxCenter = box.center();
+	    //     bcube.translateX(bboxCenter.x);
+	    //     bcube.translateY(bboxCenter.y);
+	    //     bcube.translateZ(bboxCenter.z);
+	    //     obj.bcube = bcube;
+	    //     object3D.add(bcube);
+
+	    //     bcube.that = obj.mesh.that;
+
+	    //     game.targets.push(bcube);
+	    // },
+
+	    rgbToHex: function rgbToHex(r, g, b) {
+	        if (r < 0) r = 0;
+	        if (g < 0) g = 0;
+	        return "0x" + this.componentToHex(r) + this.componentToHex(g) + this.componentToHex(b);
+	    },
+
+	    rgbToHex2: function rgbToHex2(r, g, b) {
+	        if (r < 0) r = 0;
+	        if (g < 0) g = 0;
+	        return "#" + this.componentToHex(r) + this.componentToHex(g) + this.componentToHex(b);
+	    },
+
+	    componentToHex: function componentToHex(c) {
+	        var hex = c.toString(16);
+	        return hex.length == 1 ? "0" + hex : hex;
+	    },
+
+	    // GetWorldYVector: function(vector) {
+	    //     var world = game.terrain.GetNoise();
+	    //     var x = Math.round(vector.x/10)+world.length/2;
+	    //     var z = Math.round(vector.z/10)+world.length/2;
+	    //     var y = 0;
+	    //     if(x < world.length-1) {
+	    // 	if(world[x] != undefined && z < world[x].length-1) {
+	    // 	    y = world[x][z]*200;
+	    // 	}
+	    //     } else {
+	    // 	y = 0;
+	    //     }
+	    //     return y;
+	    // },
+
+	    // GetWorldY: function(mesh) {
+	    //     var world = game.terrain.GetNoise();
+	    //     var x = Math.round(mesh.position.x/10)+world.length/2;
+	    //     var z = Math.round(mesh.position.z/10)+world.length/2;
+	    //     var y = 0;
+	    //     if(x < world.length-1) {
+	    // 	if(world[x] != undefined && z < world[x].length-1) {
+	    // 	    y = world[x][z]*200;
+	    // 	}
+	    //     } else {
+	    // 	y = 0;
+	    //     }
+	    //     return y;
+	    // },
+
+	    ReleasePointer: function ReleasePointer() {
+	        var instructions = document.getElementsByTagName("body")[0];
+	        instructions.removeEventListener('click', instrClick);
+	        keys_enabled = 0;
+	        document.exitPointerLock = document.exitPointerLock || document.mozExitPointerLock || document.webkitExitPointerLock;
+	        document.exitPointerLock();
+	    },
+
+	    // http://www.html5rocks.com/en/tutorials/pointerlock/intro/
+	    LockPointer: function LockPointer() {
+	        var instructions = document.getElementsByTagName("body")[0];
+	        instructions.addEventListener('click', this.instrClick, false);
+	    },
+
+	    instrClick: function instrClick(event) {
+	        var element = document.body;
+	        keys_enabled = 1;
+	        element.requestPointerLock = element.requestPointerLock || element.mozRequestPointerLock || element.webkitRequestPointerLock;
+	        element.requestPointerLock();
+	    }
+	};
+
+	module.exports = Utils;
+
+/***/ },
+/* 37 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var util = __webpack_require__(3);
+	var Item = __webpack_require__(38);
+
+	function HealthBox() {
+	    Item.call(this);
+	    this.speed = 5;
+	    this.type = "healthbox";
+	    this.model = "healthbox";
+	}
+	util.inherits(HealthBox, Item);
+
+	HealthBox.prototype.Remove = function () {
+	    this.remove = 1;
+	    this.chunk.Explode(this.mesh.position);
+	    game.soundLoader.PlaySound("health", this.mesh.position, 300);
+	};
+
+	HealthBox.prototype.Hit = function () {
+	    this.Remove();
+	    game.player.AddHealth();
+	};
+
+	module.exports = HealthBox;
+
+/***/ },
+/* 38 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	var Utils = __webpack_require__(36);
+
+	function Item() {
+	    this.scale = 1;
+	    this.remove = 0;
+	    this.mesh = undefined;
+	    this.type = "item";
+	    this.model = undefined;
+	    this.speed = 5;
+	    this.chunk = undefined;
+	    this.mesh = undefined;
+	    this.skipDraw = 0;
+	}
+
+	Item.prototype.Explode = function () {
+	    game.chunkManager.ExplodeBomb(this.mesh.position.x, this.mesh.position.z, this.damage, false);
+	    this.chunk.Explode(this.mesh.position);
+	    game.scene.remove(this.mesh);
+	};
+
+	Item.prototype.Remove = function () {
+	    if (this.remove != 1) {
+	        this.Explode();
+	        this.remove = 1;
+	    }
+	};
+
+	Item.prototype.Create = function (pos) {
+	    this.chunk = game.voxLoader.GetModel(this.model);
+	    this.mesh = this.chunk.mesh;
+	    game.scene.add(this.mesh);
+	    this.mesh.position.set(pos.x, pos.y, pos.z);
+	    this.mesh.that = this;
+	    game.targets.push(this.mesh);
+	};
+
+	Item.prototype.Draw = function (time, delta) {
+	    if (game.player != undefined) {
+	        var dist = Utils.GetDistance(this.mesh.position, game.player.mesh.position);
+	        if (dist > 20) {
+	            // Optimization for performance, skipping frames when far away.
+	            this.skipDraw = Math.floor(dist / 3);
+	        }
+	    }
+	    this.mesh.rotation.z = time / this.speed;
+	};
+
+	module.exports = Item;
+
+/***/ },
+/* 39 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var util = __webpack_require__(3);
+	var Item = __webpack_require__(38);
+
+	function WeaponBox() {
+	    Item.call(this);
+	    this.type = "bomb";
+	    this.speed = 10;
+	    this.hit = false;
+	    this.model = "weaponbox";
+	    this.damage = 10;
+	}
+	util.inherits(WeaponBox, Item);
+
+	WeaponBox.prototype.Remove = function () {
+	    this.Explode();
+	    this.remove = 1;
+	    game.soundLoader.PlaySound("explode", this.mesh.position, 300);
+	};
+
+	WeaponBox.prototype.Hit = function () {
+	    this.hit = true;
+	};
+
+	WeaponBox.prototype.Draw = function (time, delta) {
+	    if (this.hit) {
+	        this.speed -= 0.1;
+	    }
+	    if (this.speed <= 1) {
+	        this.Remove();
+	    } else {
+	        this.mesh.rotation.z = time / this.speed;
+	    }
+	};
+
+	module.exports = WeaponBox;
+
+/***/ },
+/* 40 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var util = __webpack_require__(3);
+	var Item = __webpack_require__(38);
+
+	function GodMode() {
+	    Item.call(this);
+	    this.speed = 5;
+	    this.type = "godmode";
+	    this.model = "godmode";
+	}
+	util.inherits(GodMode, Item);
+
+	GodMode.prototype.Remove = function () {
+	    this.chunk.Explode(this.mesh.position);
+	    game.soundLoader.PlaySound("crate_explode", this.mesh.position, 300);
+	    this.remove = 1;
+	};
+
+	GodMode.prototype.Hit = function () {
+	    game.player.godMode = true;
+	    this.Remove();
+	};
+
+	module.exports = GodMode;
+
+/***/ },
+/* 41 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var util = __webpack_require__(3);
+	var Item = __webpack_require__(38);
+
+	function Bomb() {
+	    Item.call(this);
+	    this.type = "bomb";
+	    this.speed = 10;
+	    this.hit = false;
+	    this.model = "bomb";
+	    this.damage = 5;
+	}
+	util.inherits(Bomb, Item);
+
+	Bomb.prototype.Remove = function () {
+	    this.Explode();
+	    this.remove = 1;
+	    game.soundLoader.PlaySound("explode", this.mesh.position, 300);
+	};
+
+	Bomb.prototype.Hit = function () {
+	    this.hit = true;
+	};
+
+	Bomb.prototype.Draw = function (time, delta) {
+	    if (this.hit) {
+	        this.speed -= 0.1;
+	    }
+	    if (this.speed <= 1) {
+	        this.Remove();
+	    } else {
+	        this.mesh.rotation.z = time / this.speed;
+	    }
+	};
+
+	module.exports = Bomb;
+
+/***/ },
+/* 42 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var THREE = __webpack_require__(43);
+	var Utils = __webpack_require__(36);
+
+	function Princess() {
+	    this.scale = 1;
+	    this.remove = 0;
+	    this.mesh = undefined;
+	    this.type = "item";
+	    this.model = undefined;
+	    this.chunk = undefined;
+	    this.mesh = undefined;
+	    this.saved = false;
+	    this.direction = undefined;
+	    this.ray = undefined;
+	    this.speed = 0.2;
+	    this.dead = false;
+	    this.health = 5;
+	    this.bars = 12;
+	    this.hpPerBar = 0;
+	    this.healthBoxes = [];
+	    this.helpTime = 0;
+	    this.inCastle = false;
+	    this.skipDraw = 0;
+	}
+
+	Princess.prototype.CreateHealth = function () {
+	    this.hpPerBar = this.health / this.bars;
+	    for (var i = 0; i < this.bars; i++) {
+	        var geo = new THREE.BoxGeometry(0.1, 0.1, 0.1);
+	        var color;
+	        switch (i) {
+	            case 0:
+	                color = 0x880000;
+	                break;
+	            case 1:
+	                color = 0x980000;
+	                break;
+	            case 2:
+	                color = 0xB80000;
+	                break;
+	            case 3:
+	                color = 0xF80000;
+	                break;
+	            case 4:
+	                color = 0xFF6600;
+	                break;
+	            case 5:
+	                color = 0xFF9900;
+	                break;
+	            case 6:
+	                color = 0xFFCC00;
+	                break;
+	            case 7:
+	                color = 0xFFFF00;
+	                break;
+	            case 8:
+	                color = 0x99FF33;
+	                break;
+	            default:
+	                color = 0x00FF00;
+	        }
+	        var mat = new THREE.MeshBasicMaterial({ 'color': color });
+	        var b = new THREE.Mesh(geo, mat);
+	        b.position.set(i * 0.1 + 0.01 - this.bars / 2 * 0.1, 0, 2);
+	        this.healthBoxes.push(b);
+	        this.mesh.add(b);
+	    };
+	};
+	Princess.prototype.Saved = function () {
+	    this.saved = true;
+	    this.CreateHealth();
+	    game.soundLoader.PlaySound("princess_saved", this.mesh.position, 300);
+	};
+
+	Princess.prototype.Walk = function () {
+	    if (this.saved && !game.player.dead) {
+	        var dist = Utils.GetDistance(this.mesh.position, game.player.mesh.position);
+	        if (dist > 2) {
+	            var playerPos = game.player.mesh.position.clone();
+	            this.mesh.lookAt(new THREE.Vector3(playerPos.x, 360, playerPos.z));
+
+	            var initialPosition = this.mesh.position.clone();
+	            initialPosition.y += this.mesh.geometry.boundingBox.max.y + 0.5;
+	            var rotationMatrix = new THREE.Matrix4();
+	            rotationMatrix.extractRotation(this.mesh.matrix);
+	            var rotationVector = new THREE.Vector3(0, -1, -0.05);
+	            rotationVector.applyMatrix4(rotationMatrix);
+	            var ray = new THREE.Raycaster(initialPosition, rotationVector);
+	            this.ray = ray;
+	            this.direction = ray.ray.direction;
+	            this.mesh.position.x += this.direction.x * this.speed;
+	            this.mesh.position.z += this.direction.z * this.speed;
+
+	            // Check if we are close to the castle
+	            if (!this.inCastle) {
+	                var ppos = this.mesh.position;
+	                var cpos = game.currentMap.castlePosition;
+	                if (ppos.x >= cpos.x - 5 && ppos.x <= cpos.x + 5 && ppos.z >= cpos.z - 5 && ppos.z <= cpos.z + 5) {
+	                    this.inCastle = true;
+	                    game.soundLoader.PlaySound("princess_castle", this.mesh.position, 300);
+	                    game.setStatus("Voxilia saved.");
+	                    game.setStatusCenter("Vox - HERO of Voxadu!", "#00FF00");
+	                    game.scene.remove(this.mesh);
+	                    this.remove = 1;
+	                    game.scene.remove(game.player.mesh);
+	                    game.player.remove = 1;
+	                    setTimeout(function () {
+	                        if (game.currentMap.id == 4) {
+	                            $('#statusCenter').html("<p class='vox_font'>VOX DEFEATED ALL LORDS OF VOXADU!</p><p class='vox_font'>All hail Prince Vox!</p>");
+	                        } else {
+	                            var prevId = game.currentMap.id;
+	                            game.ReInit(prevId + 1);
+	                        }
+	                    }, 2500);
+	                }
+	            }
+	        }
+	    }
+	};
+
+	Princess.prototype.Hit = function (data, dmg) {
+	    if (this.saved) {
+	        if (game.player.godMode) {
+	            return;
+	        }
+	        if (Math.random() < 0.5) {
+	            game.soundLoader.PlaySound("princess_careful", this.mesh.position, 300);
+	        } else {
+	            game.soundLoader.PlaySound("princess_aj", this.mesh.position, 300);
+	        }
+	        this.health -= dmg;
+	        var remove = Math.round(this.healthBoxes.length - this.health / this.hpPerBar);
+	        for (var i = 0; i <= remove; i++) {
+	            this.mesh.remove(this.healthBoxes.pop());
+	        }
+	        if (this.health <= 0) {
+	            this.Remove();
+	        }
+	    }
+	};
+
+	Princess.prototype.Remove = function () {
+	    if (this.inCastle) {
+	        return;
+	    }
+	    game.setStatusCenter("Princess died, Vox failed!", "#FF0000");
+	    $('#statusCenter').fadeIn(1000);
+	    game.player.mesh.lookAt(new THREE.Vector3(this.mesh.x, 360, this.mesh.z));
+	    game.player.falling = true; // workaround to disable controls
+	    setTimeout(function () {
+	        game.player.Die();
+	    }, 3000);
+	    this.remove = 1;
+	    this.dead = true;
+	    this.chunk.Explode(this.mesh.position);
+	    game.chunkManager.Blood(this.mesh.position.x, this.mesh.position.z, 1 + Math.random() * 3);
+	    game.scene.remove(this.mesh);
+	};
+
+	Princess.prototype.Create = function (pos) {
+	    this.chunk = game.voxLoader.GetModel("princess");
+	    game.scene.add(this.chunk.mesh);
+	    this.chunk.mesh.position.set(pos.x, pos.y + 0.2, pos.z);
+	    this.mesh = this.chunk.mesh;
+
+	    this.mesh.geometry.computeBoundingBox();
+	    this.mesh.that = this;
+	    game.targets.push(this.mesh);
+	};
+
+	Princess.prototype.Draw = function (time, delta) {
+	    // this.mesh.rotation.z = (time/10);
+	    var dist = Utils.GetDistance(this.mesh.position, game.player.mesh.position);
+	    if (dist > 20) {
+	        // Optimization for performance, skipping frames when far away.
+	        this.skipDraw = Math.floor(dist / 5);
+	    }
+	    this.helpTime += delta;
+	    if (dist < 10 && !this.saved) {
+	        if (this.helpTime > 10) {
+	            game.soundLoader.PlaySound("princess_help", this.mesh.position, 300);
+	            game.setStatus("Shoot the cage to save Voxilia");
+	            this.helpTime = 0;
+	        }
+	    }
+	    var playerPos = game.player.mesh.position.clone();
+	    this.mesh.lookAt(new THREE.Vector3(playerPos.x, 360, playerPos.z));
+	    this.Walk();
+	    this.y = game.chunkManager.GetHeight(this.mesh.position.x, this.mesh.position.z);
+	    if (this.y <= 0 && !game.player.godMode) {
+	        if (this.mesh.position.y > game.currentMap.lavaPosition) {
+	            this.mesh.position.y -= 0.2;
+	        } else {
+	            this.Remove();
+	        }
+	        return;
+	    }
+	    this.mesh.position.y = this.y; //-0.2;
+	};
+
+	module.exports = Princess;
+
+/***/ },
+/* 43 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var THREE = __webpack_require__(12);
+
+	THREE.PerspectiveCamera.prototype.setRotateX = function (deg) {
+	    if (typeof deg == 'number' && parseInt(deg) == deg) {
+	        this.rotation.x = deg * (Math.PI / 180);
+	    }
+	};
+	THREE.PerspectiveCamera.prototype.setRotateY = function (deg) {
+	    if (typeof deg == 'number' && parseInt(deg) == deg) {
+	        this.rotation.y = deg * (Math.PI / 180);
+	    }
+	};
+	THREE.PerspectiveCamera.prototype.setRotateZ = function (deg) {
+	    if (typeof deg == 'number' && parseInt(deg) == deg) {
+	        this.rotation.z = deg * (Math.PI / 180);
+	    }
+	};
+	THREE.PerspectiveCamera.prototype.getRotateX = function () {
+	    return Math.round(this.rotation.x * (180 / Math.PI));
+	};
+	THREE.PerspectiveCamera.prototype.getRotateY = function () {
+	    return Math.round(this.rotation.y * (180 / Math.PI));
+	};
+	THREE.PerspectiveCamera.prototype.getRotateZ = function () {
+	    return Math.round(this.rotation.z * (180 / Math.PI));
+	};
+
+	module.exports = THREE;
 
 /***/ }
 /******/ ]);

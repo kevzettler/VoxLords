@@ -263,8 +263,6 @@ ChunkManager.prototype.AddWorldChunk = function(chunk) {
 };
 
 ChunkManager.prototype.BuildAllChunks = function() {
-    debugger;
-    //KJZ worldchunks is empty for some reason??
     for(var i = 0; i < this.worldChunks.length; i++) {
         this.worldChunks[i].Rebuild();
         this.activeTriangles += this.worldChunks[i].GetActiveTriangles();
