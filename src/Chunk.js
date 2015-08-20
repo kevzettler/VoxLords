@@ -652,7 +652,6 @@ Chunk.prototype.Create = function(sizex, sizey, sizez) {
     console.log("Create: "+sizex + ", "+sizey + ", "+sizez);
     this.blocks = new Array();
 
-    
 
     for(var x = 0; x < sizex; x++) {
         this.blocks[x] = new Array();
@@ -661,14 +660,9 @@ Chunk.prototype.Create = function(sizex, sizey, sizez) {
             for(var z = 0; z < sizez; z++) {
                 this.blocks[x][y][z] = new Block();
                 this.blocks[x][y][z].Create(false, 0, 0, 0, 0);
-                //this.blocks[x][y][z].Create(true, 0, 0, 0, 0);
             }
         }
     }
-};
-
-Chunk.prototype.ActivateAll = function() {
-
 };
 
 Chunk.prototype.NoOfActiveBlocks = function() {

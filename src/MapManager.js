@@ -15,35 +15,26 @@ function MapManager() {
     this.mapFile = "map1.png";
     this.startPosition = undefined;
     this.playerModel = "player.vox";
-//    this.princessModel = "princess.vox";
-//    this.cageModel = "cage.vox";
-//    this.cagePosition = undefined;
-//    this.castleModel = "castle.vox";
-//    this.castlePosition = undefined;
     this.voxModels = [];
-//    this.enemiesBefore = []; 
-//    this.enemiesAfter = []; 
     this.percentLoaded = 0;
     this.clearColor = 0x000000;
     this.fogColor = 0x000000;
     this.blockSize = 0.5;
     this.wallHeight = 20;
-//    this.useLava = true;
     this.useWater = false;
     this.enemiesKilled = 0;
     this.princess = undefined;
     this.waterPosition = 0;
-//    this.lavaPosition = 0;
     this.id = 0;
 };
 
-MapManager.prototype.GetTotalEnemies = function() {
-    return this.enemiesBefore.length;
-};
+// MapManager.prototype.GetTotalEnemies = function() {
+//     return this.enemiesBefore.length;
+// };
 
-MapManager.prototype.GetEnemiesLeft = function() {
-    return (this.enemiesBefore.length - this.enemiesKilled);
-};
+// MapManager.prototype.GetEnemiesLeft = function() {
+//     return (this.enemiesBefore.length - this.enemiesKilled);
+// };
 
 MapManager.prototype.Create = function(args) {
     this.mapName = args.mapName;

@@ -5162,6 +5162,7 @@
 	        new Tree().Create(92, 3.5, 109, 2, "tree2");
 	        new Tree().Create(86, 3.5, 107, 2, "tree2");
 	    };
+
 	    map.items = function () {
 	        new HealthBox().Create(new THREE.Vector3(72, 2, 52));
 	        new HealthBox().Create(new THREE.Vector3(121, 1, 53));
@@ -5174,6 +5175,7 @@
 	        new Bomb().Create(new THREE.Vector3(30, 1, 75));
 	        new HealthBox().Create(new THREE.Vector3(15, 3, 13));
 	    };
+
 	    map.lights = function () {
 	        console.log("Initiate lights...");
 	        var ambientLight = new THREE.AmbientLight(0x000033);
@@ -6669,13 +6671,10 @@
 	            for (var z = 0; z < sizez; z++) {
 	                this.blocks[x][y][z] = new Block();
 	                this.blocks[x][y][z].Create(false, 0, 0, 0, 0);
-	                //this.blocks[x][y][z].Create(true, 0, 0, 0, 0);
 	            }
 	        }
 	    }
 	};
-
-	Chunk.prototype.ActivateAll = function () {};
 
 	Chunk.prototype.NoOfActiveBlocks = function () {
 	    var b = 0;
@@ -42018,35 +42017,26 @@
 	    this.mapFile = "map1.png";
 	    this.startPosition = undefined;
 	    this.playerModel = "player.vox";
-	    //    this.princessModel = "princess.vox";
-	    //    this.cageModel = "cage.vox";
-	    //    this.cagePosition = undefined;
-	    //    this.castleModel = "castle.vox";
-	    //    this.castlePosition = undefined;
 	    this.voxModels = [];
-	    //    this.enemiesBefore = [];
-	    //    this.enemiesAfter = [];
 	    this.percentLoaded = 0;
 	    this.clearColor = 0x000000;
 	    this.fogColor = 0x000000;
 	    this.blockSize = 0.5;
 	    this.wallHeight = 20;
-	    //    this.useLava = true;
 	    this.useWater = false;
 	    this.enemiesKilled = 0;
 	    this.princess = undefined;
 	    this.waterPosition = 0;
-	    //    this.lavaPosition = 0;
 	    this.id = 0;
 	};
 
-	MapManager.prototype.GetTotalEnemies = function () {
-	    return this.enemiesBefore.length;
-	};
+	// MapManager.prototype.GetTotalEnemies = function() {
+	//     return this.enemiesBefore.length;
+	// };
 
-	MapManager.prototype.GetEnemiesLeft = function () {
-	    return this.enemiesBefore.length - this.enemiesKilled;
-	};
+	// MapManager.prototype.GetEnemiesLeft = function() {
+	//     return (this.enemiesBefore.length - this.enemiesKilled);
+	// };
 
 	MapManager.prototype.Create = function (args) {
 	    this.mapName = args.mapName;
@@ -42414,7 +42404,6 @@
 	};
 	util.inherits(ChunkWorld, Chunk);
 
-	//Pretty sure this is getting h ammered by chunks Create method wtf
 	ChunkWorld.prototype.Create = function (chunkSize, blockSize, posX, posY, map, wallHeight, id) {
 	    this.cid = id;
 	    this.chunkSize = chunkSize;

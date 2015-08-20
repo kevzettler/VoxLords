@@ -10,7 +10,6 @@ function ChunkWorld() {
 };
 util.inherits(ChunkWorld,Chunk);
 
-//Pretty sure this is getting h ammered by chunks Create method wtf
 ChunkWorld.prototype.Create = function(chunkSize, blockSize, posX, posY, map, wallHeight, id) {
     this.cid = id;
     this.chunkSize = chunkSize;

@@ -357,6 +357,7 @@ Game.prototype.SetMap = function(id) {
         new Tree().Create(92,3.5,109, 2, "tree2");
         new Tree().Create(86,3.5,107, 2, "tree2");
     };
+
     map.items = function() {
        new HealthBox().Create(new THREE.Vector3(72, 2, 52));
        new HealthBox().Create(new THREE.Vector3(121, 1, 53));
@@ -369,6 +370,7 @@ Game.prototype.SetMap = function(id) {
        new Bomb().Create(new THREE.Vector3(30, 1, 75));
        new HealthBox().Create(new THREE.Vector3(15, 3, 13));
     };
+
     map.lights = function() {
         console.log("Initiate lights...");
         var ambientLight = new THREE.AmbientLight( 0x000033 );
