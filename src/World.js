@@ -19,7 +19,7 @@ function World() {
 World.prototype.Load = function(filename, wallHeight, blockSize) {
     this.wallHeight = wallHeight;
     this.blockSize = blockSize;
-    this.readWorld(filename);
+    this.readWorldImage(filename);
     this.readMap();
 };
 
@@ -81,20 +81,10 @@ World.prototype.readMap = function() {
 
 }; 
 
-World.prototype.processData = function(e){
-    var ctx = document.createElement('canvas').getContext('2d');
-    const map = new Array();
-    const image = e.target;
-
-    ctx.canvas.width  = image.width;
-    ctx.canvas.height = image.height;
-    ctx.drawImage(image, 0, 0);
-    this.width = image.width;
-    this.height = image.height;
-
-    var imgData = ctx.getImageData(0, 0, this.width, this.height);
-    
+World.prototype.processWorldImageData = function(imgData){  
+    const map = new Array();  
     game.worldMap = new Array();
+
     for(var y = 0; y < this.height; y++) {
         var pos = y * this.width * 4;
         map[y] = new Array();
@@ -111,10 +101,24 @@ World.prototype.processData = function(e){
     this.map = map;
     console.log("Read world complete.");
     game.chunkManager.maxChunks = (this.height / this.chunkSize)*(this.height/this.chunkSize);
-    
+    return map;
 };
 
-World.prototype.readWorld = function(filename) {
+World.prototype.extractWorldImageData = function(e){
+    const ctx = document.createElement('canvas').getContext('2d');
+    const image = e.target;
+
+    ctx.canvas.width  = image.width;
+    ctx.canvas.height = image.height;
+    ctx.drawImage(image, 0, 0);
+    this.width = image.width;
+    this.height = image.height;
+
+    const imgData = ctx.getImageData(0, 0, this.width, this.height);
+    this.processWorldImageData(imgData);
+};
+
+World.prototype.readWorldImage = function(filename) {
     // Read png file binary and get color for each pixel
     // one pixel = one block
     // Read RGBA (alpha is height)
@@ -122,7 +126,7 @@ World.prototype.readWorld = function(filename) {
     // a < 50 = floor
     var image = new Image();
     image.src = "/"+filename;
-    image.onload = this.processData.bind(this);
+    image.onload = this.extractWorldImageData.bind(this);
 };
 module.exports = World;
 
