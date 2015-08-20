@@ -4868,7 +4868,7 @@
 
 	    // Object arrays
 	    this.objects = [];
-	    this.engines = [];
+	    //    this.engines = [];
 	    this.targets = [];
 
 	    // Game
@@ -4925,21 +4925,21 @@
 	// Init other stuff
 	//==========================================================
 	Game.prototype.Init = function (mapId) {
-	    localStorage.setItem("mapId", 0);
-	    localStorage.setItem("reload", 0);
-	    $('#container').html("");
-	    $('#container').hide();
-	    $('#stats').html("");
-	    $('#menu').html("");
+	    // $('#container').html("");
+	    // $('#container').hide();
+	    // $('#stats').html("");
+	    // $('#menu').html("");
 	    $('#main').css({ "background": "url('gui/gui1/bg" + mapId + ".png') no-repeat" });
 	    $('#main').css({ "background-size": "cover" });
 	    this.clock = new THREE.Clock();
 	    this.stats = new Stats();
 	    $('#stats').append(this.stats.domElement);
 
-	    this.initScene();
+	    this.initScene(); // KJZ we only need to this on the client?
 
 	    // Load models
+	    // KJZ need this on the server. Need abastraction on client for
+	    // blob data
 	    this.voxLoader.Add({ file: "box_hp.vox", name: "healthbox" });
 	    this.voxLoader.Add({ file: "princess.vox", name: "princess" });
 	    this.voxLoader.Add({ file: "player1.vox", name: "player" });
@@ -4968,6 +4968,7 @@
 	    // this.voxLoader.Add({file: "plantox2.vox", name: "plantox2"});
 
 	    // Load sounds
+	    //KJZ defitnitly only need this on client
 	    this.soundLoader.Add({ file: "sound/explosion2.mp3", name: "explode" });
 	    this.soundLoader.Add({ file: "sound/shot2.mp3", name: "shot1" });
 	    this.soundLoader.Add({ file: "sound/runcastle.wav", name: "princess_saved" });
@@ -4985,6 +4986,7 @@
 	    this.soundLoader.Add({ file: "sound/jump.wav", name: "jump" });
 	    this.soundLoader.Add({ file: "sound/swoosh.wav", name: "swoosh" });
 
+	    //KJZ only need on client
 	    this.renderer = new THREE.WebGLRenderer({ antialias: true });
 	    this.renderer.setSize(this.screenWidth, this.screenHeight);
 	    this.renderer.shadowMapEnabled = true;
@@ -4992,14 +4994,15 @@
 	    this.keyboard = new THREEx.KeyboardState();
 	    this.container = document.getElementById('container');
 	    this.container.appendChild(this.renderer.domElement);
-
 	    THREEx.WindowResize(this.renderer, this.camera);
 
+	    //KJZ BOTH
 	    this.chunkManager = new ChunkManager();
 
-	    $('#statusCenter').html("<font size='20px' style='color: #FFFFFF; ' class=''>Loading, please wait...<br></font><font class='' style='font-size:20px; color: #FFFFFF;'>Walk/jump W-A-S-D-SPACE, click to shoot.<br>Keys 1-3 to choose weapon.</font>");
-	    $('#statusCenter').show();
+	    // $('#statusCenter').html("<font size='20px' style='color: #FFFFFF; ' class=''>Loading, please wait...<br></font><font class='' style='font-size:20px; color: #FFFFFF;'>Walk/jump W-A-S-D-SPACE, click to shoot.<br>Keys 1-3 to choose weapon.</font>");
+	    // $('#statusCenter').show();
 
+	    //KJZ need on server but abstract method for blob on client
 	    this.LoadScene(mapId);
 	};
 
@@ -5043,11 +5046,11 @@
 	//==========================================================
 	// Update progressbar for loading map
 	//==========================================================
-	Game.prototype.updateProgress = function (txt, percent) {
-	    $('#loading').fadeIn();
-	    $('#progress').text(txt);
-	    $('#progress').width(percent);
-	};
+	// Game.prototype.updateProgress = function(txt, percent) {
+	//     $('#loading').fadeIn();
+	//     $('#progress').text(txt);
+	//     $('#progress').width(percent);
+	// };
 
 	//==========================================================
 	// Update status text such as "God mode ..."
@@ -5136,21 +5139,18 @@
 
 	Game.prototype.SetMap = function (id) {
 	    var map = new Object();
-
 	    map.mapId = 4;
 	    map.mapFile = "maps/map4.png";
 	    map.mapName = "Voxadu Beach: Home of Lord Bolvox";
 	    map.playerPosition = new THREE.Vector3(16, 0.5, 119);
 	    map.playerModel = "player";
-	    map.enemiesBefore = [["Hula1", 23, 0.5, 67, "SmallShot"], ["Hula1", 20, 5, 53, "SmallShot"], ["Hula2", 14, 2.5, 21, "FloatingShot"], ["Hula2", 30, 2.5, 18, "FloatingShot"], ["Hula2", 44, 2, 58, "FloatingShot"], ["Hula1", 101, 1, 17, "SmallShot"], ["Hula1", 102, 1.5, 22, "SmallShot"], ["Hula1", 106, 2.5, 27, "SmallShot"]];
-	    map.enemiesAfter = [["Hula1", 72, 3.5, 91, "QuakeShot"], ["Hula1", 101, 3.5, 93, "FloatingShot"], ["Hula1", 93, 3.5, 91, "FloatingShot"], ["Hula2", 92, 3.5, 78, "SmallShot"], ["Hula2", 98, 3.5, 79, "SmallShot"], ["Hula2", 105, 3.5, 78, "SmallShot"], ["Hula2", 88, 5, 70, "QuakeShot"]];
 	    map.fogColor = 0xeddeab;
 	    map.clearColor = 0xeddeab;
 	    map.blockSize = 0.5;
 	    map.wallHeight = 20;
-	    map.useLava = false, map.useWater = true;
+	    map.useWater = true;
 	    map.waterPosition = 0.2;
-	    map.lavaPosition = 0;
+
 	    map.objects = function () {
 	        new Tree().Create(8, 2, 110, 2, "tree1");
 	        new Tree().Create(45, 2, 60, 2, "tree1");
