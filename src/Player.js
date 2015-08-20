@@ -33,7 +33,7 @@ function Player() {
     this.weapon = 1;
     this.destruction_mode = false;
 
-	$(document).mousemove(this.OnMouseMove.bind(this));
+    document.addEventListener('mousemove', this.OnMouseMove.bind(this));
 }
 
 Player.prototype.AddHealth = function() {
@@ -441,15 +441,17 @@ Player.prototype.OnMouseDown = function(event) {
 };
 
 Player.prototype.RemoveBindings = function() {
+    document.RemoveEventListener('mouseup');    
+    document.RemoveEventListener('mouseup');        
     $(document).unbind('mouseup');
     $(document).unbind('mousemove');
     $(document).unbind('mousedown');
 };
 
 Player.prototype.AddBindings = function() {
-    $(document).mouseup(this.OnMouseUp.bind(this));
-        $(document).mousedown(this.OnMouseDown.bind(this));
-    };
+    document.addEventListener('mouseup', this.OnMouseUp.bind(this));
+    document.addEventListener('mousedown', this.OnMouseDown.bind(this));    
+};
 
 module.exports = Player;
 

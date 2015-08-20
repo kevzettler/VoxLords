@@ -128,17 +128,6 @@
 	        return;
 	    }
 	    this.SetMap(mapId);
-	    $('#status_1').text("Total blocks: " + this.chunkManager.totalBlocks);
-	    $('#status_2').text("Active blocks: " + this.chunkManager.activeBlocks);
-	    $('#status_3').text("Total chunks: " + this.chunkManager.totalChunks);
-	    $('#status_4').text("Active triangles: " + this.chunkManager.activeTriangles);
-
-	    setTimeout(function () {
-	        $('#container').fadeIn(1000);
-	        $('#menu').hide();
-	        game.setStatus("Kill all enemies and save princess Voxilia");
-	        $('#weapons').fadeIn(1000);
-	    }, 3000);
 
 	    this.physBlockPool = new PhysBlockPool();
 	    this.physBlockPool.Create(500);
@@ -157,15 +146,9 @@
 	Game.prototype.Init = function (mapId) {
 	    localStorage.setItem("mapId", 0);
 	    localStorage.setItem("reload", 0);
-	    $('#container').html("");
-	    $('#container').hide();
-	    $('#stats').html("");
-	    $('#menu').html("");
-	    $('#main').css({ "background": "url('gui/gui1/bg" + mapId + ".png') no-repeat" });
-	    $('#main').css({ "background-size": "cover" });
 	    this.clock = new THREE.Clock();
 	    this.stats = new Stats();
-	    $('#stats').append(this.stats.domElement);
+	    document.querySelector('#stats').appendChild(this.stats.domElement);
 
 	    this.initScene();
 
@@ -173,10 +156,6 @@
 	    this.voxLoader.Add({ file: "box_hp.vox", name: "healthbox" });
 	    this.voxLoader.Add({ file: "princess.vox", name: "princess" });
 	    this.voxLoader.Add({ file: "player1.vox", name: "player" });
-	    // this.voxLoader.Add({file: "santa.vox", name: "santa"});
-	    // this.voxLoader.Add({file: "elf.vox", name: "elf"});
-	    // this.voxLoader.Add({file: "devil1.vox", name: "devil1"});
-	    // this.voxLoader.Add({file: "devil2.vox", name: "devil2"});
 	    this.voxLoader.Add({ file: "cage.vox", name: "cage" });
 	    this.voxLoader.Add({ file: "box_explode.vox", name: "bomb" });
 	    this.voxLoader.Add({ file: "box_godmode.vox", name: "godmode" });
@@ -228,9 +207,6 @@
 	    this.chunkManager = new ChunkManager();
 	    this.chunkManager.Create();
 
-	    $('#statusCenter').html("<font size='20px' style='color: #FFFFFF; ' class=''>Loading, please wait...<br></font><font class='' style='font-size:20px; color: #FFFFFF;'>Walk/jump W-A-S-D-SPACE, click to shoot.<br>Keys 1-3 to choose weapon.</font>");
-	    $('#statusCenter').show();
-
 	    this.LoadScene(mapId);
 	};
 
@@ -274,27 +250,27 @@
 	//==========================================================
 	// Update progressbar for loading map
 	//==========================================================
-	Game.prototype.updateProgress = function (txt, percent) {
-	    $('#loading').fadeIn();
-	    $('#progress').text(txt);
-	    $('#progress').width(percent);
-	};
+	// Game.prototype.updateProgress = function(txt, percent) {
+	//     $('#loading').fadeIn();
+	//     $('#progress').text(txt);
+	//     $('#progress').width(percent);
+	// };
 
 	//==========================================================
 	// Update status text such as "God mode ..."
 	//==========================================================
-	Game.prototype.setStatusCenter = function (text, color) {
-	    if (text != "") {
-	        if (color != undefined) {
-	            $('#statusCenter').css({ 'color': color });
-	        }
-	        $('#statusCenter').text(text);
-	        $('#statusCenter').fadeIn(600);
-	    } else {
-	        $('#statusCenter').text("");
-	        $('#statusCenter').fadeOut(600);
-	    }
-	};
+	// Game.prototype.setStatusCenter = function(text, color) {
+	//     if(text != "") {
+	//         if(color != undefined) {
+	//             $('#statusCenter').css({'color': color});
+	//         }
+	//         $('#statusCenter').text(text);
+	//         $('#statusCenter').fadeIn(600);
+	//     } else {
+	//         $('#statusCenter').text("");
+	//         $('#statusCenter').fadeOut(600);
+	//     }
+	// };
 
 	Game.prototype.onWindowResize = function () {
 	    this.camera.aspect = window.innerWidth / window.innerHeight;
@@ -444,7 +420,6 @@
 	        dirLight.shadowCameraFar = 3500;
 	        dirLight.shadowBias = -0.0001;
 	        dirLight.shadowDarkness = 0.45;
-	        //dirLight.shadowCameraVisible = true;
 	    };
 
 	    this.currentMap = new MapManager();
@@ -37463,7 +37438,6 @@
 	            }
 	            var cSize = this.blockSize;
 
-	            //KJZ DON"T THINK THIS IS GETTING EXECUTED?
 	            if (total != alpha) {
 	                var c = new ChunkWorld();
 	                c.Create(this.chunkSize, cSize, cx * cSize - this.blockSize / 2, cy * cSize - this.blockSize / 2, chunk, this.wallHeight, this.chunks);
@@ -37481,43 +37455,47 @@
 	    }
 	};
 
-	World.prototype.readWorld = function (filename) {
+	World.prototype.processWorld = function (e) {
 	    // Read png file binary and get color for each pixel
 	    // one pixel = one block
 	    // Read RGBA (alpha is height)
 	    // 255 = max height
-	    // a < 50 = floor
+	    // a < 50 = floor   
+	    var image = e.target;
+	    var ctx = document.createElement('canvas').getContext('2d');
+	    ctx.canvas.width = image.width;
+	    ctx.canvas.height = image.height;
+	    ctx.drawImage(image, 0, 0);
+	    this.width = image.width;
+	    this.height = image.height;
+	    var map = new Array();
+	    var imgData = ctx.getImageData(0, 0, this.width, this.height);
+
+	    game.worldMap = new Array();
+
+	    for (var y = 0; y < this.height; y++) {
+	        var pos = y * this.width * 4;
+	        this.map[y] = new Array();
+	        game.worldMap[y] = new Array();
+	        for (var x = 0; x < this.width; x++) {
+	            var r = imgData.data[pos++];
+	            var g = imgData.data[pos++];
+	            var b = imgData.data[pos++];
+	            var a = imgData.data[pos++];
+	            map[y][x] = { 'r': r, 'g': g, 'b': b, 'a': a };
+	        }
+	    }
+
+	    this.map = map;
+	    console.log("Read world complete.");
+	    game.chunkManager.maxChunks = this.height / this.chunkSize * (this.height / this.chunkSize);
+	    return map;
+	};
+
+	World.prototype.readWorld = function (filename) {
 	    var image = new Image();
 	    image.src = "/" + filename;
-
-	    var ctx = document.createElement('canvas').getContext('2d');
-	    var that = this;
-	    image.onload = function () {
-	        ctx.canvas.width = image.width;
-	        ctx.canvas.height = image.height;
-	        ctx.drawImage(image, 0, 0);
-	        that.width = image.width;
-	        that.height = image.height;
-	        that.map = new Array();
-	        var imgData = ctx.getImageData(0, 0, that.width, that.height);
-
-	        game.worldMap = new Array();
-	        for (var y = 0; y < that.height; y++) {
-	            var pos = y * that.width * 4;
-	            that.map[y] = new Array();
-	            game.worldMap[y] = new Array();
-	            for (var x = 0; x < that.width; x++) {
-	                var r = imgData.data[pos++];
-	                var g = imgData.data[pos++];
-	                var b = imgData.data[pos++];
-	                var a = imgData.data[pos++];
-	                that.map[y][x] = { 'r': r, 'g': g, 'b': b, 'a': a };
-	            }
-	        }
-
-	        console.log("Read world complete.");
-	        game.chunkManager.maxChunks = that.height / that.chunkSize * (that.height / that.chunkSize);
-	    };
+	    image.onload = this.processWorld.bind(this);
 	};
 	module.exports = World;
 
@@ -38155,7 +38133,7 @@
 	    this.weapon = 1;
 	    this.destruction_mode = false;
 
-	    $(document).mousemove(this.OnMouseMove.bind(this));
+	    document.addEventListener('mousemove', this.OnMouseMove.bind(this));
 	}
 
 	Player.prototype.AddHealth = function () {
@@ -38556,14 +38534,16 @@
 	};
 
 	Player.prototype.RemoveBindings = function () {
+	    document.RemoveEventListener('mouseup');
+	    document.RemoveEventListener('mouseup');
 	    $(document).unbind('mouseup');
 	    $(document).unbind('mousemove');
 	    $(document).unbind('mousedown');
 	};
 
 	Player.prototype.AddBindings = function () {
-	    $(document).mouseup(this.OnMouseUp.bind(this));
-	    $(document).mousedown(this.OnMouseDown.bind(this));
+	    document.addEventListener('mouseup', this.OnMouseUp.bind(this));
+	    document.addEventListener('mousedown', this.OnMouseDown.bind(this));
 	};
 
 	module.exports = Player;

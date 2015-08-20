@@ -11,25 +11,25 @@
     <script src="libs/THREEx.WindowResize.js"></script>
     <script src="//cdn.webglstats.com/stat.js" defer="defer" async="async"></script> 
      <style>
-html, body {
-    color: #ffffff;
-    background-color: #000000;
-    margin: 0 auto;
-    overflow: hidden; 
-    height: 100%;
-    width: 100%;
-    -webkit-touch-callout: none;
-    -webkit-user-select: none;
-    -khtml-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-    user-select: none;
-}
+        html, body {
+            color: #ffffff;
+            background-color: #000000;
+            margin: 0 auto;
+            overflow: hidden; 
+            height: 100%;
+            width: 100%;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            -khtml-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
 
-#main {
-    width: 100%;
-    height: 100%;
-}
+        #main {
+            width: 100%;
+            height: 100%;
+        }
     </style>
   </head>
   <body>
@@ -41,53 +41,10 @@ html, body {
 
 <div style="position: absolute; margin-bottom: 0px;" id="stats"></div>
 <div id="main">
-     <div id="menu" style="margin: 0 auto; margin-top: 2%;">
- </div>
- <p id="statusCenter" style="position: absolute; align: center; text-shadow: 1px 1px #000000; display: none; font-size: 30px; color: #FF3333; margin: 0 auto; opacity: 0.9; margin-top: 30px; z-index: 100; width: 80%; " class="vox_font"></p> 
- <p id="status" style="position: absolute; align: center; display: none; text-shadow: 1px 1px #000000; font-size: 30px; color: #FDD017; margin: 0 auto; opacity: 0.9; margin-top: 5px; z-index: 100;" class="vox_font"></p>
- <p id="statusEnemies" style="position: absolute; align: right; display: none; text-shadow: 1px 1px #000000; font-size: 20px; color: #FFA017; margin: 0 auto; opacity: 0.9; margin-top: 35px; z-index: 100;" class="vox_font"></p>
-
 
 <!-- Render container -->
  <div style="position: relative; z-index: 1; display: none;" id="container"></div>
  </div>
-
-<div id="weapons" style="display: none; position: relative; margin: 0 auto; width: 100%; height: 50px; margin-top: -55px; z-index: 110; ">
-    <div style="position: absolute; width: 100%; margin-left: -51px;">
-        <img id="weapon1" style="height: 50px; width: 50px; " src="gui/gui1/smallshot.png"/>
-        <h2 style="position: absolute; top: -15px; width: 100%; font-size: 30px; color: #000000;" class="vox_font">1</h2>
-    </div>
-    <div style="position: absolute; width: 100%; margin-left: 0px;">
-        <img id="weapon2" style="opacity: 0.3; height: 50px; width: 50px; " src="gui/gui1/tromb.png"/>
-        <h2 style="position: absolute; top: -15px; width: 100%; font-size: 30px; color: #000000;" class="vox_font">2</h2>
-    </div>
-    <div style="position: absolute; width: 100%; margin-left: 52px;">
-        <img id="weapon3" style="opacity: 0.3; height: 50px; width: 50px; " src="gui/gui1/bomb.png"/>
-        <h2 style="position: absolute; top: -15px; width: 100%; font-size: 30px; color: #000000;" class="vox_font">3</h2>
-    </div>
-</div>
-
-<!-- Menu content -->
-<div id="menu_content" style="display: none;">
-     <img style="position: relative; margin-bottom: 0px; z-index: 100;" src="gui/gui1/story.png"/>
-    <p style="text-shadow: 1px 1px #21373f; position: relative; font-size: 20px; color: #677672; margin: 0 auto; margin-top: -180px; z-index: 100;" class="vox_font">Once upon a time...</p>
-    <p style="width: 280px; position: relative; font-size: 10px; color: #677672; margin: 0 auto; margin-top: 0px; z-index: 100;">
-     Vox, prince of Voxadu, lived peacefully
-     with his princess Voxilia. One dark and rainy day the four evil lords kidnapped Voxilia.
-     They all wanted to rule Voxadu and threatened to kill Voxilia if not Vox resigned the throne.
- <br><br>
-     Vox took up his powerful shield, gained power from the grand sorcerer of Voxadu and went out to save Voxilia
-     from the underworld...
-     
-    </p>
-    <img style="margin-top: 60px;" src="gui/gui1/option.png"/>
-    <p style="position: relative; margin-top: -50px; margin-bottom: 10px; font-size: 30px; text-shadow: 1px 1px #21373f;" class="vox_font"><a href="javascript:Start(1);">New Game</a></p>
-    <img style="margin-top: 0px;" src="gui/gui1/option.png"/>
-    <p style="position: relative; margin-top: -50px; margin-bottom: 10px; font-size: 30px; text-shadow: 1px 1px #21373f;" class="vox_font"><a href="javascript:SelectMap();">Select Map</a></p>
-    <img style="margin-top: 0px;" src="gui/gui1/option.png"/>
-    <p style="position: relative; margin-top: -50px; font-size: 30px; text-shadow: 1px 1px #21373f;" class="vox_font"><a href="javascript:Credits();">Credits</a></p>
-</div>
-
 
   </body>
  <script src="dist/client.js"></script>
