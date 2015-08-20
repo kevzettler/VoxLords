@@ -1,0 +1,11 @@
+{
+  "name": "VoxLords",
+  "version": "1.0.0",
+  "dependencies": {
+    "three": {
+      "version": "0.70.0",
+      "from": "three@0.70.0",
+      "resolved": "https://registry.npmjs.org/three/-/three-0.70.0.tgz"
+    }
+  }
+}
