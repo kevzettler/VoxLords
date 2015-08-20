@@ -228,18 +228,18 @@ Game.prototype.setStatus = function(text, color) {
 //==========================================================
 // Update status text such as "God mode ..."
 //==========================================================
-Game.prototype.setStatusCenter = function(text, color) {
-    if(text != "") {
-        if(color != undefined) {
-            $('#statusCenter').css({'color': color});
-        }
-        $('#statusCenter').text(text);
-        $('#statusCenter').fadeIn(600);
-    } else {
-        $('#statusCenter').text("");
-        $('#statusCenter').fadeOut(600);
-    }
-};
+// Game.prototype.setStatusCenter = function(text, color) {
+//     if(text != "") {
+//         if(color != undefined) {
+//             $('#statusCenter').css({'color': color});
+//         }
+//         $('#statusCenter').text(text);
+//         $('#statusCenter').fadeIn(600);
+//     } else {
+//         $('#statusCenter').text("");
+//         $('#statusCenter').fadeOut(600);
+//     }
+// };
 
 Game.prototype.onWindowResize = function() {
     this.camera.aspect = window.innerWidth / window.innerHeight;

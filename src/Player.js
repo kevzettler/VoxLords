@@ -180,11 +180,11 @@ Player.prototype.Draw = function(time, delta) {
             if(!this.destruction_mode) {
                 this.wf_delta += delta;
             }
-            game.setStatusCenter("GOD MODE "+(10-Math.round(this.wf_delta)) + " sec.", "#FF00FF");
+//            game.setStatusCenter("GOD MODE "+(10-Math.round(this.wf_delta)) + " sec.", "#FF00FF");
         } else {
             this.godMode = false;
             this.wf_delta = 0;
-            game.setStatusCenter("");
+//            game.setStatusCenter("");
         }
     }
 

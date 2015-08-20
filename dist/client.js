@@ -5055,18 +5055,18 @@
 	//==========================================================
 	// Update status text such as "God mode ..."
 	//==========================================================
-	Game.prototype.setStatusCenter = function (text, color) {
-	    if (text != "") {
-	        if (color != undefined) {
-	            $('#statusCenter').css({ 'color': color });
-	        }
-	        $('#statusCenter').text(text);
-	        $('#statusCenter').fadeIn(600);
-	    } else {
-	        $('#statusCenter').text("");
-	        $('#statusCenter').fadeOut(600);
-	    }
-	};
+	// Game.prototype.setStatusCenter = function(text, color) {
+	//     if(text != "") {
+	//         if(color != undefined) {
+	//             $('#statusCenter').css({'color': color});
+	//         }
+	//         $('#statusCenter').text(text);
+	//         $('#statusCenter').fadeIn(600);
+	//     } else {
+	//         $('#statusCenter').text("");
+	//         $('#statusCenter').fadeOut(600);
+	//     }
+	// };
 
 	Game.prototype.onWindowResize = function () {
 	    this.camera.aspect = window.innerWidth / window.innerHeight;
@@ -43164,12 +43164,12 @@
 	            if (!this.destruction_mode) {
 	                this.wf_delta += delta;
 	            }
-	            game.setStatusCenter("GOD MODE " + (10 - Math.round(this.wf_delta)) + " sec.", "#FF00FF");
+	            //            game.setStatusCenter("GOD MODE "+(10-Math.round(this.wf_delta)) + " sec.", "#FF00FF");
 	        } else {
-	            this.godMode = false;
-	            this.wf_delta = 0;
-	            game.setStatusCenter("");
-	        }
+	                this.godMode = false;
+	                this.wf_delta = 0;
+	                //            game.setStatusCenter("");
+	            }
 	    }
 
 	    if (this.keyboard.pressed("v")) {
@@ -43816,8 +43816,8 @@
 	                if (ppos.x >= cpos.x - 5 && ppos.x <= cpos.x + 5 && ppos.z >= cpos.z - 5 && ppos.z <= cpos.z + 5) {
 	                    this.inCastle = true;
 	                    game.soundLoader.PlaySound("princess_castle", this.mesh.position, 300);
-	                    game.setStatus("Voxilia saved.");
-	                    game.setStatusCenter("Vox - HERO of Voxadu!", "#00FF00");
+	                    //                    game.setStatus("Voxilia saved.");
+	                    //                    game.setStatusCenter("Vox - HERO of Voxadu!", "#00FF00");
 	                    game.scene.remove(this.mesh);
 	                    this.remove = 1;
 	                    game.scene.remove(game.player.mesh);

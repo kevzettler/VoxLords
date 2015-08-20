@@ -99,8 +99,8 @@ Princess.prototype.Walk = function() {
                    ppos.z >= cpos.z-5 && ppos.z <= cpos.z+5) {
                     this.inCastle = true;
                     game.soundLoader.PlaySound("princess_castle", this.mesh.position, 300);
-                    game.setStatus("Voxilia saved.");
-                    game.setStatusCenter("Vox - HERO of Voxadu!", "#00FF00");
+//                    game.setStatus("Voxilia saved.");
+//                    game.setStatusCenter("Vox - HERO of Voxadu!", "#00FF00");
                     game.scene.remove(this.mesh);
                     this.remove = 1;
                     game.scene.remove(game.player.mesh);
