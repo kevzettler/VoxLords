@@ -15,13 +15,18 @@ VoxLoader.prototype.GetModel = function(name) {
     return this.models[name].chunk.Clone();
 };
 
+
 VoxLoader.prototype.Add = function(args) {
     this.models[args.name] = new Object();
     this.models[args.name].args = args;
     Loader.prototype.total++;
 
-    var vox = new Vox();
-    vox.LoadModel(args.file, this.Load.bind(this), args.name);
+    var vox = new Vox({
+        filename: args.file,
+        name: args.name
+    });
+    
+    vox.LoadModel(this.Load.bind(this));
     this.models[args.name].vox = vox;
 };
 
