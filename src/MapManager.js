@@ -80,8 +80,10 @@ MapManager.prototype.Create = function(args) {
         args.objects();
     }
 
-    this.SpawnWorld();
-    this.BuildWorldChunks();
+    this.SpawnWorld(function(){
+        this.BuildWorldChunks();        
+    }.bind(this));
+
 };
 
 MapManager.prototype.BuildWorldChunks = function() {
@@ -154,11 +156,11 @@ MapManager.prototype.SpawnEnemiesAfter = function() {
     }
 };
 
-MapManager.prototype.SpawnWorld = function() {
+MapManager.prototype.SpawnWorld = function(callback) {
     console.log("Spawning world.");
     // Load top
     game.world = new World();
-    game.world.Load(this.mapFile, this.wallHeight, this.blockSize); // 10924 triangles
+    game.world.Load(this.mapFile, this.wallHeight, this.blockSize, callback); // 10924 triangles
     // TBD: Fix so that we don't depend on timeout.
 };
 

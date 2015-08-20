@@ -23,9 +23,6 @@ ChunkManager.prototype.Draw = function (time, delta) {
     }
 };
 
-ChunkManager.prototype.Create = function() {
-
-};
 
 ChunkManager.prototype.Blood = function(x, z, power) {
     var aChunks = [];

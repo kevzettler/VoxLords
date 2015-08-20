@@ -16,22 +16,23 @@ function World() {
     this.mapHeight = 0;
 };
 
-World.prototype.Load = function(filename, wallHeight, blockSize) {
+World.prototype.Load = function(filename, wallHeight, blockSize, callback) {
     this.wallHeight = wallHeight;
     this.blockSize = blockSize;
-    this.readWorldImage(filename);
-    this.readMap();
+    this.readWorldImage(filename, function(){
+        this.readMap(callback);
+    }.bind(this));
 };
 
-World.prototype.readMap = function() {
-    if(this.map == undefined) {
-        var that = this;
-        setTimeout(function() {
-            that.readMap()
-        }, 500);
-        console.log("loading map...");
-        return;
-    }
+World.prototype.readMap = function(callback) {
+    // if(this.map == undefined) {
+    //     var that = this;
+    //     setTimeout(function() {
+    //         that.readMap()
+    //     }, 500);
+    //     console.log("loading map...");
+    //     return;
+    // }
 
     game.worldMap = new Array(this.map.length);
     for(var i = 0; i < game.worldMap.length; i++) {
@@ -78,10 +79,11 @@ World.prototype.readMap = function() {
             }
         }
     }
-
+    
+    callback();
 }; 
 
-World.prototype.processWorldImageData = function(imgData){  
+World.prototype.processWorldImageData = function(imgData, callback){  
     const map = new Array();  
     game.worldMap = new Array();
 
@@ -101,10 +103,11 @@ World.prototype.processWorldImageData = function(imgData){
     this.map = map;
     console.log("Read world complete.");
     game.chunkManager.maxChunks = (this.height / this.chunkSize)*(this.height/this.chunkSize);
+    callback();
     return map;
 };
 
-World.prototype.extractWorldImageData = function(e){
+World.prototype.extractWorldImageData = function(callback, e){
     const ctx = document.createElement('canvas').getContext('2d');
     const image = e.target;
 
@@ -115,10 +118,10 @@ World.prototype.extractWorldImageData = function(e){
     this.height = image.height;
 
     const imgData = ctx.getImageData(0, 0, this.width, this.height);
-    this.processWorldImageData(imgData);
+    this.processWorldImageData(imgData, callback);
 };
 
-World.prototype.readWorldImage = function(filename) {
+World.prototype.readWorldImage = function(filename, callback) {
     // Read png file binary and get color for each pixel
     // one pixel = one block
     // Read RGBA (alpha is height)
@@ -126,7 +129,7 @@ World.prototype.readWorldImage = function(filename) {
     // a < 50 = floor
     var image = new Image();
     image.src = "/"+filename;
-    image.onload = this.extractWorldImageData.bind(this);
+    image.onload = this.extractWorldImageData.bind(this, callback);
 };
 module.exports = World;
 

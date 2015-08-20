@@ -66,9 +66,12 @@ Game.prototype.LoadScene = function(mapId) {
     var x = game.voxLoader.PercentLoaded();
     console.log("Loaded: "+x+"%");
     if(x < 100) {
-        setTimeout(function() { game.LoadScene(mapId);}, 500);
+        setTimeout(function() { 
+            game.LoadScene(mapId);
+        }, 500);
         return;
     }
+    
     this.SetMap(mapId);
     $('#status_1').text("Total blocks: "+this.chunkManager.totalBlocks);
     $('#status_2').text("Active blocks: "+this.chunkManager.activeBlocks);
@@ -168,7 +171,6 @@ Game.prototype.Init = function(mapId) {
     THREEx.WindowResize(this.renderer, this.camera);
 
     this.chunkManager = new ChunkManager();
-    this.chunkManager.Create();
 
     $('#statusCenter').html("<font size='20px' style='color: #FFFFFF; ' class=''>Loading, please wait...<br></font><font class='' style='font-size:20px; color: #FFFFFF;'>Walk/jump W-A-S-D-SPACE, click to shoot.<br>Keys 1-3 to choose weapon.</font>");
     $('#statusCenter').show();

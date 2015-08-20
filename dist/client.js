@@ -127,6 +127,7 @@
 	        }, 500);
 	        return;
 	    }
+
 	    this.SetMap(mapId);
 	    $('#status_1').text("Total blocks: " + this.chunkManager.totalBlocks);
 	    $('#status_2').text("Active blocks: " + this.chunkManager.activeBlocks);
@@ -226,7 +227,6 @@
 	    THREEx.WindowResize(this.renderer, this.camera);
 
 	    this.chunkManager = new ChunkManager();
-	    this.chunkManager.Create();
 
 	    $('#statusCenter').html("<font size='20px' style='color: #FFFFFF; ' class=''>Loading, please wait...<br></font><font class='' style='font-size:20px; color: #FFFFFF;'>Walk/jump W-A-S-D-SPACE, click to shoot.<br>Keys 1-3 to choose weapon.</font>");
 	    $('#statusCenter').show();
@@ -36715,8 +36715,6 @@
 	    }
 	};
 
-	ChunkManager.prototype.Create = function () {};
-
 	ChunkManager.prototype.Blood = function (x, z, power) {
 	    var aChunks = [];
 	    var aBlocksXZ = [];
@@ -37121,8 +37119,9 @@
 	        args.objects();
 	    }
 
-	    this.SpawnWorld();
-	    this.BuildWorldChunks();
+	    this.SpawnWorld((function () {
+	        this.BuildWorldChunks();
+	    }).bind(this));
 	};
 
 	MapManager.prototype.BuildWorldChunks = function () {
@@ -37195,11 +37194,11 @@
 	    }
 	};
 
-	MapManager.prototype.SpawnWorld = function () {
+	MapManager.prototype.SpawnWorld = function (callback) {
 	    console.log("Spawning world.");
 	    // Load top
 	    game.world = new World();
-	    game.world.Load(this.mapFile, this.wallHeight, this.blockSize); // 10924 triangles
+	    game.world.Load(this.mapFile, this.wallHeight, this.blockSize, callback); // 10924 triangles
 	    // TBD: Fix so that we don't depend on timeout.
 	};
 
@@ -37397,7 +37396,7 @@
 /* 19 */
 /***/ function(module, exports, __webpack_require__) {
 
-	"use strict";
+	'use strict';
 
 	var ChunkWorld = __webpack_require__(20);
 
@@ -37417,22 +37416,23 @@
 	    this.mapHeight = 0;
 	};
 
-	World.prototype.Load = function (filename, wallHeight, blockSize) {
+	World.prototype.Load = function (filename, wallHeight, blockSize, callback) {
 	    this.wallHeight = wallHeight;
 	    this.blockSize = blockSize;
-	    this.readWorldImage(filename);
-	    this.readMap();
+	    this.readWorldImage(filename, (function () {
+	        this.readMap(callback);
+	    }).bind(this));
 	};
 
-	World.prototype.readMap = function () {
-	    if (this.map == undefined) {
-	        var that = this;
-	        setTimeout(function () {
-	            that.readMap();
-	        }, 500);
-	        console.log("loading map...");
-	        return;
-	    }
+	World.prototype.readMap = function (callback) {
+	    // if(this.map == undefined) {
+	    //     var that = this;
+	    //     setTimeout(function() {
+	    //         that.readMap()
+	    //     }, 500);
+	    //     console.log("loading map...");
+	    //     return;
+	    // }
 
 	    game.worldMap = new Array(this.map.length);
 	    for (var i = 0; i < game.worldMap.length; i++) {
@@ -37479,9 +37479,11 @@
 	            }
 	        }
 	    }
+
+	    callback();
 	};
 
-	World.prototype.processWorldImageData = function (imgData) {
+	World.prototype.processWorldImageData = function (imgData, callback) {
 	    var map = new Array();
 	    game.worldMap = new Array();
 
@@ -37501,10 +37503,11 @@
 	    this.map = map;
 	    console.log("Read world complete.");
 	    game.chunkManager.maxChunks = this.height / this.chunkSize * (this.height / this.chunkSize);
+	    callback();
 	    return map;
 	};
 
-	World.prototype.extractWorldImageData = function (e) {
+	World.prototype.extractWorldImageData = function (callback, e) {
 	    var ctx = document.createElement('canvas').getContext('2d');
 	    var image = e.target;
 
@@ -37515,10 +37518,10 @@
 	    this.height = image.height;
 
 	    var imgData = ctx.getImageData(0, 0, this.width, this.height);
-	    this.processWorldImageData(imgData);
+	    this.processWorldImageData(imgData, callback);
 	};
 
-	World.prototype.readWorldImage = function (filename) {
+	World.prototype.readWorldImage = function (filename, callback) {
 	    // Read png file binary and get color for each pixel
 	    // one pixel = one block
 	    // Read RGBA (alpha is height)
@@ -37526,7 +37529,7 @@
 	    // a < 50 = floor
 	    var image = new Image();
 	    image.src = "/" + filename;
-	    image.onload = this.extractWorldImageData.bind(this);
+	    image.onload = this.extractWorldImageData.bind(this, callback);
 	};
 	module.exports = World;
 
