@@ -33,7 +33,7 @@ function MapManager() {
     this.enemiesKilled = 0;
     this.princess = undefined;
     this.waterPosition = 0;
-    this.lavaPosition = 0;
+//    this.lavaPosition = 0;
     this.id = 0;
 };
 

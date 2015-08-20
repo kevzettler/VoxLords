@@ -317,13 +317,6 @@ Game.prototype.SetMap = function(id) {
     map.mapName = "Voxadu Beach: Home of Lord Bolvox";
     map.playerPosition = new THREE.Vector3(16, 0.5, 119);
     map.playerModel = "player";
-    map.princessModel = "princess";
-    map.cageModel = "cage";
-    map.cagePosition = new THREE.Vector3(107,2,21);
-    map.princessPosition = new THREE.Vector3(107, 2.5, 21);
-    map.castlePosition = new THREE.Vector3(77,3.5,104);
-    map.castleModel = "castle";
-    // Devil2 = axe devil, devil 1 = old man
     map.enemiesBefore = [
         ["Hula1", 23, 0.5, 67, "SmallShot"],
         ["Hula1", 20, 5, 53, "SmallShot"],

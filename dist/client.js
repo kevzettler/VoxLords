@@ -373,13 +373,6 @@
 	    map.mapName = "Voxadu Beach: Home of Lord Bolvox";
 	    map.playerPosition = new THREE.Vector3(16, 0.5, 119);
 	    map.playerModel = "player";
-	    map.princessModel = "princess";
-	    map.cageModel = "cage";
-	    map.cagePosition = new THREE.Vector3(107, 2, 21);
-	    map.princessPosition = new THREE.Vector3(107, 2.5, 21);
-	    map.castlePosition = new THREE.Vector3(77, 3.5, 104);
-	    map.castleModel = "castle";
-	    // Devil2 = axe devil, devil 1 = old man
 	    map.enemiesBefore = [["Hula1", 23, 0.5, 67, "SmallShot"], ["Hula1", 20, 5, 53, "SmallShot"], ["Hula2", 14, 2.5, 21, "FloatingShot"], ["Hula2", 30, 2.5, 18, "FloatingShot"], ["Hula2", 44, 2, 58, "FloatingShot"], ["Hula1", 101, 1, 17, "SmallShot"], ["Hula1", 102, 1.5, 22, "SmallShot"], ["Hula1", 106, 2.5, 27, "SmallShot"]];
 	    map.enemiesAfter = [["Hula1", 72, 3.5, 91, "QuakeShot"], ["Hula1", 101, 3.5, 93, "FloatingShot"], ["Hula1", 93, 3.5, 91, "FloatingShot"], ["Hula2", 92, 3.5, 78, "SmallShot"], ["Hula2", 98, 3.5, 79, "SmallShot"], ["Hula2", 105, 3.5, 78, "SmallShot"], ["Hula2", 88, 5, 70, "QuakeShot"]];
 	    map.fogColor = 0xeddeab;
@@ -1279,98 +1272,101 @@
 	    return buffer[from] | buffer[from + 1] << 8 | buffer[from + 2] << 16 | buffer[from + 3] << 24;
 	};
 
+	Vox.prototype.onLoadHandler = function (loadptr, name, oEvent) {
+	    var colors = [];
+	    var colors2 = undefined;
+	    var voxelData = [];
+	    this.chunk = new Chunk();
+	    var oReq = oEvent.currentTarget;
+	    console.log("Loaded model: " + oReq.responseURL);
+
+	    var url_chunks = oReq.responseURL.split('/');
+	    var filename = url_chunks[url_chunks.length - 1];
+
+	    var arrayBuffer = oReq.response;
+	    if (arrayBuffer) {
+	        var buffer = new Uint8Array(arrayBuffer);
+	        var voxId = this.readInt(buffer, 0);
+	        var version = this.readInt(buffer, 4);
+	        // TBD: Check version to support
+	        var i = 8;
+	        while (i < buffer.length) {
+	            var subSample = false;
+	            var sizex = 0,
+	                sizey = 0,
+	                sizez = 0;
+	            var id = String.fromCharCode(parseInt(buffer[i++])) + String.fromCharCode(parseInt(buffer[i++])) + String.fromCharCode(parseInt(buffer[i++])) + String.fromCharCode(parseInt(buffer[i++]));
+
+	            var chunkSize = this.readInt(buffer, i) & 0xFF;
+	            i += 4;
+	            var childChunks = this.readInt(buffer, i) & 0xFF;
+	            i += 4;
+
+	            if (id == "SIZE") {
+	                sizex = this.readInt(buffer, i) & 0xFF;
+	                i += 4;
+	                sizey = this.readInt(buffer, i) & 0xFF;
+	                i += 4;
+	                sizez = this.readInt(buffer, i) & 0xFF;
+	                i += 4;
+	                if (sizex > 32 || sizey > 32) {
+	                    subSample = true;
+	                }
+	                console.log(filename + " => Create VOX Chunk!");
+	                this.chunk.Create(sizex, sizey, sizez);
+	                i += chunkSize - 4 * 3;
+	            } else if (id == "XYZI") {
+	                var numVoxels = Math.abs(this.readInt(buffer, i));
+	                i += 4;
+	                voxelData = new Array(numVoxels);
+	                for (var n = 0; n < voxelData.length; n++) {
+	                    ;
+	                    voxelData[n] = new VoxelData();
+	                    voxelData[n].Create(buffer, i, subSample); // Read 4 bytes
+	                    i += 4;
+	                }
+	            } else if (id == "RGBA") {
+	                console.log(filename + " => Regular color chunk");
+	                colors2 = new Array(256);
+	                for (var n = 0; n < 256; n++) {
+	                    var r = buffer[i++] & 0xFF;
+	                    var g = buffer[i++] & 0xFF;
+	                    var b = buffer[i++] & 0xFF;
+	                    var a = buffer[i++] & 0xFF;
+	                    colors2[n] = { 'r': r, 'g': g, 'b': b, 'a': a };
+	                }
+	            } else {
+	                i += chunkSize;
+	            }
+	        }
+	        if (voxelData == null || voxelData.length == 0) {
+	            return null;
+	        }
+
+	        for (var n = 0; n < voxelData.length; n++) {
+	            if (colors2 == undefined) {
+	                var c = this.voxColors[Math.abs(voxelData[n].color - 1)];
+	                var cRGBA = {
+	                    b: (c & 0xff0000) >> 16,
+	                    g: (c & 0x00ff00) >> 8,
+	                    r: c & 0x0000ff,
+	                    a: 1
+	                };
+	                this.chunk.ActivateBlock(voxelData[n].x, voxelData[n].y, voxelData[n].z, cRGBA);
+	            } else {
+	                this.chunk.ActivateBlock(voxelData[n].x, voxelData[n].y, voxelData[n].z, colors2[Math.abs(voxelData[n].color - 1)]);
+	            }
+	        }
+	        loadptr(this, name);
+	    }
+	};
+
 	Vox.prototype.LoadModel = function (filename, loadptr, name) {
 	    this.name = name;
 	    var oReq = new XMLHttpRequest();
 	    oReq.open("GET", "models/" + filename, true);
 	    oReq.responseType = "arraybuffer";
-
-	    var that = this;
-	    oReq.onload = function (oEvent) {
-	        var colors = [];
-	        var colors2 = undefined;
-	        var voxelData = [];
-	        that.chunk = new Chunk();
-
-	        console.log("Loaded model: " + oReq.responseURL);
-	        var arrayBuffer = oReq.response;
-	        if (arrayBuffer) {
-	            var buffer = new Uint8Array(arrayBuffer);
-	            var voxId = that.readInt(buffer, 0);
-	            var version = that.readInt(buffer, 4);
-	            // TBD: Check version to support
-	            var i = 8;
-	            while (i < buffer.length) {
-	                var subSample = false;
-	                var sizex = 0,
-	                    sizey = 0,
-	                    sizez = 0;
-	                var id = String.fromCharCode(parseInt(buffer[i++])) + String.fromCharCode(parseInt(buffer[i++])) + String.fromCharCode(parseInt(buffer[i++])) + String.fromCharCode(parseInt(buffer[i++]));
-
-	                var chunkSize = that.readInt(buffer, i) & 0xFF;
-	                i += 4;
-	                var childChunks = that.readInt(buffer, i) & 0xFF;
-	                i += 4;
-
-	                if (id == "SIZE") {
-	                    sizex = that.readInt(buffer, i) & 0xFF;
-	                    i += 4;
-	                    sizey = that.readInt(buffer, i) & 0xFF;
-	                    i += 4;
-	                    sizez = that.readInt(buffer, i) & 0xFF;
-	                    i += 4;
-	                    if (sizex > 32 || sizey > 32) {
-	                        subSample = true;
-	                    }
-	                    console.log(filename + " => Create VOX Chunk!");
-	                    that.chunk.Create(sizex, sizey, sizez);
-	                    i += chunkSize - 4 * 3;
-	                } else if (id == "XYZI") {
-	                    var numVoxels = Math.abs(that.readInt(buffer, i));
-	                    i += 4;
-	                    voxelData = new Array(numVoxels);
-	                    for (var n = 0; n < voxelData.length; n++) {
-	                        ;
-	                        voxelData[n] = new VoxelData();
-	                        voxelData[n].Create(buffer, i, subSample); // Read 4 bytes
-	                        i += 4;
-	                    }
-	                } else if (id == "RGBA") {
-	                    console.log(filename + " => Regular color chunk");
-	                    colors2 = new Array(256);
-	                    for (var n = 0; n < 256; n++) {
-	                        var r = buffer[i++] & 0xFF;
-	                        var g = buffer[i++] & 0xFF;
-	                        var b = buffer[i++] & 0xFF;
-	                        var a = buffer[i++] & 0xFF;
-	                        colors2[n] = { 'r': r, 'g': g, 'b': b, 'a': a };
-	                    }
-	                } else {
-	                    i += chunkSize;
-	                }
-	            }
-	            if (voxelData == null || voxelData.length == 0) {
-	                return null;
-	            }
-
-	            for (var n = 0; n < voxelData.length; n++) {
-	                if (colors2 == undefined) {
-	                    var c = that.voxColors[Math.abs(voxelData[n].color - 1)];
-	                    var cRGBA = {
-	                        b: (c & 0xff0000) >> 16,
-	                        g: (c & 0x00ff00) >> 8,
-	                        r: c & 0x0000ff,
-	                        a: 1
-	                    };
-	                    that.chunk.ActivateBlock(voxelData[n].x, voxelData[n].y, voxelData[n].z, cRGBA);
-	                } else {
-	                    that.chunk.ActivateBlock(voxelData[n].x, voxelData[n].y, voxelData[n].z, colors2[Math.abs(voxelData[n].color - 1)]);
-	                }
-	            }
-	            loadptr(that, name);
-	        }
-	    };
-
+	    oReq.onload = this.onLoadHandler.bind(this, loadptr, name);
 	    oReq.send(null);
 	};
 
@@ -37362,7 +37358,7 @@
 	    this.enemiesKilled = 0;
 	    this.princess = undefined;
 	    this.waterPosition = 0;
-	    this.lavaPosition = 0;
+	    //    this.lavaPosition = 0;
 	    this.id = 0;
 	};
 
@@ -37622,19 +37618,12 @@
 	};
 
 	World.prototype.readMap = function (callback) {
-	    // if(this.map == undefined) {
-	    //     var that = this;
-	    //     setTimeout(function() {
-	    //         that.readMap()
-	    //     }, 500);
-	    //     console.log("loading map...");
-	    //     return;
-	    // }
-
 	    game.worldMap = new Array(this.map.length);
+
 	    for (var i = 0; i < game.worldMap.length; i++) {
 	        game.worldMap[i] = new Array();
 	    }
+
 	    this.mapHeight = this.blockSize * this.map.length;
 	    this.mapWidth = this.blockSize * this.map.length;
 

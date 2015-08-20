@@ -25,19 +25,12 @@ World.prototype.Load = function(filename, wallHeight, blockSize, callback) {
 };
 
 World.prototype.readMap = function(callback) {
-    // if(this.map == undefined) {
-    //     var that = this;
-    //     setTimeout(function() {
-    //         that.readMap()
-    //     }, 500);
-    //     console.log("loading map...");
-    //     return;
-    // }
-
     game.worldMap = new Array(this.map.length);
+    
     for(var i = 0; i < game.worldMap.length; i++) {
         game.worldMap[i] = new Array();
     }
+    
     this.mapHeight = this.blockSize*this.map.length;
     this.mapWidth = this.blockSize*this.map.length;
 
@@ -78,7 +71,7 @@ World.prototype.readMap = function(callback) {
             }
         }
     }
-    
+
     callback();
 }; 
 
