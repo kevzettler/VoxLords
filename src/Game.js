@@ -71,7 +71,7 @@ Game.prototype.LoadScene = function(mapId) {
         }, 500);
         return;
     }
-    
+
     this.SetMap(mapId);
     $('#status_1').text("Total blocks: "+this.chunkManager.totalBlocks);
     $('#status_2').text("Active blocks: "+this.chunkManager.activeBlocks);
@@ -408,7 +408,6 @@ Game.prototype.SetMap = function(id) {
         dirLight.shadowCameraFar = 3500;
         dirLight.shadowBias = -0.0001;
         dirLight.shadowDarkness = 0.45;
-        //dirLight.shadowCameraVisible = true;
     };
 
     this.currentMap = new MapManager();

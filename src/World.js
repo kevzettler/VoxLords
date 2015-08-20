@@ -63,7 +63,6 @@ World.prototype.readMap = function(callback) {
             }
             var cSize = this.blockSize;
 
-            //KJZ DON"T THINK THIS IS GETTING EXECUTED?
             if(total != alpha) {
                 var c = new ChunkWorld();
                 c.Create(this.chunkSize, cSize, cx * cSize-this.blockSize/2, cy * cSize-this.blockSize/2, chunk, this.wallHeight, this.chunks);
