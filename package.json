@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "server": "node ./server/index.js",
+    "start": "node ./server/index.js",
     "watch": "./node_modules/.bin/webpack --watch --progress"
   },
   "repository": {
@@ -25,6 +25,8 @@
     "webpack": "^1.11.0"
   },
   "dependencies": {
-    "three": "^0.70.0"
+    "lodash": "^3.10.1",
+    "three": "^0.70.0",
+    "vectors": "^0.1.0"
   }
 }

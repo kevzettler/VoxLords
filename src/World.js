@@ -1,4 +1,7 @@
+const _ = require('lodash');
 const ChunkWorld = require('./ChunkWorld');
+const EntityClasses = require('./entities');
+var is_server = (typeof process === 'object' && process + '' === '[object process]');
 
 function World(options) {
     this.width = 0;
