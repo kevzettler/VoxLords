@@ -66,10 +66,10 @@ MapManager.prototype.Create = function(args) {
     args.lights();
 
     // Spawn items
-    args.items();
-    if(args.objects != undefined) {
-        args.objects();
-    }
+    //args.items();
+    // if(args.objects != undefined) {
+    //     args.objects();
+    // }
 
     this.SpawnWorld(function(){
         this.BuildWorldChunks();        

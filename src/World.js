@@ -1,6 +1,6 @@
 const ChunkWorld = require('./ChunkWorld');
 
-function World() {
+function World(options) {
     this.width = 0;
     this.height = 0;
     this.name = "Unknown";
@@ -14,6 +14,9 @@ function World() {
     this.blockSize = 0.1;
     this.mapWidth = 0;
     this.mapHeight = 0;
+    this.entities = {};
+    this.scene = scene;
+    Object.assign(this, options);
 };
 
 World.prototype.Load = function(filename, wallHeight, blockSize, callback) {

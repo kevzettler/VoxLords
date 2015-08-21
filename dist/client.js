@@ -4888,20 +4888,20 @@
 	};
 
 	Game.prototype.LoadScene = function (mapId) {
-	    var x = game.voxLoader.PercentLoaded();
-	    console.log("Loaded: " + x + "%");
-	    if (x < 100) {
-	        setTimeout(function () {
-	            game.LoadScene(mapId);
-	        }, 500);
-	        return;
-	    }
+	    // var x = game.voxLoader.PercentLoaded();
+	    // console.log("Loaded: "+x+"%");
+	    // if(x < 100) {
+	    //     setTimeout(function() {
+	    //         game.LoadScene(mapId);
+	    //     }, 500);
+	    //     return;
+	    // }
 
 	    this.SetMap(mapId);
-	    $('#status_1').text("Total blocks: " + this.chunkManager.totalBlocks);
-	    $('#status_2').text("Active blocks: " + this.chunkManager.activeBlocks);
-	    $('#status_3').text("Total chunks: " + this.chunkManager.totalChunks);
-	    $('#status_4').text("Active triangles: " + this.chunkManager.activeTriangles);
+	    // $('#status_1').text("Total blocks: "+this.chunkManager.totalBlocks);
+	    // $('#status_2').text("Active blocks: "+this.chunkManager.activeBlocks);
+	    // $('#status_3').text("Total chunks: "+this.chunkManager.totalChunks);
+	    // $('#status_4').text("Active triangles: "+this.chunkManager.activeTriangles);
 
 	    setTimeout(function () {
 	        $('#container').fadeIn(1000);
@@ -5019,29 +5019,29 @@
 	//==========================================================
 	// Re init
 	//==========================================================
-	Game.prototype.ReInit = function (mapId) {
-	    localStorage.setItem("mapId", mapId);
-	    localStorage.setItem("reload", 1);
-	    localStorage.setItem("sound", this.soundLoader.muted);
-	    localStorage.setItem("music", this.songMuted);
-	    window.location.reload();
-	};
+	// Game.prototype.ReInit = function(mapId) {
+	//     localStorage.setItem("mapId", mapId);
+	//     localStorage.setItem("reload", 1);
+	//     localStorage.setItem("sound", this.soundLoader.muted);
+	//     localStorage.setItem("music", this.songMuted);
+	//     window.location.reload();
+	// };
 
 	//==========================================================
 	// Update status text such as objective
 	//==========================================================
-	Game.prototype.setStatus = function (text, color) {
-	    if (text != "") {
-	        if (color != undefined) {
-	            $('#status').css({ 'color': color });
-	        }
-	        $('#status').text(text);
-	        $('#status').fadeIn(600);
-	    } else {
-	        $('#status').text("");
-	        $('#status').fadeOut(600);
-	    }
-	};
+	// Game.prototype.setStatus = function(text, color) {
+	//     if(text != "") {
+	//         if(color != undefined) {
+	//             $('#status').css({'color': color});
+	//         }
+	//         $('#status').text(text);
+	//         $('#status').fadeIn(600);
+	//     } else {
+	//         $('#status').text("");
+	//         $('#status').fadeOut(600);
+	//     }
+	// };
 
 	//==========================================================
 	// Update progressbar for loading map
@@ -5093,12 +5093,13 @@
 	//==========================================================
 	// Update
 	//==========================================================
+
 	Game.prototype.update = function () {
 	    var delta = this.clock.getDelta(),
 	        time = this.clock.getElapsedTime() * 10;
 
 	    this.frameDelta += delta;
-
+	    //KJZ update this with proper loop
 	    while (this.frameDelta >= this.invMaxFps) {
 	        THREE.AnimationHandler.update(this.invMaxFps);
 	        this.chunkManager.Draw(time, this.invMaxFps);
@@ -5130,12 +5131,13 @@
 	    this.stats.update();
 	};
 
-	Game.prototype.getDistance = function (v1, v2) {
-	    var dx = v1.x - v2.x;
-	    var dy = v1.y - v2.y;
-	    var dz = v1.z - v2.z;
-	    return Math.sqrt(dx * dx + dy * dy + dz * dz);
-	};
+	//KJZ add to utils??
+	// Game.prototype.getDistance = function(v1, v2) {
+	//     var dx = v1.x - v2.x;
+	//     var dy = v1.y - v2.y;
+	//     var dz = v1.z - v2.z;
+	//     return Math.sqrt(dx*dx+dy*dy+dz*dz);
+	// };
 
 	Game.prototype.SetMap = function (id) {
 	    var map = new Object();
@@ -5151,30 +5153,7 @@
 	    map.useWater = true;
 	    map.waterPosition = 0.2;
 
-	    map.objects = function () {
-	        new Tree().Create(8, 2, 110, 2, "tree1");
-	        new Tree().Create(45, 2, 60, 2, "tree1");
-	        new Tree().Create(59, 2, 35, 2, "tree1");
-	        new Tree().Create(17, 2, 13, 2, "tree1");
-	        new Tree().Create(33, 2, 13, 2, "tree1");
-	        new Tree().Create(110, 2.5, 16, 2, "tree1");
-	        new Tree().Create(107, 2.5, 27, 2, "tree2");
-	        new Tree().Create(92, 3.5, 109, 2, "tree2");
-	        new Tree().Create(86, 3.5, 107, 2, "tree2");
-	    };
-
-	    map.items = function () {
-	        new HealthBox().Create(new THREE.Vector3(72, 2, 52));
-	        new HealthBox().Create(new THREE.Vector3(121, 1, 53));
-	        new WeaponBox().Create(new THREE.Vector3(92, 4, 97));
-	        new WeaponBox().Create(new THREE.Vector3(23, 3, 21));
-	        new Godmode().Create(new THREE.Vector3(101, 1, 39));
-	        new Godmode().Create(new THREE.Vector3(69, 3.5, 79));
-	        new Godmode().Create(new THREE.Vector3(25, 2.5, 120));
-	        new HealthBox().Create(new THREE.Vector3(69, 2.5, 18));
-	        new Bomb().Create(new THREE.Vector3(30, 1, 75));
-	        new HealthBox().Create(new THREE.Vector3(15, 3, 13));
-	    };
+	    map.entities = [["Tree", 8, 2, 110, 2, 'tree1'][("Tree", 45, 2, 60, 2, "tree1")], ["Tree", 59, 2, 35, 2, "tree1"], ["Tree", 17, 2, 13, 2, "tree1"], ["Tree", 33, 2, 13, 2, "tree1"], ["Tree", 110, 2.5, 16, 2, "tree1"], ["Tree", 107, 2.5, 27, 2, "tree2"], ["Tree", 92, 3.5, 109, 2, "tree2"], ["Tree", 86, 3.5, 107, 2, "tree2"], ["HealthBox", 72, 2, 52], ["HealthBox", 121, 1, 53], ["HealthBox", 69, 2.5, 18], ["HealthBox", 15, 3, 13], ["WeaponBox", 92, 4, 97], ["WeaponBox", 23, 3, 21], ["GodMode", 101, 1, 39], ["GodMode", 69, 3.5, 79], ["GodMode", 25, 2.5, 120], ['Bomb', 30, 1, 75]];
 
 	    map.lights = function () {
 	        console.log("Initiate lights...");
@@ -42068,10 +42047,10 @@
 	    args.lights();
 
 	    // Spawn items
-	    args.items();
-	    if (args.objects != undefined) {
-	        args.objects();
-	    }
+	    //args.items();
+	    // if(args.objects != undefined) {
+	    //     args.objects();
+	    // }
 
 	    this.SpawnWorld((function () {
 	        this.BuildWorldChunks();
@@ -42261,7 +42240,7 @@
 
 	var ChunkWorld = __webpack_require__(190);
 
-	function World() {
+	function World(options) {
 	    this.width = 0;
 	    this.height = 0;
 	    this.name = "Unknown";
@@ -42275,6 +42254,9 @@
 	    this.blockSize = 0.1;
 	    this.mapWidth = 0;
 	    this.mapHeight = 0;
+	    this.entities = {};
+	    this.scene = scene;
+	    Object.assign(this, options);
 	};
 
 	World.prototype.Load = function (filename, wallHeight, blockSize, callback) {
