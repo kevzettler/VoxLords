@@ -1,9 +1,11 @@
 const _ = require('lodash');
 const ChunkWorld = require('./ChunkWorld');
 const EntityClasses = require('./entities');
-var is_server = (typeof process === 'object' && process + '' === '[object process]');
+const VoxLoader = require('./VoxLoader');
+const THREE = require('three');
+const is_server = (typeof process === 'object' && process + '' === '[object process]');
 
-function World(options) {
+function World(props) {
     this.width = 0;
     this.height = 0;
     this.name = "Unknown";
@@ -18,117 +20,82 @@ function World(options) {
     this.mapWidth = 0;
     this.mapHeight = 0;
     this.entities = {};
-    this.scene = scene;
+    this.terrain = [];
+    this.scene = new THREE.Scene();
+    
+    this.voxLoader = new VoxLoader();
+
+    if(props.entities){
+      let ents = props.entities;
+      delete props.entities;
+      this.processEntityJSON(ents);
+    }
+
+    if(!is_server){ //put in client object?
+      this.viewAngle = 40;
+      this.aspect = this.screenWidth/this.screenHeight;
+      this.near = 1;
+      this.far = 61;
+      this.camera = new THREE.PerspectiveCamera(this.viewAngle, this.aspect, this.near, this.far);
+      this.scene.add(this.camera);     
+      this.renderer = new THREE.WebGLRenderer( {antialias: true} );
+      this.renderer.setSize(this.screenWidth, this.screenHeight);
+      this.renderer.shadowMapEnabled = true;
+      this.renderer.shadowMapType = THREE.PCFSoftShadowMap;
+      this.keyboard = new THREEx.KeyboardState();
+      this.container = document.getElementById('container');
+      this.container.appendChild(this.renderer.domElement);
+      THREEx.WindowResize(this.renderer, this.camera);
+    }
+
     Object.assign(this, options);
 };
 
-World.prototype.Load = function(filename, wallHeight, blockSize, callback) {
-    this.wallHeight = wallHeight;
-    this.blockSize = blockSize;
-    this.readWorldImage(filename, function(){
-        this.readMap(callback);
-    }.bind(this));
+World.prototype.EntityVoxLoadHandler = function(entity_type, entity_props){
+  const entityObject = new EntityClasses[entity_type](entity_props);
+  this.registerEntity(entityObject);
 };
 
-World.prototype.readMap = function(callback) {
-    game.worldMap = new Array(this.map.length);
-    
-    for(var i = 0; i < game.worldMap.length; i++) {
-        game.worldMap[i] = new Array();
-    }
-    
-    this.mapHeight = this.blockSize*this.map.length;
-    this.mapWidth = this.blockSize*this.map.length;
-
-    for(var cy = 0; cy < this.map.length; cy+=this.chunkSize) {
-        var alpha = 0;
-        var total = 0;
-        var chunk = new Array();
-        for(var cx = 0; cx < this.map.length; cx+=this.chunkSize) {
-            var ix = 0;
-            for(var x = cx; x < cx+this.chunkSize; x++) {
-                chunk[ix] = new Array();
-                var iy = 0;
-                for (var y = cy; y < cy+this.chunkSize; y++) {
-                    if(this.map[x][y] == 0) {
-                        alpha++;
-                    } else {
-                        this.blocks++;
-                    }
-                    chunk[ix][iy++] = this.map[x][y];
-                    total++;
-                }
-                ix++;
-            }
-            var cSize = this.blockSize;
-
-            if(total != alpha) {
-                var c = new ChunkWorld();
-                c.Create(this.chunkSize, cSize, cx * cSize-this.blockSize/2, cy * cSize-this.blockSize/2, chunk, this.wallHeight, this.chunks);
-                game.chunkManager.AddWorldChunk(c);
-                
-                // Save to world map
-                var z = this.chunks%(this.map.length/this.chunkSize);
-                var x = Math.floor(this.chunks/(this.map.length/this.chunkSize));
-                game.worldMap[x][z] = {'id': this.chunks, 'avgHeight': c.GetAvgHeight()};
-                this.chunks++;
-            } else {
-                console.log("=> Skipping invisible chunk.");
-            }
-        }
-    }
-
-    callback();
-}; 
-
-World.prototype.processWorldImageData = function(imgData, callback){  
-    const map = new Array();  
-    game.worldMap = new Array();
-
-    for(var y = 0; y < this.height; y++) {
-        var pos = y * this.width * 4;
-        map[y] = new Array();
-        game.worldMap[y] = new Array();
-        for(var x = 0; x < this.width; x++) {
-            var r = imgData.data[pos++];
-            var g = imgData.data[pos++];
-            var b = imgData.data[pos++];
-            var a = imgData.data[pos++];
-            map[y][x] = {'r': r, 'g': g, 'b': b, 'a': a};
-        }
-    }
-
-    this.map = map;
-    console.log("Read world complete.");
-    game.chunkManager.maxChunks = (this.height / this.chunkSize)*(this.height/this.chunkSize);
-    callback();
-    return map;
+World.prototype.fromEntityJSON = function(entity_type, entity_props){
+      delete entity_props.world;
+      entity_props.world = this;
+      this.voxLoader.getModel(entity_type, this.EntityVoxLoadHandler.bind(this, entity_type, entity_props));
 };
 
-World.prototype.extractWorldImageData = function(callback, e){
-    const ctx = document.createElement('canvas').getContext('2d');
-    const image = e.target;
-
-    ctx.canvas.width  = image.width;
-    ctx.canvas.height = image.height;
-    ctx.drawImage(image, 0, 0);
-    this.width = image.width;
-    this.height = image.height;
-
-    const imgData = ctx.getImageData(0, 0, this.width, this.height);
-    this.processWorldImageData(imgData, callback);
+World.prototype.processEntityJSON = function(entity_json){
+  _.each(_.keys(entity_json), (entity_type) =>{
+    _.each(entity_json[entity_type], this.fromEntityJSON.bind(this, entity_type));
+  });
 };
 
-World.prototype.readWorldImage = function(filename, callback) {
-    // Read png file binary and get color for each pixel
-    // one pixel = one block
-    // Read RGBA (alpha is height)
-    // 255 = max height
-    // a < 50 = floor
-    var image = new Image();
-    image.src = "/"+filename;
-    image.onload = this.extractWorldImageData.bind(this, callback);
+World.prototype.registerEntity = function(entity){
+  const entity_type = entity.constructor.name;
+  if(_.isUndefined(this.entities[entity_type])){
+    const eTree = {};
+    eTree[entity.id] = entity;
+    this.entities[entity_type] = eTree;
+  }else{
+    this.entities[entity_type][entity.id] = entity;
+  }
 };
+
+World.prototype.flatEntities = function(){
+  return _.flatten(_.map(_.toArray(this.entities), function(et){ return _.toArray(et);}));
+};
+
+World.prototype.update = function(delta){
+  _.each(this.entities.Actor, function(actor){
+    actor.update(delta);
+  });
+};
+
+World.prototype.render = function(){
+  _.each(this.flatEntities(), function(entity){
+    entity.render();
+  },this);
+  this.renderer.render(this.scene, this.camera);
+};
+
 module.exports = World;
 
 
