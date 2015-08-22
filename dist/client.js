@@ -4882,7 +4882,7 @@
 	    useWater: true,
 	    waterPosition: 0.2,
 	    entities: {
-	      "Tree": [{ x: 8, y: 2, z: 110, scale: 2 }, { x: 45, y: 2, z: 60, scale: 2 }, { x: 59, y: 2, z: 35, scale: 2 }, { x: 17, y: 2, z: 13, scale: 2 }, { x: 33, y: 2, z: 13, scale: 2 }, { x: 110, y: 2.5, z: 16, scale: 2 }, { x: 107, y: 2.5, z: 27, scale: 2 }, { x: 92, y: 3.5, z: 109, scale: 2 }, { x: 86, y: 3.5, z: 107, scale: 2 }]
+	      "Tree": [{ position: [8, 2, 110], scale: 2 }, { position: [45, 2, 60], scale: 2 }, { position: [59, 2, 35], scale: 2 }, { position: [17, 2, 13], scale: 2 }, { position: [33, 2, 13], scale: 2 }, { position: [110, 2.5, 16], scale: 2 }, { position: [107, 2.5, 27], scale: 2 }, { position: [92, 3.5, 109], scale: 2 }, { position: [86, 3.5, 107], scale: 2 }]
 	    },
 	    terrain: []
 	  };
@@ -5532,9 +5532,9 @@
 	/* WEBPACK VAR INJECTION */(function(process) {'use strict';
 
 	var _ = __webpack_require__(174);
-	var ChunkWorld = __webpack_require__(176);
-	var EntityClasses = __webpack_require__(182);
+	var ChunkManager = __webpack_require__(194);
 	var VoxLoader = __webpack_require__(186);
+	var EntityClasses = __webpack_require__(182);
 	var THREE = __webpack_require__(180);
 	var is_server = typeof process === 'object' && process + '' === '[object process]';
 
@@ -5555,9 +5555,9 @@
 	  this.meshes = {};
 	  this.entities = {};
 	  this.terrain = [];
-	  this.scene = new THREE.Scene();
 
-	  this.voxLoader = new VoxLoader();
+	  this.scene = new THREE.Scene();
+	  this.ChunkManager = new ChunkManager();
 
 	  if (props.entities) {
 	    var ents = props.entities;
@@ -5581,9 +5581,50 @@
 	    this.container = document.getElementById('container');
 	    this.container.appendChild(this.renderer.domElement);
 	    THREEx.WindowResize(this.renderer, this.camera);
+	    this.fogColor = 0xeddeab;
+	    this.clearColor = 0xeddeab;
+	    this.scene.fog = new THREE.Fog(this.fogColor, 40, 60);
+	    this.renderer.setClearColor(this.clearColor, 1);
+
+	    // Init lights
+	    this.setLights();
 	  }
 
 	  Object.assign(this, props);
+	};
+
+	World.prototype.setLights = function () {
+	  console.log("Initiate lights...");
+	  var ambientLight = new THREE.AmbientLight(0x000033);
+	  this.scene.add(ambientLight);
+
+	  var hemiLight = new THREE.HemisphereLight(0xffffff, 0xffffff, 0.9);
+	  hemiLight.color.setHSL(0.6, 1, 0.6);
+	  hemiLight.groundColor.setHSL(0.095, 1, 0.75);
+	  hemiLight.position.set(0, 500, 0);
+	  this.scene.add(hemiLight);
+
+	  var dirLight = new THREE.DirectionalLight(0xffffff, 1);
+	  dirLight.color.setHSL(0.1, 1, 0.95);
+	  dirLight.position.set(10, 10.75, 10);
+	  dirLight.position.multiplyScalar(10);
+	  this.scene.add(dirLight);
+
+	  //dirLight.castShadow = true;
+
+	  // dirLight.shadowMapWidth = 2048;
+	  // dirLight.shadowMapHeight = 2048;
+
+	  // var d = 150;
+
+	  // dirLight.shadowCameraLeft = -d;
+	  // dirLight.shadowCameraRight = d;
+	  // dirLight.shadowCameraTop = d;
+	  // dirLight.shadowCameraBottom = -d;
+
+	  // dirLight.shadowCameraFar = 3500;
+	  // dirLight.shadowBias = -0.0001;
+	  // dirLight.shadowDarkness = 0.45;
 	};
 
 	World.prototype.importEntities = function (entity_json_tree) {
@@ -5618,6 +5659,10 @@
 	};
 
 	World.prototype.update = function (delta) {
+	  var invMaxFps = 1 / 60;
+	  THREE.AnimationHandler.update(invMaxFps);
+	  //this.chunkManager.Draw(delta, invMaxFps);
+
 	  _.each(this.entities.Actor, function (actor) {
 	    actor.update(delta);
 	  });
@@ -18008,598 +18053,7 @@
 
 
 /***/ },
-/* 176 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	var util = __webpack_require__(170);
-	var Chunk = __webpack_require__(177);
-	var Block = __webpack_require__(178);
-	var THREE = __webpack_require__(179);
-
-	// Chunks of other types such as crates/weapons/mob/player
-	function ChunkWorld() {
-	    Chunk.call(this);
-	    this.wallHeight = 1;
-	};
-	util.inherits(ChunkWorld, Chunk);
-
-	ChunkWorld.prototype.Create = function (chunkSize, blockSize, posX, posY, map, wallHeight, id) {
-	    this.cid = id;
-	    this.chunkSize = chunkSize;
-	    this.chunkSizeX = chunkSize;
-	    this.chunkSizeY = chunkSize;
-	    this.chunkSizeZ = chunkSize;
-	    this.blockSize = blockSize;
-	    this.posX = posX;
-	    this.posY = posY;
-
-	    this.blocks = new Array();
-	    var tmpBlocks = new Array();
-	    var visible = false;
-	    var maxHeight = 0;
-	    for (var x = 0; x < this.chunkSize; x++) {
-	        this.blocks[x] = new Array();
-	        tmpBlocks[x] = new Array();
-	        for (var y = 0; y < this.chunkSize; y++) {
-	            this.blocks[x][y] = new Array();
-	            tmpBlocks[x][y] = new Array();
-	            this.wallHeight = map[x][y].a / wallHeight;
-	            //     this.avgHeight += this.wallHeight;
-	            var v = 0;
-	            for (var z = 0; z < this.chunkSize; z++) {
-	                visible = false;
-
-	                if (map[x][y].a > 0 && z <= this.wallHeight) {
-	                    visible = true;
-	                    tmpBlocks[x][y][z] = 1;
-	                    v++;
-	                } else {
-	                    tmpBlocks[x][y][z] = 0;
-	                    visible = false;
-	                }
-	            }
-	            if (maxHeight < v) {
-	                maxHeight = v;
-	            }
-	        }
-	    }
-	    this.chunkSizeZ = maxHeight;
-
-	    // Skipping _a_lot_ of blocks by just allocating maxHeight for each block.
-	    for (var x = 0; x < this.chunkSize; x++) {
-	        for (var y = 0; y < this.chunkSize; y++) {
-	            for (var z = 0; z < this.chunkSizeZ; z++) {
-	                this.blocks[x][y][z] = new Block();
-	                var visible = false;
-	                if (tmpBlocks[x][y][z] == 1) {
-	                    visible = true;
-	                }
-	                this.blocks[x][y][z].Create(visible, map[x][y].r, map[x][y].g, map[x][y].b, map[x][y].a);
-	            }
-	        }
-	    }
-	};
-
-	ChunkWorld.prototype.Rebuild = function () {
-	    var b = 0;
-	    var vertices = [];
-	    var colors = [];
-
-	    // Reset merged blocks
-	    for (var x = 0; x < this.chunkSize; x++) {
-	        for (var y = 0; y < this.chunkSize; y++) {
-	            for (var z = 0; z < this.chunkSizeZ; z++) {
-	                this.blocks[x][y][z].drawnLeftSide = false;
-	                this.blocks[x][y][z].drawnTopSide = false;
-	                this.blocks[x][y][z].drawnFrontSide = false;
-	                this.blocks[x][y][z].drawnRightSide = false;
-	                this.blocks[x][y][z].drawnBottomSide = false;
-	            }
-	        }
-	    }
-
-	    var drawBlock = false;
-	    for (var x = 0; x < this.chunkSize; x++) {
-	        for (var y = 0; y < this.chunkSize; y++) {
-	            var height = 0;
-	            for (var z = 1; z < this.chunkSizeZ; z++) {
-	                // Draw from 1 to skip "black" spots caused by image when there aint sharp borders for opacity
-	                if (this.blocks[x][y][z].isActive() == true) {
-	                    if (height < z) {
-	                        height = z;
-	                    }
-
-	                    // Check for hidden blocks on edges (between chunks)
-	                    if (x == this.chunkSize - 1 && y < this.chunkSize - 1 && y > 0 && z < this.chunkSizeZ - 1) {
-	                        var id = this.cid + 1;
-	                        if (id >= 0 && id < game.chunkManager.worldChunks.length) {
-	                            if (game.chunkManager.worldChunks[id].blocks[0][y][z] != null && game.chunkManager.worldChunks[id].blocks[0][y][z].isActive()) {
-	                                if (this.blocks[x][y - 1][z].isActive() && this.blocks[x - 1][y][z].isActive() && this.blocks[x][y + 1][z].isActive() && this.blocks[x][y][z + 1].isActive()) {
-	                                    continue;
-	                                }
-	                            }
-	                        }
-	                    }
-
-	                    if (x == 0 && y < this.chunkSize - 1 && y > 0 && z < this.chunkSizeZ - 1) {
-	                        var id = this.cid - 1;
-	                        if (id >= 0 && id < game.chunkManager.worldChunks.length) {
-	                            if (game.chunkManager.worldChunks[id].blocks[this.chunkSize - 1][y][z] != null && game.chunkManager.worldChunks[id].blocks[this.chunkSize - 1][y][z].isActive()) {
-	                                if (this.blocks[x][y - 1][z].isActive() && this.blocks[x][y + 1][z].isActive() && this.blocks[x + 1][y][z].isActive() && this.blocks[x][y][z + 1].isActive()) {
-	                                    continue;
-	                                }
-	                            }
-	                        }
-	                    }
-
-	                    if (y == this.chunkSize - 1 && x < this.chunkSize - 1 && x > 0 && z < this.chunkSizeZ - 1) {
-	                        var id = this.cid + Math.sqrt(game.world.map.length);
-	                        if (id >= 0 && id < game.chunkManager.worldChunks.length) {
-	                            if (game.chunkManager.worldChunks[id].blocks[x][0][z] != null && game.chunkManager.worldChunks[id].blocks[x][0][z].isActive()) {
-	                                if (this.blocks[x - 1][y][z].isActive() && this.blocks[x + 1][y][z].isActive() && this.blocks[x][y - 1][z].isActive() && this.blocks[x][y][z + 1].isActive()) {
-	                                    continue;
-	                                }
-	                            }
-	                        }
-	                    }
-
-	                    if (y == 0 && x < this.chunkSize - 1 && x > 0 && z < this.chunkSizeZ - 1) {
-	                        var id = this.cid - Math.sqrt(game.world.map.length);
-	                        if (id >= 0 && id < game.chunkManager.worldChunks.length) {
-	                            if (game.chunkManager.worldChunks[id].blocks[x][this.chunkSize - 1][z] != null && game.chunkManager.worldChunks[id].blocks[x][this.chunkSize - 1][z].isActive()) {
-	                                if (this.blocks[x - 1][y][z].isActive() && this.blocks[x + 1][y][z].isActive() && this.blocks[x][y + 1][z].isActive() && this.blocks[x][y][z + 1].isActive()) {
-	                                    continue;
-	                                }
-	                            }
-	                        }
-	                    }
-
-	                    var sides = 0;
-
-	                    drawBlock = false;
-
-	                    // left side (+X)
-	                    if (x > 0) {
-	                        if (!this.blocks[x - 1][y][z].isActive()) {
-	                            drawBlock = true;
-	                        }
-	                    } else {
-	                        var id = this.cid - 1;
-	                        if (id != -1 && game.chunkManager.worldChunks[id].blocks[this.chunkSize - 1][y][z] != null && //game.chunkManager.worldChunks[id].blocks[x][y][z].isActive() &&
-	                        game.chunkManager.worldChunks[id].blocks[this.chunkSize - 1][y][z].drawnRightSide) {
-	                            drawBlock = false;
-	                            this.blocks[x][y][z].drawnLeftSide = true;
-	                        } else {
-	                            drawBlock = true;
-	                        }
-	                    }
-
-	                    if (drawBlock) {
-	                        var countX = 0;
-	                        var countY = 0;
-	                        if (!this.blocks[x][y][z].drawnLeftSide) {
-	                            for (var cx = 1; cx < this.chunkSize; cx++) {
-	                                if (y + cx < this.chunkSize) {
-	                                    if (this.blocks[x][y + cx][z].isActive() && !this.blocks[x][y + cx][z].drawnLeftSide && this.blocks[x][y + cx][z].r == this.blocks[x][y][z].r && this.blocks[x][y + cx][z].g == this.blocks[x][y][z].g && this.blocks[x][y + cx][z].b == this.blocks[x][y][z].b) {
-	                                        countX++;
-	                                        var tmpCountY = 0;
-	                                        for (var cy = 1; cy < this.chunkSizeZ; cy++) {
-	                                            if (z + cy < this.chunkSizeZ) {
-	                                                if (this.blocks[x][y + cx][z + cy].isActive() && !this.blocks[x][y + cx][z + cy].drawnLeftSide && this.blocks[x][y + cx][z + cy].r == this.blocks[x][y][z].r && this.blocks[x][y + cx][z + cy].g == this.blocks[x][y][z].g && this.blocks[x][y + cx][z + cy].b == this.blocks[x][y][z].b) {
-	                                                    tmpCountY++;
-	                                                } else {
-	                                                    break;
-	                                                }
-	                                            }
-	                                        }
-	                                        if (tmpCountY < countY || countY == 0) {
-	                                            countY = tmpCountY;
-	                                        }
-	                                        if (tmpCountY == 0 && countY > countX) {
-	                                            break;
-	                                        }
-	                                    } else {
-	                                        break;
-	                                    }
-	                                }
-	                            }
-
-	                            for (var x1 = 0; x1 <= countX; x1++) {
-	                                for (var y1 = 0; y1 <= countY; y1++) {
-	                                    if (this.blocks[x][y + x1][z + y1].drawnLeftSide) {
-	                                        countY = y1 - 1;
-	                                    } else {
-	                                        this.blocks[x][y + x1][z + y1].drawnLeftSide = true;
-	                                    }
-	                                }
-	                            }
-	                            this.blocks[x][y][z].drawnLeftSide = true;
-	                            sides++;
-	                            vertices.push([x * this.blockSize - this.blockSize, y * this.blockSize - this.blockSize, z * this.blockSize - this.blockSize]);
-	                            vertices.push([x * this.blockSize - this.blockSize, y * this.blockSize - this.blockSize, z * this.blockSize + this.blockSize * countY]);
-	                            vertices.push([x * this.blockSize - this.blockSize, y * this.blockSize + this.blockSize * countX, z * this.blockSize + this.blockSize * countY]);
-
-	                            vertices.push([x * this.blockSize - this.blockSize, y * this.blockSize - this.blockSize, z * this.blockSize - this.blockSize]);
-	                            vertices.push([x * this.blockSize - this.blockSize, y * this.blockSize + this.blockSize * countX, z * this.blockSize + this.blockSize * countY]);
-	                            vertices.push([x * this.blockSize - this.blockSize, y * this.blockSize + this.blockSize * countX, z * this.blockSize - this.blockSize]);
-
-	                            for (var i = 0; i < 6; i++) {
-	                                colors.push([this.blocks[x][y][z].r, this.blocks[x][y][z].g, this.blocks[x][y][z].b, 255]);
-	                            }
-	                        }
-	                    }
-	                    drawBlock = false;
-
-	                    // right side (-X)
-	                    if (x < this.chunkSize - 1) {
-	                        if (!this.blocks[x + 1][y][z].isActive()) {
-	                            drawBlock = true;
-	                        }
-	                    } else {
-	                        var id = this.cid + 1;
-	                        if (game.chunkManager.worldChunks[id].blocks[0][y][z] != null && game.chunkManager.worldChunks[id].blocks[0][y][z].isActive() && !game.chunkManager.worldChunks[id].blocks[0][y][z].drawnLeftSide) {
-	                            this.blocks[x][y][z].drawnRightSide = true;
-	                            drawBlock = false;
-	                        } else {
-	                            drawBlock = true;
-	                        }
-	                    }
-
-	                    if (drawBlock) {
-	                        var countX = 0;
-	                        var countY = 0;
-	                        if (!this.blocks[x][y][z].drawnRightSide) {
-	                            for (var cx = 1; cx < this.chunkSize; cx++) {
-	                                if (y + cx < this.chunkSize) {
-	                                    if (this.blocks[x][y + cx][z].isActive() && !this.blocks[x][y + cx][z].drawnRightSide && this.blocks[x][y + cx][z].r == this.blocks[x][y][z].r && this.blocks[x][y + cx][z].g == this.blocks[x][y][z].g && this.blocks[x][y + cx][z].b == this.blocks[x][y][z].b) {
-	                                        // Check how far we can draw other way
-	                                        countX++;
-	                                        var tmpCountY = 0;
-	                                        for (var cy = 1; cy < this.chunkSizeZ; cy++) {
-	                                            if (z + cy < this.chunkSizeZ) {
-	                                                if (this.blocks[x][y + cx][z + cy].isActive() && !this.blocks[x][y + cx][z + cy].drawnRightSide && this.blocks[x][y + cx][z + cy].r == this.blocks[x][y][z].r && this.blocks[x][y + cx][z + cy].g == this.blocks[x][y][z].g && this.blocks[x][y + cx][z + cy].b == this.blocks[x][y][z].b) {
-	                                                    tmpCountY++;
-	                                                } else {
-	                                                    break;
-	                                                }
-	                                            }
-	                                        }
-	                                        if (tmpCountY < countY || countY == 0) {
-	                                            countY = tmpCountY;
-	                                        }
-	                                        if (tmpCountY == 0 && countY > countX) {
-	                                            break;
-	                                        }
-	                                    } else {
-	                                        break;
-	                                    }
-	                                }
-	                            }
-
-	                            for (var x1 = 0; x1 <= countX; x1++) {
-	                                for (var y1 = 0; y1 <= countY; y1++) {
-	                                    if (this.blocks[x][y + x1][z + y1].drawnRightSide) {
-	                                        countY = y1 - 1;
-	                                    } else {
-	                                        this.blocks[x][y + x1][z + y1].drawnRightSide = true;
-	                                    }
-	                                }
-	                            }
-
-	                            this.blocks[x][y][z].drawnRightSide = true;
-	                            sides++;
-	                            vertices.push([x * this.blockSize, y * this.blockSize - this.blockSize, z * this.blockSize - this.blockSize]);
-	                            vertices.push([x * this.blockSize, y * this.blockSize + this.blockSize * countX, z * this.blockSize + this.blockSize * countY]);
-	                            vertices.push([x * this.blockSize, y * this.blockSize - this.blockSize, z * this.blockSize + this.blockSize * countY]);
-
-	                            vertices.push([x * this.blockSize, y * this.blockSize + this.blockSize * countX, z * this.blockSize + this.blockSize * countY]);
-	                            vertices.push([x * this.blockSize, y * this.blockSize - this.blockSize, z * this.blockSize - this.blockSize]);
-	                            vertices.push([x * this.blockSize, y * this.blockSize + this.blockSize * countX, z * this.blockSize - this.blockSize]);
-
-	                            for (var i = 0; i < 6; i++) {
-	                                colors.push([this.blocks[x][y][z].r, this.blocks[x][y][z].g, this.blocks[x][y][z].b, 255]);
-	                            }
-	                        }
-	                    }
-
-	                    // TBD: If this is world chunk -> don't draw this side!
-
-	                    // Back side (-Z)  
-	                    if (z > 0) {
-	                        if (!this.blocks[x][y][z - 1].isActive()) {
-	                            drawBlock = true;
-	                        }
-	                    } else {
-	                        drawBlock = true;
-	                    }
-	                    drawBlock = false; // skip this for world.
-	                    if (drawBlock) {
-	                        sides++;
-	                        vertices.push([x * this.blockSize, y * this.blockSize, z * this.blockSize - this.blockSize]);
-	                        vertices.push([x * this.blockSize, y * this.blockSize - this.blockSize, z * this.blockSize - this.blockSize]);
-	                        vertices.push([x * this.blockSize - this.blockSize, y * this.blockSize - this.blockSize, z * this.blockSize - this.blockSize]);
-
-	                        vertices.push([x * this.blockSize, y * this.blockSize, z * this.blockSize - this.blockSize]);
-	                        vertices.push([x * this.blockSize - this.blockSize, y * this.blockSize - this.blockSize, z * this.blockSize - this.blockSize]);
-	                        vertices.push([x * this.blockSize - this.blockSize, y * this.blockSize, z * this.blockSize - this.blockSize]);
-	                        for (var i = 0; i < 6; i++) {
-	                            colors.push([this.blocks[x][y][z].r, this.blocks[x][y][z].g, this.blocks[x][y][z].b, 255]);
-	                        }
-	                    }
-	                    drawBlock = false;
-
-	                    // Front side (+Z)
-	                    if (z < this.chunkSizeZ - 1) {
-	                        if (!this.blocks[x][y][z + 1].isActive()) {
-	                            drawBlock = true;
-	                        }
-	                    } else {
-	                        drawBlock = true;
-	                    }
-
-	                    if (drawBlock) {
-	                        var countX = 0;
-	                        var countY = 0;
-	                        if (!this.blocks[x][y][z].drawnFrontSide) {
-	                            for (var cx = 1; cx < this.chunkSize; cx++) {
-	                                if (x + cx < this.chunkSize) {
-	                                    if (this.blocks[x + cx][y][z].isActive() && !this.blocks[x + cx][y][z].drawnFrontSide && this.blocks[x + cx][y][z].r == this.blocks[x][y][z].r && this.blocks[x + cx][y][z].g == this.blocks[x][y][z].g && this.blocks[x + cx][y][z].b == this.blocks[x][y][z].b) {
-	                                        // Check how far we can draw other way
-	                                        countX++;
-	                                        var tmpCountY = 0;
-	                                        for (var cy = 1; cy < this.chunkSizeZ; cy++) {
-	                                            if (y + cy < this.chunkSizeZ) {
-	                                                if (this.blocks[x + cx][y + cy][z].isActive() && !this.blocks[x + cx][y + cy][z].drawnFrontSide && this.blocks[x + cx][y + cy][z].r == this.blocks[x][y][z].r && this.blocks[x + cx][y + cy][z].g == this.blocks[x][y][z].g && this.blocks[x + cx][y + cy][z].b == this.blocks[x][y][z].b) {
-	                                                    tmpCountY++;
-	                                                } else {
-	                                                    break;
-	                                                }
-	                                            }
-	                                        }
-	                                        if (tmpCountY < countY || countY == 0) {
-	                                            countY = tmpCountY;
-	                                        }
-	                                        if (tmpCountY == 0 && countY > countX) {
-	                                            break;
-	                                        }
-	                                    } else {
-	                                        break;
-	                                    }
-	                                }
-	                            }
-
-	                            for (var x1 = 0; x1 <= countX; x1++) {
-	                                for (var y1 = 0; y1 <= countY; y1++) {
-	                                    if (this.blocks[x + x1][y + y1][z].drawnFrontSide) {
-	                                        countY = y1 - 1;
-	                                    } else {
-	                                        this.blocks[x + x1][y + y1][z].drawnFrontSide = true;
-	                                    }
-	                                }
-	                            }
-	                            this.blocks[x][y][z].drawnFrontSide = true;
-	                            sides++;
-	                            vertices.push([x * this.blockSize + this.blockSize * countX, y * this.blockSize + this.blockSize * countY, z * this.blockSize]);
-	                            vertices.push([x * this.blockSize - this.blockSize, y * this.blockSize + this.blockSize * countY, z * this.blockSize]);
-	                            vertices.push([x * this.blockSize + this.blockSize * countX, y * this.blockSize - this.blockSize, z * this.blockSize]);
-
-	                            vertices.push([x * this.blockSize - this.blockSize, y * this.blockSize + this.blockSize * countY, z * this.blockSize]);
-	                            vertices.push([x * this.blockSize - this.blockSize, y * this.blockSize - this.blockSize, z * this.blockSize]);
-	                            vertices.push([x * this.blockSize + this.blockSize * countX, y * this.blockSize - this.blockSize, z * this.blockSize]);
-
-	                            for (var i = 0; i < 6; i++) {
-	                                colors.push([this.blocks[x][y][z].r, this.blocks[x][y][z].g, this.blocks[x][y][z].b, 255]);
-	                            }
-	                        }
-	                    }
-	                    drawBlock = false;
-
-	                    // Bottom (-Y)
-	                    if (y > 0) {
-	                        if (!this.blocks[x][y - 1][z].isActive()) {
-	                            drawBlock = true;
-	                        }
-	                    } else {
-	                        //drawBlock = true;
-	                        var id = this.cid - Math.sqrt(game.world.map.length);
-	                        if (id >= 0 && id < game.chunkManager.worldChunks.length) {
-	                            if (game.chunkManager.worldChunks[id].blocks[x][this.chunkSize - 1][z] != null && game.chunkManager.worldChunks[id].blocks[x][this.chunkSize - 1][z].isActive()) {
-	                                // &&
-	                                drawBlock = false;
-	                            } else {
-	                                drawBlock = true;
-	                            }
-	                        } else {
-	                            drawBlock = true;
-	                        }
-	                    }
-
-	                    if (drawBlock) {
-	                        var countX = 0;
-	                        var countY = 0;
-	                        if (!this.blocks[x][y][z].drawnBottomSide) {
-	                            for (var cx = 1; cx < this.chunkSize; cx++) {
-	                                if (x + cx < this.chunkSize) {
-	                                    if (this.blocks[x + cx][y][z].isActive() && !this.blocks[x + cx][y][z].drawnBottomSide && this.blocks[x + cx][y][z].r == this.blocks[x][y][z].r && this.blocks[x + cx][y][z].g == this.blocks[x][y][z].g && this.blocks[x + cx][y][z].b == this.blocks[x][y][z].b) {
-	                                        countX++;
-	                                        var tmpCountY = 0;
-	                                        for (var cy = 1; cy < this.chunkSizeZ; cy++) {
-	                                            if (z + cy < this.chunkSizeZ) {
-	                                                if (this.blocks[x + cx][y][z + cy].isActive() && !this.blocks[x + cx][y][z + cy].drawnBottomSide && this.blocks[x + cx][y][z + cy].r == this.blocks[x][y][z].r && this.blocks[x + cx][y][z + cy].g == this.blocks[x][y][z].g && this.blocks[x + cx][y][z + cy].b == this.blocks[x][y][z].b) {
-	                                                    tmpCountY++;
-	                                                } else {
-	                                                    break;
-	                                                }
-	                                            }
-	                                        }
-	                                        if (tmpCountY < countY || countY == 0) {
-	                                            countY = tmpCountY;
-	                                        }
-	                                        if (tmpCountY == 0 && countY > countX) {
-	                                            break;
-	                                        }
-	                                    } else {
-	                                        break;
-	                                    }
-	                                }
-	                            }
-
-	                            for (var x1 = 0; x1 <= countX; x1++) {
-	                                for (var y1 = 0; y1 <= countY; y1++) {
-	                                    if (this.blocks[x + x1][y][z + y1].drawnBottomSide) {
-	                                        countY = y1 - 1;
-	                                    } else {
-	                                        this.blocks[x + x1][y][z + y1].drawnBottomSide = true;
-	                                    }
-	                                }
-	                            }
-
-	                            this.blocks[x][y][z].drawnBottomSide = true;
-	                            sides++;
-
-	                            vertices.push([x * this.blockSize + this.blockSize * countX, y * this.blockSize - this.blockSize, z * this.blockSize + this.blockSize * countY]);
-	                            vertices.push([x * this.blockSize - this.blockSize, y * this.blockSize - this.blockSize, z * this.blockSize + this.blockSize * countY]);
-	                            vertices.push([x * this.blockSize - this.blockSize, y * this.blockSize - this.blockSize, z * this.blockSize - this.blockSize]);
-
-	                            vertices.push([x * this.blockSize + this.blockSize * countX, y * this.blockSize - this.blockSize, z * this.blockSize + this.blockSize * countY]);
-	                            vertices.push([x * this.blockSize - this.blockSize, y * this.blockSize - this.blockSize, z * this.blockSize - this.blockSize]);
-	                            vertices.push([x * this.blockSize + this.blockSize * countX, y * this.blockSize - this.blockSize, z * this.blockSize - this.blockSize]);
-
-	                            for (var i = 0; i < 6; i++) {
-	                                colors.push([this.blocks[x][y][z].r, this.blocks[x][y][z].g, this.blocks[x][y][z].b, 255]);
-	                            }
-	                        }
-	                    }
-
-	                    drawBlock = false;
-
-	                    // top (+Y)
-	                    if (y < this.chunkSize - 1) {
-	                        if (!this.blocks[x][y + 1][z].isActive()) {
-	                            drawBlock = true;
-	                        }
-	                    } else {
-	                        var id = this.cid + Math.sqrt(game.world.map.length);
-	                        if (id >= 0 && id < game.chunkManager.worldChunks.length) {
-	                            if (game.chunkManager.worldChunks[id].blocks[x][0][z] != null && game.chunkManager.worldChunks[id].blocks[x][0][z].isActive()) {
-	                                drawBlock = false;
-	                            } else {
-	                                drawBlock = true;
-	                            }
-	                        } else {
-	                            drawBlock = true;
-	                        }
-	                    }
-
-	                    if (drawBlock) {
-	                        var countX = 0;
-	                        var countY = 0;
-	                        if (!this.blocks[x][y][z].drawnTopSide) {
-	                            for (var cx = 1; cx < this.chunkSize; cx++) {
-	                                if (x + cx < this.chunkSize) {
-	                                    if (this.blocks[x + cx][y][z].isActive() && !this.blocks[x + cx][y][z].drawnTopSide && this.blocks[x + cx][y][z].r == this.blocks[x][y][z].r && this.blocks[x + cx][y][z].g == this.blocks[x][y][z].g && this.blocks[x + cx][y][z].b == this.blocks[x][y][z].b) {
-	                                        countX++;
-	                                        var tmpCountY = 0;
-	                                        for (var cy = 1; cy < this.chunkSizeZ; cy++) {
-	                                            if (z + cy < this.chunkSizeZ) {
-	                                                if (this.blocks[x + cx][y][z + cy].isActive() && !this.blocks[x + cx][y][z + cy].drawnTopSide && this.blocks[x + cx][y][z + cy].r == this.blocks[x][y][z].r && this.blocks[x + cx][y][z + cy].g == this.blocks[x][y][z].g && this.blocks[x + cx][y][z + cy].b == this.blocks[x][y][z].b) {
-	                                                    tmpCountY++;
-	                                                } else {
-	                                                    break;
-	                                                }
-	                                            }
-	                                        }
-	                                        if (tmpCountY < countY || countY == 0) {
-	                                            countY = tmpCountY;
-	                                        }
-	                                        if (tmpCountY == 0 && countY > countX) {
-	                                            break;
-	                                        }
-	                                    } else {
-	                                        break;
-	                                    }
-	                                }
-	                            }
-
-	                            for (var x1 = 0; x1 <= countX; x1++) {
-	                                for (var y1 = 0; y1 <= countY; y1++) {
-	                                    if (this.blocks[x + x1][y][z + y1].drawnTopSide) {
-	                                        countY = y1 - 1;
-	                                    } else {
-	                                        this.blocks[x + x1][y][z + y1].drawnTopSide = true;
-	                                    }
-	                                }
-	                            }
-
-	                            this.blocks[x][y][z].drawnTopSide = true;
-	                            sides++;
-	                            vertices.push([x * this.blockSize + this.blockSize * countX, y * this.blockSize, z * this.blockSize + this.blockSize * countY]);
-	                            vertices.push([x * this.blockSize - this.blockSize, y * this.blockSize, z * this.blockSize - this.blockSize]);
-	                            vertices.push([x * this.blockSize - this.blockSize, y * this.blockSize, z * this.blockSize + this.blockSize * countY]);
-
-	                            vertices.push([x * this.blockSize + this.blockSize * countX, y * this.blockSize, z * this.blockSize + this.blockSize * countY]);
-	                            vertices.push([x * this.blockSize + this.blockSize * countX, y * this.blockSize, z * this.blockSize - this.blockSize]);
-	                            vertices.push([x * this.blockSize - this.blockSize, y * this.blockSize, z * this.blockSize - this.blockSize]);
-
-	                            for (var i = 0; i < 6; i++) {
-	                                colors.push([this.blocks[x][y][z].r, this.blocks[x][y][z].g, this.blocks[x][y][z].b, 255]);
-	                            }
-	                        }
-	                    }
-
-	                    // Add colors0
-	                    b += 2 * sides;
-
-	                    // Fully visible
-	                    if (sides == 6) {
-	                        // Create physBlock and remove this?
-	                    }
-	                }
-	            }
-	            this.blocks[x][y].height = height;
-	        }
-	    }
-	    // Create Object
-	    //
-	    var geometry = new THREE.BufferGeometry();
-	    var v = new THREE.BufferAttribute(new Float32Array(vertices.length * 3), 3);
-	    for (var i = 0; i < vertices.length; i++) {
-	        v.setXYZ(i, vertices[i][0], vertices[i][1], vertices[i][2]);
-	    }
-	    geometry.addAttribute('position', v);
-
-	    var c = new THREE.BufferAttribute(new Float32Array(colors.length * 4), 4);
-	    for (var i = 0; i < colors.length; i++) {
-	        c.setXYZW(i, colors[i][0] / 255, colors[i][1] / 255, colors[i][2] / 255, colors[i][3] / 255);
-	    }
-	    geometry.addAttribute('color', c);
-
-	    geometry.computeVertexNormals();
-	    geometry.computeFaceNormals();
-
-	    var material3 = new THREE.MeshLambertMaterial({ vertexColors: THREE.VertexColors, wireframe: this.wireframe });
-	    var mesh = new THREE.Mesh(geometry, material3);
-	    mesh.rotation.set(Math.PI / 2, Math.PI, Math.PI / 2);
-	    mesh.position.set(this.posY, 0, this.posX);
-
-	    mesh.receiveShadow = true;
-	    mesh.castShadow = true;
-
-	    if (this.mesh != undefined) {
-	        game.scene.remove(this.mesh);
-	    }
-	    game.scene.add(mesh);
-
-	    mesh.that = this;
-	    this.mesh = mesh;
-	    this.activeTriangles = b;
-	};
-
-	module.exports = ChunkWorld;
-
-/***/ },
+/* 176 */,
 /* 177 */
 /***/ function(module, exports, __webpack_require__) {
 
@@ -54177,6 +53631,8 @@
 	                _this.chunk.Rebuild();
 	                _this.mesh = vox.getMesh();
 	                _this.mesh.geometry.center();
+	                _this.mesh.geometry.computeBoundingBox();
+	                _this.mesh.position.set.call(_this, _this.position);
 	                _this.mesh.scale.set(_this.scale, _this.scale, _this.scale);
 	                resolve(_this);
 	            });
@@ -54651,6 +54107,353 @@
 	module.exports.cancel = cancelAnimationFrame.bind(global);
 
 	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
+
+/***/ },
+/* 194 */
+/***/ function(module, exports) {
+
+	"use strict";
+
+	function ChunkManager() {
+	    this.worldChunks = [];
+	    this.totalBlocks = 0;
+	    this.totalChunks = 0;
+	    this.activeBlocks = 0;
+	    this.activeTriangles = 0;
+	    this.updateChunks = [];
+	    this.maxChunks = 0;
+	};
+
+	ChunkManager.prototype.PercentLoaded = function () {
+	    console.log("TOTAL: " + this.totalChunks + " MAX: " + this.maxChunks);
+	    if (this.totalChunks == 0) {
+	        return 0;
+	    }
+	    return Math.round(this.maxChunks / this.totalChunks * 100);
+	};
+
+	ChunkManager.prototype.Draw = function (time, delta) {
+	    if (this.updateChunks.length > 0) {
+	        var cid = this.updateChunks.pop();
+	        this.worldChunks[cid].Rebuild();
+	    }
+	};
+
+	ChunkManager.prototype.Blood = function (x, z, power) {
+	    var aChunks = [];
+	    var aBlocksXZ = [];
+	    var aBlocksZ = [];
+
+	    x = Math.round(x);
+	    z = Math.round(z);
+	    var cid = 0;
+	    var totals = 0;
+	    var y = this.GetHeight(x, z);
+	    y = y / game.world.blockSize;
+	    for (var rx = x + power; rx >= x - power; rx -= game.world.blockSize) {
+	        for (var rz = z + power; rz >= z - power; rz -= game.world.blockSize) {
+	            for (var ry = y + power; ry >= y - power; ry -= game.world.blockSize) {
+	                if ((rx - x) * (rx - x) + (ry - y) * (ry - y) + (rz - z) * (rz - z) <= power * power) {
+	                    if (Math.random() > 0.7) {
+	                        // Set random shade to the blocks to look as burnt.
+	                        cid = this.GetWorldChunkID(rx, rz);
+	                        if (cid == undefined) {
+	                            continue;
+	                        }
+	                        var pos = this.Translate(rx, rz, cid);
+
+	                        var yy = Math.round(ry);
+	                        if (yy <= 0) {
+	                            yy = 0;
+	                        }
+	                        if (this.worldChunks[cid.id].blocks[pos.x][pos.z][yy] != undefined) {
+	                            if (this.worldChunks[cid.id].blocks[pos.x][pos.z][yy].active) {
+	                                this.worldChunks[cid.id].blocks[pos.x][pos.z][yy].r = 111 + Math.random() * 60;
+	                                this.worldChunks[cid.id].blocks[pos.x][pos.z][yy].g = 0;
+	                                this.worldChunks[cid.id].blocks[pos.x][pos.z][yy].b = 0;
+	                                aChunks.push(cid);
+	                            }
+	                        }
+	                    }
+	                }
+	            }
+	        }
+	    }
+	    var crebuild = {};
+	    for (var i = 0; i < aChunks.length; i++) {
+	        crebuild[aChunks[i].id] = 0;
+	    }
+	    for (var c in crebuild) {
+	        this.updateChunks.push(c);
+	    }
+	};
+
+	ChunkManager.prototype.ExplodeBombSmall = function (x, z) {
+	    x = Math.round(x);
+	    z = Math.round(z);
+	    var y = this.GetHeight(x, z);
+	    y = Math.round(y / game.world.blockSize);
+	    var cid = this.GetWorldChunkID(x, z);
+	    if (cid == undefined) {
+	        return;
+	    }
+	    var pos = this.Translate(x, z, cid);
+	    if (this.worldChunks[cid.id].blocks[pos.x][pos.z][y] == undefined) {
+	        return;
+	    }
+	    this.worldChunks[cid.id].blocks[pos.x][pos.z][y].setActive(false);
+	    this.worldChunks[cid.id].Rebuild();
+
+	    for (var i = 0; i < 6; i++) {
+	        var block = game.physBlockPool.Get();
+	        if (block != undefined) {
+	            block.Create(x, y / 2, z, this.worldChunks[cid.id].blockSize / 2, this.worldChunks[cid.id].blocks[pos.x][pos.z][y].r, this.worldChunks[cid.id].blocks[pos.x][pos.z][y].g, this.worldChunks[cid.id].blocks[pos.x][pos.z][y].b, 2, Math.random() * 180, 2);
+	        }
+	    }
+	};
+
+	ChunkManager.prototype.ExplodeBomb = function (x, z, power, blood, iny) {
+	    // Get all blocks in the explosion.
+	    // then for each block get chunk and remove the blocks
+	    // and rebuild the affected chunks.
+	    var aChunks = [];
+	    var aBlocksXZ = [];
+	    var aBlocksY = [];
+	    x = Math.round(x);
+	    z = Math.round(z);
+	    var cid = 0;
+
+	    var totals = 0;
+	    var y;
+	    if (iny == undefined) {
+	        var y = this.GetHeight(x, z);
+	        y = Math.round(y / game.world.blockSize);
+	    } else {
+	        y = iny;
+	    }
+	    var shade = 0.5;
+
+	    var yy = 0;
+	    var pos = 0;
+	    var val = 0;
+	    var pow = 0;
+	    var rand = 0;
+	    var block = undefined;
+	    for (var rx = x + power; rx >= x - power; rx -= game.world.blockSize) {
+	        for (var rz = z + power; rz >= z - power; rz -= game.world.blockSize) {
+	            for (var ry = y + power; ry >= y - power; ry -= game.world.blockSize) {
+	                val = (rx - x) * (rx - x) + (ry - y) * (ry - y) + (rz - z) * (rz - z);
+	                pow = power * power;
+	                if (val <= pow) {
+	                    cid = this.GetWorldChunkID(rx, rz);
+	                    if (cid == undefined) {
+	                        continue;
+	                    }
+	                    pos = this.Translate(rx, rz, cid);
+	                    if (ry <= 0) {
+	                        yy = 0;
+	                    } else {
+	                        yy = Math.round(ry);
+	                    }
+	                    if (this.worldChunks[cid.id].blocks[pos.x] == undefined) {
+	                        continue;
+	                    }
+	                    if (this.worldChunks[cid.id].blocks[pos.x][pos.z] == undefined) {
+	                        continue;
+	                    }
+
+	                    if (this.worldChunks[cid.id].blocks[pos.x][pos.z][yy] != undefined) {
+	                        if (this.worldChunks[cid.id].blocks[pos.x][pos.z][yy].isActive()) {
+	                            aBlocksXZ.push(pos);
+	                            aChunks.push(cid);
+	                            aBlocksY.push(yy);
+	                            totals++;
+	                            if (Math.random() > 0.95) {
+	                                // Create PhysBlock
+	                                block = game.physBlockPool.Get();
+	                                if (block != undefined) {
+	                                    block.Create(rx, yy, rz, this.worldChunks[cid.id].blockSize, this.worldChunks[cid.id].blocks[pos.x][pos.z][yy].r, this.worldChunks[cid.id].blocks[pos.x][pos.z][yy].g, this.worldChunks[cid.id].blocks[pos.x][pos.z][yy].b, 3, Math.random() * 180, power);
+	                                }
+	                            }
+	                        } else {
+	                            //console.log("NO ACTIVE CID: "+cid.id+ " X: "+pos.z + " Z: "+pos.z + " Y: "+yy);
+	                        }
+	                    }
+	                } else if (val <= pow * 1.2 && val >= pow) {
+	                        // Set random shade to the blocks to look as burnt.
+	                        cid = this.GetWorldChunkID(rx, rz);
+	                        if (cid == undefined) {
+	                            continue;
+	                        }
+	                        pos = this.Translate(rx, rz, cid);
+
+	                        yy = Math.round(ry);
+	                        if (yy <= 0) {
+	                            yy = 0;
+	                        }
+	                        if (pos == undefined) {
+	                            continue;
+	                        }
+	                        if (this.worldChunks[cid.id].blocks[pos.x] == undefined) {
+	                            continue;
+	                        }
+	                        if (this.worldChunks[cid.id].blocks[pos.x][pos.z] == undefined) {
+	                            continue;
+	                        }
+	                        if (this.worldChunks[cid.id].blocks[pos.x][pos.z][yy] != undefined) {
+	                            if (this.worldChunks[cid.id].blocks[pos.x][pos.z][yy].isActive()) {
+	                                if (blood) {
+	                                    rand = Math.random() * 60;
+	                                    if (rand > 20) {
+	                                        aBlocksXZ.push(pos);
+	                                        aChunks.push(cid);
+	                                        aBlocksY.push(yy);
+	                                        this.worldChunks[cid.id].blocks[pos.x][pos.z][yy].r = 111 + rand;
+	                                        this.worldChunks[cid.id].blocks[pos.x][pos.z][yy].g = 0;
+	                                        this.worldChunks[cid.id].blocks[pos.x][pos.z][yy].b = 0;
+	                                    }
+	                                } else {
+	                                    aBlocksXZ.push(pos);
+	                                    aChunks.push(cid);
+	                                    aBlocksY.push(yy);
+	                                    this.worldChunks[cid.id].blocks[pos.x][pos.z][yy].r *= shade;
+	                                    this.worldChunks[cid.id].blocks[pos.x][pos.z][yy].g *= shade;
+	                                    this.worldChunks[cid.id].blocks[pos.x][pos.z][yy].b *= shade;
+	                                }
+	                            }
+	                        }
+	                    }
+	            }
+	        }
+	    }
+
+	    // Deactivate all and rebuild chunks
+	    var crebuild = {};
+	    for (var i = 0; i < aChunks.length; i++) {
+	        this.worldChunks[aChunks[i].id].blocks[aBlocksXZ[i].x][aBlocksXZ[i].z][aBlocksY[i]].setActive(false);
+	        // Check if on border
+	        if (aBlocksXZ[i].x == this.worldChunks[aChunks[i].id].chunkSizeX - 1) {
+	            crebuild[aChunks[i].id + 1] = 0;
+	        } else if (aBlocksXZ[i].x == 0) {
+	            crebuild[aChunks[i].id - 1] = 0;
+	        }
+
+	        if (aBlocksXZ[i].z == this.worldChunks[aChunks[i].id].chunkSizeZ - 1) {} else if (aBlocksXZ[i].z == 0) {}
+
+	        if (aBlocksY[i] == this.worldChunks[aChunks[i].id].chunkSizeY - 1) {
+	            crebuild[aChunks[i].id + Math.sqrt(game.world.map.length)] = 0;
+	        } else if (aBlocksY[i] == 0) {
+	            crebuild[aChunks[i].id - Math.sqrt(game.world.map.length)] = 0;
+	        }
+
+	        crebuild[aChunks[i].id] = 0;
+	    }
+	    for (var c in crebuild) {
+	        this.updateChunks.push(c);
+	    }
+	};
+
+	ChunkManager.prototype.AddWorldChunk = function (chunk) {
+	    this.totalChunks++;
+	    this.totalBlocks += chunk.blocks.length * chunk.blocks.length * chunk.blocks.length;
+	    this.activeBlocks += chunk.NoOfActiveBlocks();
+	    this.worldChunks.push(chunk);
+	};
+
+	ChunkManager.prototype.BuildAllChunks = function () {
+	    for (var i = 0; i < this.worldChunks.length; i++) {
+	        this.worldChunks[i].Rebuild();
+	        this.activeTriangles += this.worldChunks[i].GetActiveTriangles();
+	    }
+	    this.AddTargets();
+	    console.log("ACTIVE TRIANGLES: " + this.activeTriangles);
+	    console.log("ACTIVE BLOCKS: " + this.activeBlocks);
+	};
+
+	ChunkManager.prototype.AddTargets = function () {
+	    for (var i = 0; i < this.worldChunks.length; i++) {
+	        var chunk = this.worldChunks[i];
+	    }
+	};
+
+	ChunkManager.prototype.GetWorldChunkID = function (x, z) {
+	    if (game.worldMap == undefined) {
+	        return;
+	    }
+	    var mp = game.world.chunkSize * game.world.blockSize;
+	    var w_x = Math.floor(Math.abs(x) / mp);
+	    var w_z = Math.floor(Math.abs(z) / mp);
+	    if (game.worldMap[w_x] == undefined) {
+	        return;
+	    }
+	    if (game.worldMap[w_x][w_z] == undefined) {
+	        return;
+	    }
+	    var cid = game.worldMap[w_x][w_z];
+	    return cid;
+	};
+
+	ChunkManager.prototype.GetChunk = function (x, z) {
+	    var mp = game.world.chunkSize * game.world.blockSize;
+	    var w_x = Math.floor(Math.abs(x) / mp);
+	    var w_z = Math.floor(Math.abs(z) / mp);
+	    if (game.worldMap[w_x][w_z] == undefined) {
+	        return;
+	    }
+	    var cid = game.worldMap[w_x][w_z];
+	    return this.worldChunks[cid.id];
+	};
+
+	ChunkManager.prototype.Translate = function (x, z, cid) {
+	    var x1 = Math.round((z - this.worldChunks[cid.id].posX) / game.world.blockSize);
+	    var z1 = Math.round((x - this.worldChunks[cid.id].posY) / game.world.blockSize);
+	    x1 = Math.abs(x1 - 1);
+	    z1 = Math.abs(z1 - 1);
+	    return { x: x1, z: z1 };
+	};
+
+	ChunkManager.prototype.GetHeight = function (x, z) {
+	    var cid = this.GetWorldChunkID(x, z);
+	    if (cid == undefined) {
+	        return undefined;
+	    }
+	    if (this.worldChunks[cid.id] == undefined) {
+	        return undefined;
+	    }
+	    var tmp = this.Translate(x, z, cid);
+
+	    var x1 = Math.round(tmp.x);
+	    var z1 = Math.round(tmp.z);
+	    if (this.worldChunks[cid.id].blocks[x1] != undefined) {
+	        if (this.worldChunks[cid.id].blocks[x1][z1] != undefined) {
+	            var y = this.worldChunks[cid.id].blocks[x1][z1].height * game.world.blockSize;
+	        }
+	    }
+
+	    if (y > 0) {
+	        return y;
+	    } else {
+	        return 0;
+	    }
+	};
+
+	ChunkManager.prototype.CheckActive = function (x, z, y) {
+	    var cid = this.GetWorldChunkID(x, z);
+	    if (cid == undefined) {
+	        return false;
+	    }
+	    var tmp = this.Translate(x, z, cid); //x+1
+	    var x1 = tmp.x;
+	    var z1 = tmp.z;
+	    if (this.worldChunks[cid.id] == undefined || this.worldChunks[cid.id].blocks[x1][z1][y] == undefined) {
+	        return false;
+	    } else {
+	        this.worldChunks[cid.id].blocks[x1][z1][y].r = 255;
+	        return !this.worldChunks[cid.id].blocks[x1][z1][y].isActive();
+	    }
+	};
+
+	module.exports = ChunkManager;
 
 /***/ }
 /******/ ]);

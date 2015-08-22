@@ -36,6 +36,8 @@ const Entity = (function(){
             this.chunk.Rebuild();
             this.mesh = vox.getMesh();
             this.mesh.geometry.center();
+            this.mesh.geometry.computeBoundingBox();
+            this.mesh.position.set.call(this, this.position);
             this.mesh.scale.set(this.scale,this.scale,this.scale);            
             resolve(this);
         });

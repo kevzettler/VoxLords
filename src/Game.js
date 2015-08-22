@@ -54,15 +54,15 @@ Game.prototype.getWorldState = function(callback){
       waterPosition: 0.2,
       entities: {
           "Tree": [
-            {x:8,y:2,z:110,scale:2},
-            {x:45,y:2,z:60, scale:2},
-            {x:59,y:2,z:35, scale:2},
-            {x:17,y:2,z:13, scale:2},
-            {x:33,y:2,z:13, scale:2},
-            {x:110,y:2.5,z:16, scale:2},
-            {x:107,y:2.5,z:27, scale:2},
-            {x:92,y:3.5,z:109, scale:2},
-            {x:86,y:3.5,z:107, scale:2},
+            {position:[8,2,110], scale:2},
+            {position:[45,2,60], scale:2},
+            {position:[59,2,35], scale:2},
+            {position:[17,2,13], scale:2},
+            {position:[33,2,13], scale:2},
+            {position:[110,2.5,16], scale:2},
+            {position:[107,2.5,27], scale:2},
+            {position:[92,3.5,109], scale:2},
+            {position:[86,3.5,107], scale:2},
           ]
       },
       terrain: []

@@ -19,7 +19,7 @@ ChunkManager.prototype.PercentLoaded = function() {
 ChunkManager.prototype.Draw = function (time, delta) {
     if(this.updateChunks.length > 0) {
         var cid = this.updateChunks.pop();
-        this.worldChunks[cid].Rebuild();   
+        this.worldChunks[cid].Rebuild();
     }
 };
 

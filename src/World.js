@@ -1,7 +1,7 @@
 const _ = require('lodash');
-const ChunkWorld = require('./ChunkWorld');
-const EntityClasses = require('./entities');
+const ChunkManager = require('./ChunkManager');
 const VoxLoader = require('./VoxLoader');
+const EntityClasses = require('./entities');
 const THREE = require('three');
 const is_server = (typeof process === 'object' && process + '' === '[object process]');
 
@@ -22,9 +22,9 @@ function World(props) {
     this.meshes = {};
     this.entities = {};
     this.terrain = [];
-    this.scene = new THREE.Scene();
     
-    this.voxLoader = new VoxLoader();
+    this.scene = new THREE.Scene();
+    this.ChunkManager = new ChunkManager();
 
     if(props.entities){
       let ents = props.entities;
@@ -38,7 +38,7 @@ function World(props) {
       this.near = 1;
       this.far = 61;
       this.camera = new THREE.PerspectiveCamera(this.viewAngle, this.aspect, this.near, this.far);
-      this.scene.add(this.camera);     
+      this.scene.add(this.camera);
       this.renderer = new THREE.WebGLRenderer( {antialias: true} );
       this.renderer.setSize(this.screenWidth, this.screenHeight);
       this.renderer.shadowMapEnabled = true;
@@ -47,9 +47,50 @@ function World(props) {
       this.container = document.getElementById('container');
       this.container.appendChild(this.renderer.domElement);
       THREEx.WindowResize(this.renderer, this.camera);
+      this.fogColor = 0xeddeab;
+      this.clearColor = 0xeddeab;
+      this.scene.fog = new THREE.Fog( this.fogColor, 40, 60 );
+      this.renderer.setClearColor(this.clearColor, 1);
+
+      // Init lights
+      this.setLights();
     }
 
     Object.assign(this, props);
+};
+
+World.prototype.setLights = function() {
+    console.log("Initiate lights...");
+    var ambientLight = new THREE.AmbientLight( 0x000033 );
+    this.scene.add( ambientLight );
+
+    var hemiLight = new THREE.HemisphereLight( 0xffffff, 0xffffff, 0.9 );
+    hemiLight.color.setHSL( 0.6, 1, 0.6 );
+    hemiLight.groundColor.setHSL( 0.095, 1, 0.75 );
+    hemiLight.position.set( 0, 500, 0 );
+    this.scene.add( hemiLight );
+
+    var dirLight = new THREE.DirectionalLight( 0xffffff, 1 );
+    dirLight.color.setHSL( 0.1, 1, 0.95 );
+    dirLight.position.set( 10, 10.75, 10 );
+    dirLight.position.multiplyScalar( 10 );
+    this.scene.add( dirLight );
+
+    //dirLight.castShadow = true;
+
+    // dirLight.shadowMapWidth = 2048;
+    // dirLight.shadowMapHeight = 2048;
+
+    // var d = 150;
+
+    // dirLight.shadowCameraLeft = -d;
+    // dirLight.shadowCameraRight = d;
+    // dirLight.shadowCameraTop = d;
+    // dirLight.shadowCameraBottom = -d;
+
+    // dirLight.shadowCameraFar = 3500;
+    // dirLight.shadowBias = -0.0001;
+    // dirLight.shadowDarkness = 0.45;
 };
 
 World.prototype.importEntities = function(entity_json_tree){
@@ -82,6 +123,10 @@ World.prototype.flatEntities = function(){
 };
 
 World.prototype.update = function(delta){
+  const invMaxFps = 1/60;
+  THREE.AnimationHandler.update(invMaxFps);
+  //this.chunkManager.Draw(delta, invMaxFps);
+
   _.each(this.entities.Actor, function(actor){
     actor.update(delta);
   });
