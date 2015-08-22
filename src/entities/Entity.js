@@ -15,14 +15,14 @@ const Entity = (function(){
 
     _.extend(this, props);
 
-    this.chunk = this.world.voxLoader.GetModel(type);
-    this.mesh = this.chunk.mesh;
-    this.mesh.geometry.computeBoundingBox();
-    this.mesh.position.set(x,y,z);
-    this.mesh.that = this;
-    this.mesh.scale.set(scale,scale,scale);
-    game.scene.add(this.mesh);
-    this.origy = y;    
+    // this.chunk = this.world.voxLoader.GetModel(type);
+    // this.mesh = this.chunk.mesh;
+    // this.mesh.geometry.computeBoundingBox();
+    // this.mesh.position.set(x,y,z);
+    // this.mesh.that = this;
+    // this.mesh.scale.set(scale,scale,scale);
+    // game.scene.add(this.mesh);
+    // this.origy = y;
     
     if(!props.id){
       id++;
@@ -35,6 +35,7 @@ const Entity = (function(){
             this.chunk.Rebuild();
             this.mesh = vox.getMesh();
             this.mesh.geometry.center();
+            this.mesh.scale.set(scale,scale,scale);
         });
     });
   };
@@ -51,14 +52,18 @@ Entity.prototype.getMesh = function() {
 };
 
 Entity.prototype.loadVoxFile = function(){
+    var that = this;
     return new Promise((resolve) =>{
         var vox = new Vox({
             filename: "tree1.vox",
-            name: 'tree1'
+            name: 'Tree'
         });
         
         vox.LoadModel((vox, name) =>{
-            this.world.meshes[name].vox = vox;
+            if(_.isUndefined(that.world.meshes[name])){
+                that.world.meshes[name] = {};
+            }
+            that.world.meshes[name].vox = vox;
             resolve(vox);
         });
     });

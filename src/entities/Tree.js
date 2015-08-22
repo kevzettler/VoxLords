@@ -3,11 +3,7 @@ const util = require('util');
 const Entity = require('./Entity');
 
 function Tree(props) {
-//    Object3D.call(this);
-    // this.scale = 2;
-    // this.remove = 0;
-    // this.origy = 0;
-    Tree.super_.call(this,props);
+    return Tree.super_.call(this,props);
 };
 util.inherits(Tree, Entity);
 

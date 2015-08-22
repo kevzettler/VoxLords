@@ -5552,6 +5552,7 @@
 	  this.blockSize = 0.1;
 	  this.mapWidth = 0;
 	  this.mapHeight = 0;
+	  this.meshes = {};
 	  this.entities = {};
 	  this.terrain = [];
 	  this.scene = new THREE.Scene();
@@ -5561,7 +5562,7 @@
 	  if (props.entities) {
 	    var ents = props.entities;
 	    delete props.entities;
-	    this.processEntityJSON(ents);
+	    this.importEntities(ents);
 	  }
 
 	  if (!is_server) {
@@ -5582,25 +5583,21 @@
 	    THREEx.WindowResize(this.renderer, this.camera);
 	  }
 
-	  Object.assign(this, options);
+	  Object.assign(this, props);
 	};
 
-	World.prototype.EntityVoxLoadHandler = function (entity_type, entity_props) {
-	  var entityObject = new EntityClasses[entity_type](entity_props);
-	  this.registerEntity(entityObject);
-	};
+	World.prototype.importEntities = function (entity_json_tree) {
+	  var world = this;
+	  _.each(_.keys(entity_json_tree), function (entity_type) {
+	    _.each(entity_json_tree[entity_type], function (entity_props) {
+	      var _this = this;
 
-	World.prototype.fromEntityJSON = function (entity_type, entity_props) {
-	  delete entity_props.world;
-	  entity_props.world = this;
-	  this.voxLoader.getModel(entity_type, this.EntityVoxLoadHandler.bind(this, entity_type, entity_props));
-	};
-
-	World.prototype.processEntityJSON = function (entity_json) {
-	  var _this = this;
-
-	  _.each(_.keys(entity_json), function (entity_type) {
-	    _.each(entity_json[entity_type], _this.fromEntityJSON.bind(_this, entity_type));
+	      delete entity_props.world;
+	      entity_props.world = world;
+	      new EntityClasses[entity_type](entity_props).then(function (entInstance) {
+	        _this.registerEntity(entInstance);
+	      });
+	    });
 	  });
 	};
 
@@ -54069,11 +54066,7 @@
 	var Entity = __webpack_require__(185);
 
 	function Tree(props) {
-	    //    Object3D.call(this);
-	    // this.scale = 2;
-	    // this.remove = 0;
-	    // this.origy = 0;
-	    Tree.super_.call(this, props);
+	    return Tree.super_.call(this, props);
 	};
 	util.inherits(Tree, Entity);
 
@@ -54159,14 +54152,14 @@
 
 	        _.extend(this, props);
 
-	        this.chunk = this.world.voxLoader.GetModel(type);
-	        this.mesh = this.chunk.mesh;
-	        this.mesh.geometry.computeBoundingBox();
-	        this.mesh.position.set(x, y, z);
-	        this.mesh.that = this;
-	        this.mesh.scale.set(scale, scale, scale);
-	        game.scene.add(this.mesh);
-	        this.origy = y;
+	        // this.chunk = this.world.voxLoader.GetModel(type);
+	        // this.mesh = this.chunk.mesh;
+	        // this.mesh.geometry.computeBoundingBox();
+	        // this.mesh.position.set(x,y,z);
+	        // this.mesh.that = this;
+	        // this.mesh.scale.set(scale,scale,scale);
+	        // game.scene.add(this.mesh);
+	        // this.origy = y;
 
 	        if (!props.id) {
 	            id++;
@@ -54179,6 +54172,7 @@
 	                _this.chunk.Rebuild();
 	                _this.mesh = vox.getMesh();
 	                _this.mesh.geometry.center();
+	                _this.mesh.scale.set(scale, scale, scale);
 	            });
 	        });
 	    };
@@ -54197,16 +54191,18 @@
 	};
 
 	Entity.prototype.loadVoxFile = function () {
-	    var _this3 = this;
-
+	    var that = this;
 	    return new Promise(function (resolve) {
 	        var vox = new Vox({
 	            filename: "tree1.vox",
-	            name: 'tree1'
+	            name: 'Tree'
 	        });
 
 	        vox.LoadModel(function (vox, name) {
-	            _this3.world.meshes[name].vox = vox;
+	            if (_.isUndefined(that.world.meshes[name])) {
+	                that.world.meshes[name] = {};
+	            }
+	            that.world.meshes[name].vox = vox;
 	            resolve(vox);
 	        });
 	    });

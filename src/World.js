@@ -19,6 +19,7 @@ function World(props) {
     this.blockSize = 0.1;
     this.mapWidth = 0;
     this.mapHeight = 0;
+    this.meshes = {};
     this.entities = {};
     this.terrain = [];
     this.scene = new THREE.Scene();
@@ -28,7 +29,7 @@ function World(props) {
     if(props.entities){
       let ents = props.entities;
       delete props.entities;
-      this.processEntityJSON(ents);
+      this.importEntities(ents);
     }
 
     if(!is_server){ //put in client object?
@@ -48,23 +49,19 @@ function World(props) {
       THREEx.WindowResize(this.renderer, this.camera);
     }
 
-    Object.assign(this, options);
+    Object.assign(this, props);
 };
 
-World.prototype.EntityVoxLoadHandler = function(entity_type, entity_props){
-  const entityObject = new EntityClasses[entity_type](entity_props);
-  this.registerEntity(entityObject);
-};
-
-World.prototype.fromEntityJSON = function(entity_type, entity_props){
+World.prototype.importEntities = function(entity_json_tree){
+  const world = this;
+  _.each(_.keys(entity_json_tree), function(entity_type){
+    _.each(entity_json_tree[entity_type], function(entity_props){
       delete entity_props.world;
-      entity_props.world = this;
-      this.voxLoader.getModel(entity_type, this.EntityVoxLoadHandler.bind(this, entity_type, entity_props));
-};
-
-World.prototype.processEntityJSON = function(entity_json){
-  _.each(_.keys(entity_json), (entity_type) =>{
-    _.each(entity_json[entity_type], this.fromEntityJSON.bind(this, entity_type));
+      entity_props.world = world;
+      new EntityClasses[entity_type](entity_props).then((entInstance) => {
+        this.registerEntity(entInstance);
+      });
+    });
   });
 };
 
