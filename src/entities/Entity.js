@@ -2,6 +2,7 @@
 const  _ = require('lodash');
 const Vox = require('../Vox');
 
+// Asyncronous constructor returns a promise
 const Entity = (function(){
   let id = 1; // wrap id in a closure increment on each instance
 
@@ -38,9 +39,10 @@ const Entity = (function(){
 })();
 
 Entity.prototype.getMesh = function() {
+    const name = this.constructor.name;
     return new Promise((resolve) =>{
-        if(this.world.meshes['Tree']){
-            reslove(this.world.meshes['Tree'])
+        if(this.world.meshes[name]){
+            reslove(this.world.meshes[name]);
         }else{
             return this.loadVoxFile().then((vox) =>{
                 resolve(vox);
@@ -51,9 +53,9 @@ Entity.prototype.getMesh = function() {
 
 Entity.prototype.loadVoxFile = function(){
     const that = this;
-    
+
     return new Promise((resolve) =>{
-        var vox = new Vox({
+        const vox = new Vox({
             filename: that.constructor.name+".vox",
             name: that.constructor.name
         });
@@ -62,6 +64,7 @@ Entity.prototype.loadVoxFile = function(){
             if(_.isUndefined(that.world.meshes[name])){
                 that.world.meshes[name] = {};
             }
+            console.log("storing model", name);
             that.world.meshes[name].vox = vox;
             resolve(vox);
         });
@@ -73,12 +76,12 @@ Entity.prototype.destroy = function(){
 };
 
 Entity.prototype.render = function(){
-  this.mesh = this.mesh || BABYLON.Mesh.CreateSphere(this.id, this.width, 2, this.world.scene);
-  this.mesh.position.x = this.position[0];
-  this.mesh.position.z = this.position[1];
-  this.mesh.position.y = 1;
-  this.mesh.showBoundingBox = true;
-  this.mesh.material = this.world.test_material;
+  // this.mesh = this.mesh || BABYLON.Mesh.CreateSphere(this.id, this.width, 2, this.world.scene);
+  // this.mesh.position.x = this.position[0];
+  // this.mesh.position.z = this.position[1];
+  // this.mesh.position.y = 1;
+  // this.mesh.showBoundingBox = true;
+  // this.mesh.material = this.world.test_material;
 };
 
 

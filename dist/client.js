@@ -4873,7 +4873,7 @@
 	    mapId: 4,
 	    mapFile: "maps/map4.png",
 	    mapName: "Voxadu Beach: Home of Lord Bolvox",
-	    playerPosition: new THREE.Vector3(16, 0.5, 119),
+	    playerPosition: new THREE.Vector3(16, 0, 119),
 	    playerModel: "player",
 	    fogColor: 0xeddeab,
 	    clearColor: 0xeddeab,
@@ -4882,13 +4882,14 @@
 	    useWater: true,
 	    waterPosition: 0.2,
 	    entities: {
-	      "Guy": [{ position: [16, 0.5, 119], scale: 2 }],
+	      "Guy": [{ position: [16, 0.5, 119] }],
+
 	      "Tree": [{ position: [50, 16, 16], scale: 2 }
 	      // {position:[45,2,60], scale:2},
 	      // {position:[59,2,35], scale:2},
 	      // {position:[17,2,13], scale:2},
 	      // {position:[33,2,13], scale:2},
-	      // {position:[110,2.5,16], scale:2},
+	      //{position:[110,2.5,16], scale:2},
 	      // {position:[107,2.5,27], scale:2},
 	      // {position:[92,3.5,109], scale:2},
 	      // {position:[86,3.5,107], scale:2},
@@ -5582,13 +5583,19 @@
 	    this.near = 1;
 	    this.far = 61;
 
-	    this.camera = new THREE.PerspectiveCamera(this.viewAngle, this.aspect, 0.1, 10000);
+	    this.camera = new THREE.PerspectiveCamera(this.viewAngle, this.aspect, this.near, this.far);
 	    this.scene.add(this.camera);
 	    //this.camera.aspect = this.aspect;
 	    //this.camera.updateProjectionMatrix();
 	    this.camera.position.set(16, 0.5, 119);
 	    //this.camera.rotation.set(-Math.PI/2.6, 0, Math.PI);
 	    //this.camera.lookAt(new THREE.Vector3(8,2,110));
+
+	    //      this.mesh.add(this.camera_obj);
+	    //      this.camera_obj.add(game.camera);
+	    //      this.attached_camera = 1;
+	    this.camera.position.set(0, 15, 7);
+	    this.camera.rotation.set(-Math.PI / 2.6, 0, Math.PI);
 
 	    window.camera = this.camera;
 
@@ -53616,6 +53623,7 @@
 	var _ = __webpack_require__(174);
 	var Vox = __webpack_require__(188);
 
+	// Asyncronous constructor returns a promise
 	var Entity = (function () {
 	    var id = 1; // wrap id in a closure increment on each instance
 
@@ -53656,9 +53664,10 @@
 	Entity.prototype.getMesh = function () {
 	    var _this2 = this;
 
+	    var name = this.constructor.name;
 	    return new Promise(function (resolve) {
-	        if (_this2.world.meshes['Tree']) {
-	            reslove(_this2.world.meshes['Tree']);
+	        if (_this2.world.meshes[name]) {
+	            reslove(_this2.world.meshes[name]);
 	        } else {
 	            return _this2.loadVoxFile().then(function (vox) {
 	                resolve(vox);
@@ -53680,6 +53689,7 @@
 	            if (_.isUndefined(that.world.meshes[name])) {
 	                that.world.meshes[name] = {};
 	            }
+	            console.log("storing model", name);
 	            that.world.meshes[name].vox = vox;
 	            resolve(vox);
 	        });
@@ -53691,12 +53701,12 @@
 	};
 
 	Entity.prototype.render = function () {
-	    this.mesh = this.mesh || BABYLON.Mesh.CreateSphere(this.id, this.width, 2, this.world.scene);
-	    this.mesh.position.x = this.position[0];
-	    this.mesh.position.z = this.position[1];
-	    this.mesh.position.y = 1;
-	    this.mesh.showBoundingBox = true;
-	    this.mesh.material = this.world.test_material;
+	    // this.mesh = this.mesh || BABYLON.Mesh.CreateSphere(this.id, this.width, 2, this.world.scene);
+	    // this.mesh.position.x = this.position[0];
+	    // this.mesh.position.z = this.position[1];
+	    // this.mesh.position.y = 1;
+	    // this.mesh.showBoundingBox = true;
+	    // this.mesh.material = this.world.test_material;
 	};
 
 	module.exports = Entity;

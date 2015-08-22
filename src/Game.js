@@ -44,7 +44,7 @@ Game.prototype.getWorldState = function(callback){
       mapId: 4,
       mapFile: "maps/map4.png",
       mapName: "Voxadu Beach: Home of Lord Bolvox",
-      playerPosition: new THREE.Vector3(16, 0.5, 119),
+      playerPosition: new THREE.Vector3(16, 0, 119),
       playerModel: "player",
       fogColor: 0xeddeab,
       clearColor: 0xeddeab,
@@ -54,15 +54,16 @@ Game.prototype.getWorldState = function(callback){
       waterPosition: 0.2,
       entities: {
           "Guy": [
-            {position:[16,0.5,119], scale:2}
+            {position:[16,0.5,119]}
           ],
+
           "Tree": [
             {position:[50,16,16], scale:2}
             // {position:[45,2,60], scale:2},
             // {position:[59,2,35], scale:2},
             // {position:[17,2,13], scale:2},
             // {position:[33,2,13], scale:2},
-            // {position:[110,2.5,16], scale:2},
+            //{position:[110,2.5,16], scale:2},
             // {position:[107,2.5,27], scale:2},
             // {position:[92,3.5,109], scale:2},
             // {position:[86,3.5,107], scale:2},

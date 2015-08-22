@@ -38,13 +38,19 @@ function World(props) {
       this.near = 1;
       this.far = 61;
       
-      this.camera = new THREE.PerspectiveCamera(this.viewAngle, this.aspect, 0.1, 10000);
+      this.camera = new THREE.PerspectiveCamera(this.viewAngle, this.aspect, this.near, this.far);
       this.scene.add(this.camera);
       //this.camera.aspect = this.aspect;
       //this.camera.updateProjectionMatrix();
       this.camera.position.set(16, 0.5, 119);
       //this.camera.rotation.set(-Math.PI/2.6, 0, Math.PI);
       //this.camera.lookAt(new THREE.Vector3(8,2,110));
+
+//      this.mesh.add(this.camera_obj);
+//      this.camera_obj.add(game.camera);
+//      this.attached_camera = 1;
+      this.camera.position.set(0, 15, 7);
+      this.camera.rotation.set(-Math.PI/2.6, 0, Math.PI)
 
       window.camera = this.camera;
       
