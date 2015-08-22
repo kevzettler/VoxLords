@@ -30,7 +30,7 @@ const Entity = (function(){
             this.mesh = vox.getMesh();
             this.mesh.geometry.center();
             this.mesh.geometry.computeBoundingBox();
-            this.mesh.position.set.call(this, this.position);
+            this.mesh.position.set(this.position[0], this.position[1], this.position[2]);
             this.mesh.scale.set(this.scale,this.scale,this.scale);            
             resolve(this);
         });

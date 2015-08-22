@@ -4882,7 +4882,7 @@
 	    useWater: true,
 	    waterPosition: 0.2,
 	    entities: {
-	      "Guy": [{ position: [16, 0.5, 119] }],
+	      "Guy": [{ position: [16, 0, 119] }],
 
 	      "Tree": [{ position: [50, 16, 16], scale: 2 }
 	      // {position:[45,2,60], scale:2},
@@ -53653,7 +53653,7 @@
 	                _this.mesh = vox.getMesh();
 	                _this.mesh.geometry.center();
 	                _this.mesh.geometry.computeBoundingBox();
-	                _this.mesh.position.set.call(_this, _this.position);
+	                _this.mesh.position.set(_this.position[0], _this.position[1], _this.position[2]);
 	                _this.mesh.scale.set(_this.scale, _this.scale, _this.scale);
 	                resolve(_this);
 	            });
