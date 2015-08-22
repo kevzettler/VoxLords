@@ -15,14 +15,6 @@ const Entity = (function(){
 
     _.extend(this, props);
 
-    // this.chunk = this.world.voxLoader.GetModel(type);
-    // this.mesh = this.chunk.mesh;
-    // this.mesh.geometry.computeBoundingBox();
-    // this.mesh.position.set(x,y,z);
-    // this.mesh.that = this;
-    // this.mesh.scale.set(scale,scale,scale);
-    // game.scene.add(this.mesh);
-    // this.origy = y;
     this.orgiy = this.position[2];
     
     if(!props.id){
@@ -58,11 +50,12 @@ Entity.prototype.getMesh = function() {
 };
 
 Entity.prototype.loadVoxFile = function(){
-    var that = this;
+    const that = this;
+    
     return new Promise((resolve) =>{
         var vox = new Vox({
-            filename: "tree1.vox",
-            name: 'Tree'
+            filename: that.constructor.name+".vox",
+            name: that.constructor.name
         });
         
         vox.LoadModel((vox, name) =>{

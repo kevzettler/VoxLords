@@ -42,37 +42,12 @@ function World(props) {
       this.scene.add(this.camera);
       //this.camera.aspect = this.aspect;
       //this.camera.updateProjectionMatrix();
-      this.camera.position.set(0, 0, 300);
+      this.camera.position.set(16, 0.5, 119);
       //this.camera.rotation.set(-Math.PI/2.6, 0, Math.PI);
       //this.camera.lookAt(new THREE.Vector3(8,2,110));
 
       window.camera = this.camera;
       
-
-      var sphereMaterial = new THREE.MeshLambertMaterial({
-        color: 0xCC0000
-      });
-
-      var sphere = new THREE.Mesh(
-        new THREE.SphereGeometry(
-          50,
-          16,
-          16),
-        sphereMaterial);
-
-      // add the sphere to the scene
-      //this.scene.add(sphere);
-
-      var pointLight =
-        new THREE.PointLight(0xFFFFFF);
-
-      // set its position
-      pointLight.position.x = 10;
-      pointLight.position.y = 50;
-      pointLight.position.z = 130;
-
-      // add to the scene
-      this.scene.add(pointLight);
 
       this.renderer = new THREE.WebGLRenderer( {antialias: true} );
       this.renderer.setSize(window.innerWidth, window.innerHeight);

@@ -4882,6 +4882,7 @@
 	    useWater: true,
 	    waterPosition: 0.2,
 	    entities: {
+	      "Guy": [{ position: [16, 0.5, 119], scale: 2 }],
 	      "Tree": [{ position: [50, 16, 16], scale: 2 }
 	      // {position:[45,2,60], scale:2},
 	      // {position:[59,2,35], scale:2},
@@ -5585,30 +5586,11 @@
 	    this.scene.add(this.camera);
 	    //this.camera.aspect = this.aspect;
 	    //this.camera.updateProjectionMatrix();
-	    this.camera.position.set(0, 0, 300);
+	    this.camera.position.set(16, 0.5, 119);
 	    //this.camera.rotation.set(-Math.PI/2.6, 0, Math.PI);
 	    //this.camera.lookAt(new THREE.Vector3(8,2,110));
 
 	    window.camera = this.camera;
-
-	    var sphereMaterial = new THREE.MeshLambertMaterial({
-	      color: 0xCC0000
-	    });
-
-	    var sphere = new THREE.Mesh(new THREE.SphereGeometry(50, 16, 16), sphereMaterial);
-
-	    // add the sphere to the scene
-	    //this.scene.add(sphere);
-
-	    var pointLight = new THREE.PointLight(0xFFFFFF);
-
-	    // set its position
-	    pointLight.position.x = 10;
-	    pointLight.position.y = 50;
-	    pointLight.position.z = 130;
-
-	    // add to the scene
-	    this.scene.add(pointLight);
 
 	    this.renderer = new THREE.WebGLRenderer({ antialias: true });
 	    this.renderer.setSize(window.innerWidth, window.innerHeight);
@@ -53543,7 +53525,8 @@
 	'use strict';
 
 	module.exports = {
-	  Tree: __webpack_require__(183)
+	  Tree: __webpack_require__(183),
+	  Guy: __webpack_require__(219)
 	};
 
 /***/ },
@@ -53648,14 +53631,6 @@
 
 	        _.extend(this, props);
 
-	        // this.chunk = this.world.voxLoader.GetModel(type);
-	        // this.mesh = this.chunk.mesh;
-	        // this.mesh.geometry.computeBoundingBox();
-	        // this.mesh.position.set(x,y,z);
-	        // this.mesh.that = this;
-	        // this.mesh.scale.set(scale,scale,scale);
-	        // game.scene.add(this.mesh);
-	        // this.origy = y;
 	        this.orgiy = this.position[2];
 
 	        if (!props.id) {
@@ -53694,10 +53669,11 @@
 
 	Entity.prototype.loadVoxFile = function () {
 	    var that = this;
+
 	    return new Promise(function (resolve) {
 	        var vox = new Vox({
-	            filename: "tree1.vox",
-	            name: 'Tree'
+	            filename: that.constructor.name + ".vox",
+	            name: that.constructor.name
 	        });
 
 	        vox.LoadModel(function (vox, name) {
@@ -54492,6 +54468,52 @@
 	};
 
 	module.exports = ChunkManager;
+
+/***/ },
+/* 195 */,
+/* 196 */,
+/* 197 */,
+/* 198 */,
+/* 199 */,
+/* 200 */,
+/* 201 */,
+/* 202 */,
+/* 203 */,
+/* 204 */,
+/* 205 */,
+/* 206 */,
+/* 207 */,
+/* 208 */,
+/* 209 */,
+/* 210 */,
+/* 211 */,
+/* 212 */,
+/* 213 */,
+/* 214 */,
+/* 215 */,
+/* 216 */,
+/* 217 */,
+/* 218 */,
+/* 219 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var util = __webpack_require__(170);
+	var Entity = __webpack_require__(185);
+
+	function Guy(props) {
+	    return Guy.super_.call(this, props);
+	};
+	util.inherits(Guy, Entity);
+
+	Guy.prototype.update = function (dt) {};
+
+	Guy.prototype.render = function (dt) {
+	    Guy.super_.prototype.render.call(this, dt);
+	};
+
+	module.exports = Guy;
 
 /***/ }
 /******/ ]);
