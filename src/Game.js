@@ -25,7 +25,6 @@ Game.prototype.update = function(dt, elapsed){
   this.world.update.call(this.world, dt);
 };
 
-
 Game.prototype.render = function(){
     if(is_server){return true;}
     this.world.render();

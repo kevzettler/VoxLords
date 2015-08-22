@@ -7,7 +7,7 @@ const Entity = (function(){
 
   return function Entity(props){
     this.id = id;
-    this.position;
+    this.position = [0,0,0];
     this.scale= 2;
     this.remove = 0;
     this.origy = 0;    
@@ -23,6 +23,7 @@ const Entity = (function(){
     // this.mesh.scale.set(scale,scale,scale);
     // game.scene.add(this.mesh);
     // this.origy = y;
+    this.orgiy = this.position[2];
     
     if(!props.id){
       id++;

@@ -7,14 +7,18 @@ function Tree(props) {
 };
 util.inherits(Tree, Entity);
 
-Tree.prototype.render = function(time, delta) {
-    var y = game.chunkManager.GetHeight(this.mesh.position.x+this.chunk.blockSize*this.chunk.chunkSizeX/2,
-                                        this.mesh.position.z+this.chunk.blockSize*this.chunk.chunkSizeX/2);
+Tree.prototype.update = function(dt){
+    // var y = game.chunkManager.GetHeight(this.mesh.position.x+this.chunk.blockSize*this.chunk.chunkSizeX/2,
+    //                                     this.mesh.position.z+this.chunk.blockSize*this.chunk.chunkSizeX/2);
     
-    // Explode tree if ground breaks.
-     if(y < this.origy) {
-       // this.Hit(0,0);
-     }
+    // // Explode tree if ground breaks.
+    //  if(y < this.origy) {
+    //    // this.Hit(0,0);
+    //  }
+};
+
+Tree.prototype.render = function(dt) {
+    Tree.super_.prototype.render.call(this, dt);
 };
 
 Tree.prototype.hit = function(data, dmg) {

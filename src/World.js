@@ -71,9 +71,10 @@ World.prototype.registerEntity = function(entity){
     const eTree = {};
     eTree[entity.id] = entity;
     this.entities[entity_type] = eTree;
-  }else{
-    this.entities[entity_type][entity.id] = entity;
   }
+
+  this.scene.add(entity.mesh);
+  this.entities[entity_type][entity.id] = entity;
 };
 
 World.prototype.flatEntities = function(){

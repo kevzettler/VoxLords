@@ -5605,9 +5605,10 @@
 	    var eTree = {};
 	    eTree[entity.id] = entity;
 	    this.entities[entity_type] = eTree;
-	  } else {
-	    this.entities[entity_type][entity.id] = entity;
 	  }
+
+	  this.scene.add(entity.mesh);
+	  this.entities[entity_type][entity.id] = entity;
 	};
 
 	World.prototype.flatEntities = function () {
@@ -54068,13 +54069,18 @@
 	};
 	util.inherits(Tree, Entity);
 
-	Tree.prototype.render = function (time, delta) {
-	    var y = game.chunkManager.GetHeight(this.mesh.position.x + this.chunk.blockSize * this.chunk.chunkSizeX / 2, this.mesh.position.z + this.chunk.blockSize * this.chunk.chunkSizeX / 2);
+	Tree.prototype.update = function (dt) {
+	    // var y = game.chunkManager.GetHeight(this.mesh.position.x+this.chunk.blockSize*this.chunk.chunkSizeX/2,
+	    //                                     this.mesh.position.z+this.chunk.blockSize*this.chunk.chunkSizeX/2);
 
-	    // Explode tree if ground breaks.
-	    if (y < this.origy) {
-	        // this.Hit(0,0);
-	    }
+	    // // Explode tree if ground breaks.
+	    //  if(y < this.origy) {
+	    //    // this.Hit(0,0);
+	    //  }
+	};
+
+	Tree.prototype.render = function (dt) {
+	    Tree.super_.prototype.render.call(this, dt);
 	};
 
 	Tree.prototype.hit = function (data, dmg) {
@@ -54142,7 +54148,7 @@
 	        var _this = this;
 
 	        this.id = id;
-	        this.position;
+	        this.position = [0, 0, 0];
 	        this.scale = 2;
 	        this.remove = 0;
 	        this.origy = 0;
@@ -54158,6 +54164,7 @@
 	        // this.mesh.scale.set(scale,scale,scale);
 	        // game.scene.add(this.mesh);
 	        // this.origy = y;
+	        this.orgiy = this.position[2];
 
 	        if (!props.id) {
 	            id++;
