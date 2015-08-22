@@ -5,8 +5,10 @@ const THREE = require('three');
 function Guy(props){
     var that = this;
     // This is awful 
-    // This initalizes the a camera to follow the Guy entity
+    // This initalizes the camera to follow the Guy entity
     // Needed for Player setup
+    // need to move this to a different client specific setup Guy classes
+    // should be generic
     return new Promise((resolve) => {
         Guy.super_.call(that,props).then((guy) => {
             guy.camera_obj = new THREE.Object3D();

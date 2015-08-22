@@ -4884,7 +4884,7 @@
 	    entities: {
 	      "Guy": [{ position: [16, -0.5, 119] }],
 
-	      "Tree": [{ position: [50, 16, 16], scale: 2 }
+	      "Tree": [{ position: [0, -0.5, 90], scale: 2 }
 	      // {position:[45,2,60], scale:2},
 	      // {position:[59,2,35], scale:2},
 	      // {position:[17,2,13], scale:2},
@@ -54510,8 +54510,10 @@
 	function Guy(props) {
 	    var that = this;
 	    // This is awful
-	    // This initalizes the a camera to follow the Guy entity
+	    // This initalizes the camera to follow the Guy entity
 	    // Needed for Player setup
+	    // need to move this to a different client specific setup Guy classes
+	    // should be generic
 	    return new Promise(function (resolve) {
 	        Guy.super_.call(that, props).then(function (guy) {
 	            guy.camera_obj = new THREE.Object3D();

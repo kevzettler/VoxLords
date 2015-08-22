@@ -9,7 +9,7 @@ const Entity = (function(){
   return function Entity(props){
     this.id = id;
     this.position = [0,0,0];
-    this.scale= 2;
+    this.scale = 2;
     this.remove = 0;
     this.origy = 0;    
     this.mesh;

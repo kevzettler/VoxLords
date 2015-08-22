@@ -57,7 +57,7 @@ Game.prototype.getWorldState = function(callback){
           ],
 
           "Tree": [
-            {position:[50,16,16], scale:2}
+            {position:[0,-0.5,90], scale:2}
             // {position:[45,2,60], scale:2},
             // {position:[59,2,35], scale:2},
             // {position:[17,2,13], scale:2},
