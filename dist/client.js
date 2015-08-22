@@ -5590,12 +5590,10 @@
 	  var world = this;
 	  _.each(_.keys(entity_json_tree), function (entity_type) {
 	    _.each(entity_json_tree[entity_type], function (entity_props) {
-	      var _this = this;
-
 	      delete entity_props.world;
 	      entity_props.world = world;
 	      new EntityClasses[entity_type](entity_props).then(function (entInstance) {
-	        _this.registerEntity(entInstance);
+	        world.registerEntity(entInstance);
 	      });
 	    });
 	  });
@@ -54172,7 +54170,8 @@
 	                _this.chunk.Rebuild();
 	                _this.mesh = vox.getMesh();
 	                _this.mesh.geometry.center();
-	                _this.mesh.scale.set(scale, scale, scale);
+	                _this.mesh.scale.set(_this.scale, _this.scale, _this.scale);
+	                resolve(_this);
 	            });
 	        });
 	    };
@@ -54185,7 +54184,9 @@
 	        if (_this2.world.meshes['Tree']) {
 	            reslove(_this2.world.meshes['Tree']);
 	        } else {
-	            return _this2.loadVoxFile();
+	            return _this2.loadVoxFile().then(function (vox) {
+	                resolve(vox);
+	            });
 	        }
 	    });
 	};

@@ -59,7 +59,7 @@ World.prototype.importEntities = function(entity_json_tree){
       delete entity_props.world;
       entity_props.world = world;
       new EntityClasses[entity_type](entity_props).then((entInstance) => {
-        this.registerEntity(entInstance);
+        world.registerEntity(entInstance);
       });
     });
   });

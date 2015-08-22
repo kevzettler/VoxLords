@@ -35,7 +35,8 @@ const Entity = (function(){
             this.chunk.Rebuild();
             this.mesh = vox.getMesh();
             this.mesh.geometry.center();
-            this.mesh.scale.set(scale,scale,scale);
+            this.mesh.scale.set(this.scale,this.scale,this.scale);            
+            resolve(this);
         });
     });
   };
@@ -46,7 +47,9 @@ Entity.prototype.getMesh = function() {
         if(this.world.meshes['Tree']){
             reslove(this.world.meshes['Tree'])
         }else{
-            return this.loadVoxFile();
+            return this.loadVoxFile().then((vox) =>{
+                resolve(vox);
+            });
         }
     })
 };
