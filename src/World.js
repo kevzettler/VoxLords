@@ -34,22 +34,58 @@ function World(props) {
 
     if(!is_server){ //put in client object?
       this.viewAngle = 40;
-      this.aspect = this.screenWidth/this.screenHeight;
+      this.aspect = window.innerWidth/window.innerHeight;
       this.near = 1;
       this.far = 61;
-      this.camera = new THREE.PerspectiveCamera(this.viewAngle, this.aspect, this.near, this.far);
+      
+      this.camera = new THREE.PerspectiveCamera(this.viewAngle, this.aspect, 0.1, 10000);
       this.scene.add(this.camera);
+      //this.camera.aspect = this.aspect;
+      //this.camera.updateProjectionMatrix();
+      this.camera.position.set(0, 0, 300);
+      //this.camera.rotation.set(-Math.PI/2.6, 0, Math.PI);
+      //this.camera.lookAt(new THREE.Vector3(8,2,110));
+
+      window.camera = this.camera;
+      
+
+      var sphereMaterial = new THREE.MeshLambertMaterial({
+        color: 0xCC0000
+      });
+
+      var sphere = new THREE.Mesh(
+        new THREE.SphereGeometry(
+          50,
+          16,
+          16),
+        sphereMaterial);
+
+      // add the sphere to the scene
+      //this.scene.add(sphere);
+
+      var pointLight =
+        new THREE.PointLight(0xFFFFFF);
+
+      // set its position
+      pointLight.position.x = 10;
+      pointLight.position.y = 50;
+      pointLight.position.z = 130;
+
+      // add to the scene
+      this.scene.add(pointLight);
+
       this.renderer = new THREE.WebGLRenderer( {antialias: true} );
-      this.renderer.setSize(this.screenWidth, this.screenHeight);
+      this.renderer.setSize(window.innerWidth, window.innerHeight);
       this.renderer.shadowMapEnabled = true;
       this.renderer.shadowMapType = THREE.PCFSoftShadowMap;
+      
       this.keyboard = new THREEx.KeyboardState();
       this.container = document.getElementById('container');
       this.container.appendChild(this.renderer.domElement);
       THREEx.WindowResize(this.renderer, this.camera);
       this.fogColor = 0xeddeab;
       this.clearColor = 0xeddeab;
-      this.scene.fog = new THREE.Fog( this.fogColor, 40, 60 );
+      //this.scene.fog = new THREE.Fog( this.fogColor, 40, 60 );
       this.renderer.setClearColor(this.clearColor, 1);
 
       // Init lights
@@ -76,7 +112,7 @@ World.prototype.setLights = function() {
     dirLight.position.multiplyScalar( 10 );
     this.scene.add( dirLight );
 
-    //dirLight.castShadow = true;
+    // dirLight.castShadow = true;
 
     // dirLight.shadowMapWidth = 2048;
     // dirLight.shadowMapHeight = 2048;
@@ -133,9 +169,9 @@ World.prototype.update = function(delta){
 };
 
 World.prototype.render = function(){
-  _.each(this.flatEntities(), function(entity){
-    entity.render();
-  },this);
+  // _.each(this.flatEntities(), function(entity){
+  //   entity.render();
+  // },this);
   this.renderer.render(this.scene, this.camera);
 };
 
