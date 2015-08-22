@@ -89,21 +89,21 @@ World.prototype.setLights = function() {
     dirLight.position.multiplyScalar( 10 );
     this.scene.add( dirLight );
 
-    // dirLight.castShadow = true;
+    dirLight.castShadow = true;
 
-    // dirLight.shadowMapWidth = 2048;
-    // dirLight.shadowMapHeight = 2048;
+    dirLight.shadowMapWidth = 2048;
+    dirLight.shadowMapHeight = 2048;
 
-    // var d = 150;
+    var d = 150;
 
-    // dirLight.shadowCameraLeft = -d;
-    // dirLight.shadowCameraRight = d;
-    // dirLight.shadowCameraTop = d;
-    // dirLight.shadowCameraBottom = -d;
+    dirLight.shadowCameraLeft = -d;
+    dirLight.shadowCameraRight = d;
+    dirLight.shadowCameraTop = d;
+    dirLight.shadowCameraBottom = -d;
 
-    // dirLight.shadowCameraFar = 3500;
-    // dirLight.shadowBias = -0.0001;
-    // dirLight.shadowDarkness = 0.45;
+    dirLight.shadowCameraFar = 3500;
+    dirLight.shadowBias = -0.0001;
+    dirLight.shadowDarkness = 0.45;
 };
 
 World.prototype.importEntities = function(entity_json_tree){
