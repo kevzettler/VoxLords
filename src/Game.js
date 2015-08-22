@@ -32,10 +32,9 @@ Game.prototype.render = function(){
 
 Game.prototype.getWorldState = function(callback){
   //pulled on startup. Either stored in a db or fetched from client on server
-  if(is_server)
+  if(is_server){
     //get terrain
     //get entities
-  {
   }else{
 
   }
@@ -54,7 +53,7 @@ Game.prototype.getWorldState = function(callback){
       waterPosition: 0.2,
       entities: {
           "Guy": [
-            {position:[16,0,119]}
+            {position:[16,-0.5,119]}
           ],
 
           "Tree": [

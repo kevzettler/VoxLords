@@ -4864,10 +4864,10 @@
 
 	Game.prototype.getWorldState = function (callback) {
 	  //pulled on startup. Either stored in a db or fetched from client on server
-	  if (is_server)
+	  if (is_server) {
 	    //get terrain
 	    //get entities
-	    {} else {}
+	  } else {}
 
 	  var worldState = {
 	    mapId: 4,
@@ -4882,7 +4882,7 @@
 	    useWater: true,
 	    waterPosition: 0.2,
 	    entities: {
-	      "Guy": [{ position: [16, 0, 119] }],
+	      "Guy": [{ position: [16, -0.5, 119] }],
 
 	      "Tree": [{ position: [50, 16, 16], scale: 2 }
 	      // {position:[45,2,60], scale:2},
@@ -5590,12 +5590,6 @@
 	    this.camera.position.set(16, 0.5, 119);
 	    //this.camera.rotation.set(-Math.PI/2.6, 0, Math.PI);
 	    //this.camera.lookAt(new THREE.Vector3(8,2,110));
-
-	    //      this.mesh.add(this.camera_obj);
-	    //      this.camera_obj.add(game.camera);
-	    //      this.attached_camera = 1;
-	    this.camera.position.set(0, 15, 7);
-	    this.camera.rotation.set(-Math.PI / 2.6, 0, Math.PI);
 
 	    window.camera = this.camera;
 
@@ -54511,9 +54505,24 @@
 
 	var util = __webpack_require__(170);
 	var Entity = __webpack_require__(185);
+	var THREE = __webpack_require__(180);
 
 	function Guy(props) {
-	    return Guy.super_.call(this, props);
+	    var that = this;
+	    // This is awful
+	    // This initalizes the a camera to follow the Guy entity
+	    // Needed for Player setup
+	    return new Promise(function (resolve) {
+	        Guy.super_.call(that, props).then(function (guy) {
+	            guy.camera_obj = new THREE.Object3D();
+	            guy.mesh.add(guy.camera_obj);
+	            guy.camera_obj.add(guy.world.camera);
+	            guy.attached_camera = 1;
+	            guy.world.camera.position.set(0, 15, 7);
+	            guy.world.camera.rotation.set(-Math.PI / 2.6, 0, Math.PI);
+	            resolve(guy);
+	        });
+	    });
 	};
 	util.inherits(Guy, Entity);
 
