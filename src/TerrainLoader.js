@@ -1,8 +1,15 @@
-const TerrainLoader = function(){
-    
+const ChunkTerrain = require('./ChunkTerrain');
+
+function TerrainLoader(props){
+    this.TerrainMap;
+    this.ChunkManager;
+    this.chunkSize = 16;
+    this.chunks = 0;
+    this.blocks = 0;
+    Object.assign(this, props);
 };
 
-TerrainLoader.prototype.Load = function(filename, wallHeight, blockSize, callback) {
+TerrainLoader.prototype.load = function(filename, wallHeight, blockSize, callback) {
     this.wallHeight = wallHeight;
     this.blockSize = blockSize;
     this.readTerrainImage(filename, function(){
@@ -11,10 +18,11 @@ TerrainLoader.prototype.Load = function(filename, wallHeight, blockSize, callbac
 };
 
 TerrainLoader.prototype.readMap = function(callback) {
-    game.TerrainMap = new Array(this.map.length);
+    debugger;
+    this.TerrainMap = new Array(this.map.length);
     
-    for(var i = 0; i < game.TerrainMap.length; i++) {
-        game.TerrainMap[i] = new Array();
+    for(var i = 0; i < this.TerrainMap.length; i++) {
+        this.TerrainMap[i] = new Array();
     }
     
     this.mapHeight = this.blockSize*this.map.length;
@@ -45,12 +53,12 @@ TerrainLoader.prototype.readMap = function(callback) {
             if(total != alpha) {
                 var c = new ChunkTerrain();
                 c.Create(this.chunkSize, cSize, cx * cSize-this.blockSize/2, cy * cSize-this.blockSize/2, chunk, this.wallHeight, this.chunks);
-                game.chunkManager.AddTerrainChunk(c);
+                this.chunkManager.AddTerrainChunk(c);
                 
                 // Save to Terrain map
                 var z = this.chunks%(this.map.length/this.chunkSize);
                 var x = Math.floor(this.chunks/(this.map.length/this.chunkSize));
-                game.TerrainMap[x][z] = {'id': this.chunks, 'avgHeight': c.GetAvgHeight()};
+                this.TerrainMap[x][z] = {'id': this.chunks, 'avgHeight': c.GetAvgHeight()};
                 this.chunks++;
             } else {
                 console.log("=> Skipping invisible chunk.");
@@ -63,12 +71,12 @@ TerrainLoader.prototype.readMap = function(callback) {
 
 TerrainLoader.prototype.processTerrainImageData = function(imgData, callback){  
     const map = new Array();  
-    game.TerrainMap = new Array();
+    this.TerrainMap = new Array();
 
     for(var y = 0; y < this.height; y++) {
         var pos = y * this.width * 4;
         map[y] = new Array();
-        game.TerrainMap[y] = new Array();
+        this.TerrainMap[y] = new Array();
         for(var x = 0; x < this.width; x++) {
             var r = imgData.data[pos++];
             var g = imgData.data[pos++];
@@ -80,7 +88,7 @@ TerrainLoader.prototype.processTerrainImageData = function(imgData, callback){
 
     this.map = map;
     console.log("Read Terrain complete.");
-    game.chunkManager.maxChunks = (this.height / this.chunkSize)*(this.height/this.chunkSize);
+    this.chunkManager.maxChunks = (this.height / this.chunkSize)*(this.height/this.chunkSize);
     callback();
     return map;
 };

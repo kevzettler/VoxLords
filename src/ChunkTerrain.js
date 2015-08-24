@@ -4,13 +4,13 @@ const Block = require('./Block');
 const THREE = require('./ThreeHelpers');
 
 // Chunks of other types such as crates/weapons/mob/player
-function ChunkWorld() {
+function ChunkTerrain() {
   Chunk.call(this);
   this.wallHeight = 1;
 };
-util.inherits(ChunkWorld,Chunk);
+util.inherits(ChunkTerrain,Chunk);
 
-ChunkWorld.prototype.Create = function(chunkSize, blockSize, posX, posY, map, wallHeight, id) {
+ChunkTerrain.prototype.Create = function(chunkSize, blockSize, posX, posY, map, wallHeight, id) {
     this.cid = id;
     this.chunkSize = chunkSize;
     this.chunkSizeX = chunkSize;
@@ -68,7 +68,7 @@ ChunkWorld.prototype.Create = function(chunkSize, blockSize, posX, posY, map, wa
 };
 
 
-ChunkWorld.prototype.Rebuild = function() {
+ChunkTerrain.prototype.Rebuild = function() {
    var b = 0;
    var vertices = [];
    var colors = [];
@@ -656,4 +656,4 @@ ChunkWorld.prototype.Rebuild = function() {
 };
 
 
-module.exports = ChunkWorld;
+module.exports = ChunkTerrain;

@@ -1,6 +1,8 @@
 const _ = require('lodash');
 const ChunkManager = require('./ChunkManager');
 const VoxLoader = require('./VoxLoader');
+const TerrainLoader = require('./TerrainLoader');
+
 const EntityClasses = require('./entities');
 const THREE = require('three');
 const is_server = (typeof process === 'object' && process + '' === '[object process]');
@@ -15,8 +17,10 @@ function World(props) {
     this.blocks = 0;
     this.hemiLight = undefined;
     this.dirLight = undefined;
-    this.wallHeight = 15;
-    this.blockSize = 0.1;
+    this.blockSize = 0.5;
+    this.wallHeight = 20;
+    this.useWater = true;
+    this.waterPosition = 0.2;
     this.mapWidth = 0;
     this.mapHeight = 0;
     this.meshes = {};
@@ -24,13 +28,21 @@ function World(props) {
     this.terrain = [];
     
     this.scene = new THREE.Scene();
-    this.ChunkManager = new ChunkManager();
+    this.chunkManager = new ChunkManager();
 
     if(props.entities){
       let ents = props.entities;
       delete props.entities;
       this.importEntities(ents);
     }
+
+    const tl = new TerrainLoader({
+      chunkManager: this.chunkManager
+    });
+
+    tl.load('maps/map4.png', this.wallHeight, this.blockSize, () =>{
+      console.log("loaded some map");
+    });
 
     if(!is_server){ //put in client object?
       this.viewAngle = 40;
