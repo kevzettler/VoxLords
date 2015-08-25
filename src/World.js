@@ -36,9 +36,9 @@ function World(props) {
 
     tl.load('maps/map4.png', this.wallHeight, this.blockSize, (terrainChunks) =>{
       //KJZ if I operate on a list of terrainChunk data here it dosen't seem to work
-      // see TerrainLoader.js:71
-            
-      //this.chunkManager.processChunkList(terrainChunks);
+      // see TerrainLoader.js:71      
+      this.chunkManager.processChunkList(terrainChunks);
+
       this.chunkManager.BuildAllChunks();
       if(props.entities){
         let ents = props.entities;

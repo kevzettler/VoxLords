@@ -61,21 +61,29 @@ TerrainLoader.prototype.readMap = function(callback) {
                     blockSize: cSize,
                     posX: cx * cSize-this.blockSize/2,
                     posY: cy * cSize-this.blockSize/2,
-                    map: chunk,
+                    map: chunk.slice(0),
                     wallHeight: this.wallHeight,
                     id: this.chunks
                 };
 
-                chunkList.push(terrainChunk);
+               chunkList.push(terrainChunk);
+
                //KJZ if I ceate individual ChunkTerrains here and 
                // add them to the chunk manger things seem to work correctly
-               this.chunkManager.createChunkFromData(terrainChunk);
+               //this.chunkManager.createChunkFromData(terrainChunk);
 
                //KJZ if I pass the chunkList to the callback and iterate over it
                // it breaks down;
 
-               // const c = new ChunkTerrain({chunkManager: this.chunkManager});                
-               // c.Create(this.chunkSize, cSize, cx * cSize-this.blockSize/2, cy * cSize-this.blockSize/2, chunk, this.wallHeight, this.chunks);
+               // const c = new ChunkTerrain({chunkManager: this.chunkManager});
+               // c.Create(this.chunkSize,
+               //          cSize, 
+               //          cx * cSize-this.blockSize/2, 
+               //          cy * cSize-this.blockSize/2, 
+               //          chunk, 
+               //          this.wallHeight, 
+               //          this.chunks);
+
                // this.chunkManager.AddTerrainChunk(c);
                 
                 // Save to Terrain map
