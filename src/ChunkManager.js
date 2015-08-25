@@ -20,17 +20,21 @@ ChunkManager.prototype.Draw = function (time, delta) {
     }
 };
 
+ChunkManager.prototype.processChunkList = function(chunkList){
+    _.each(chunkList, this.createChunkFromData.bind(this));
+};
+
 
 ChunkManager.prototype.createChunkFromData = function(chunkData){
     const c = new ChunkTerrain({chunkManager: this});                
-    c.Create(chunkData.chunkSize, 
-             chunkData.blockSize, 
+    c.Create(chunkData.chunkSize,
+             chunkData.blockSize,
              chunkData.posX,
              chunkData.posY,
-             chunkData.map, 
+             chunkData.map,
              chunkData.wallHeight,
              chunkData.id);
-    this.AddTerrainChunk(c);  
+    this.AddTerrainChunk(c);
 };
 
 ChunkManager.prototype.Blood = function(x, z, power) {

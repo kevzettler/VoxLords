@@ -51,11 +51,10 @@ TerrainLoader.prototype.readMap = function(callback) {
                 }
                 ix++;
             }
+
             var cSize = this.blockSize;
 
             if(total != alpha) {
-
-
                 //this is the data structure for making chunks
                 const terrainChunk = {
                     chunkSize: this.chunkSize,
@@ -68,8 +67,13 @@ TerrainLoader.prototype.readMap = function(callback) {
                 };
 
                 chunkList.push(terrainChunk);
-                this.chunkManager.createChunkFromData(terrainChunk);
-                
+               //KJZ if I ceate individual ChunkTerrains here and 
+               // add them to the chunk manger things seem to work correctly
+               this.chunkManager.createChunkFromData(terrainChunk);
+
+               //KJZ if I pass the chunkList to the callback and iterate over it
+               // it breaks down;
+
                // const c = new ChunkTerrain({chunkManager: this.chunkManager});                
                // c.Create(this.chunkSize, cSize, cx * cSize-this.blockSize/2, cy * cSize-this.blockSize/2, chunk, this.wallHeight, this.chunks);
                // this.chunkManager.AddTerrainChunk(c);

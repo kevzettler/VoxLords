@@ -12,7 +12,6 @@ function ChunkTerrain(props) {
 util.inherits(ChunkTerrain,Chunk);
 
 ChunkTerrain.prototype.Create = function(chunkSize, blockSize, posX, posY, map, wallHeight, id) {
-    debugger;
     this.cid = id;
     this.chunkSize = chunkSize;
     this.chunkSizeX = chunkSize;
