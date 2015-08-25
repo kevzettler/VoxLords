@@ -59,7 +59,7 @@ TerrainLoader.prototype.readTerrainData = function(terrainData) {
                     blockSize: cSize,
                     posX: cx * cSize-this.blockSize/2,
                     posY: cy * cSize-this.blockSize/2,
-                    map: chunk,
+                    map: chunk.splice(0),
                     wallHeight: this.wallHeight,
                     id: this.chunks
                 };
