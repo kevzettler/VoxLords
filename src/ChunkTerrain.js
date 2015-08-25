@@ -32,7 +32,6 @@ ChunkTerrain.prototype.Create = function(chunkSize, blockSize, posX, posY, map, 
             this.blocks[x][y] = new Array();
             tmpBlocks[x][y] = new Array();
             this.wallHeight = map[x][y].a/wallHeight;
-       //     this.avgHeight += this.wallHeight;
             var v = 0;
             for(var z = 0; z < this.chunkSize; z++) {
                 visible = false; 

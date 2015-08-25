@@ -53,27 +53,21 @@ TerrainLoader.prototype.readTerrainData = function(terrainData) {
             var cSize = this.blockSize;
 
             if(total != alpha) {
+
                 //this is the data structure for making chunks
                 const terrainChunk = {
                     chunkSize: this.chunkSize,
                     blockSize: cSize,
                     posX: cx * cSize-this.blockSize/2,
                     posY: cy * cSize-this.blockSize/2,
-                    map: chunk.splice(0),
+                    map: chunk.splice(0), //KJZ wtf this is being silently mutated
+                    //because its define din the parent loop
+                    //not sure what it does yet
                     wallHeight: this.wallHeight,
                     id: this.chunks
                 };
 
                 chunkList.push(terrainChunk);
-                
-                //const c = new ChunkTerrain({chunkManager: this.chunkManager});
-                //c.Create(this.chunkSize, cSize, cx * cSize-this.blockSize/2, cy * cSize-this.blockSize/2, chunk, this.wallHeight, this.chunks);
-                //this.chunkManager.AddTerrainChunk(c);
-                
-                // Save to Terrain map
-                //var z = this.chunks%(terrainData.length/this.chunkSize);
-                //var x = Math.floor(this.chunks/(terrainData.length/this.chunkSize));
-                //this.TerrainMap[x][z] = {'id': this.chunks, 'avgHeight': c.GetAvgHeight()};
                 this.chunks++;
             } else {
                 console.log("=> Skipping invisible chunk.");

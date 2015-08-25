@@ -9,11 +9,7 @@ function ChunkManager(props) {
     this.updateChunks = [];
     this.maxChunks = 0;
     this.world;
-//    this.map = [];
 
-    //const c = new ChunkTerrain({chunkManager: this.chunkManager});
-    //c.Create(this.chunkSize, cSize, cx * cSize-this.blockSize/2, cy * cSize-this.blockSize/2, chunk, this.wallHeight, this.chunks);
-    //this.chunkManager.AddTerrainChunk(c);
     if(props.terrainChunkJSON.length){
         this.processChunkList(props.terrainChunkJSON);
         delete this.terrainChunkJSON;
