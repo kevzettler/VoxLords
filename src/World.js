@@ -28,7 +28,7 @@ function World(props) {
     this.terrain = [];
     
     this.scene = new THREE.Scene();
-    this.chunkManager = new ChunkManager();
+    this.chunkManager = new ChunkManager({world: this});
 
     if(props.entities){
       let ents = props.entities;
@@ -41,7 +41,7 @@ function World(props) {
     });
 
     tl.load('maps/map4.png', this.wallHeight, this.blockSize, () =>{
-      console.log("loaded some map");
+      this.chunkManager.BuildAllChunks();
     });
 
     if(!is_server){ //put in client object?

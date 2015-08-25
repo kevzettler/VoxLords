@@ -4829,9 +4829,9 @@
 	navigator = {};
 	var util = __webpack_require__(170);
 	var World = __webpack_require__(173);
-	var GameLoop = __webpack_require__(190);
+	var GameLoop = __webpack_require__(193);
 	var is_server = typeof process === 'object' && process + '' === '[object process]';
-	var THREE = __webpack_require__(180);
+	var THREE = __webpack_require__(184);
 
 	var Game = function Game(network, canvas) {
 	  var _this = this;
@@ -5534,15 +5534,17 @@
 	/* WEBPACK VAR INJECTION */(function(process) {'use strict';
 
 	var _ = __webpack_require__(174);
-	var ChunkManager = __webpack_require__(194);
-	var VoxLoader = __webpack_require__(186);
-	var TerrainLoader = __webpack_require__(220);
+	var ChunkManager = __webpack_require__(176);
+	var VoxLoader = __webpack_require__(177);
+	var TerrainLoader = __webpack_require__(186);
 
-	var EntityClasses = __webpack_require__(182);
-	var THREE = __webpack_require__(180);
+	var EntityClasses = __webpack_require__(188);
+	var THREE = __webpack_require__(184);
 	var is_server = typeof process === 'object' && process + '' === '[object process]';
 
 	function World(props) {
+	  var _this = this;
+
 	  this.width = 0;
 	  this.height = 0;
 	  this.name = "Unknown";
@@ -5563,7 +5565,7 @@
 	  this.terrain = [];
 
 	  this.scene = new THREE.Scene();
-	  this.chunkManager = new ChunkManager();
+	  this.chunkManager = new ChunkManager({ world: this });
 
 	  if (props.entities) {
 	    var ents = props.entities;
@@ -5576,7 +5578,7 @@
 	  });
 
 	  tl.load('maps/map4.png', this.wallHeight, this.blockSize, function () {
-	    console.log("loaded some map");
+	    _this.chunkManager.BuildAllChunks();
 	  });
 
 	  if (!is_server) {
@@ -18077,15 +18079,593 @@
 
 
 /***/ },
-/* 176 */,
+/* 176 */
+/***/ function(module, exports) {
+
+	"use strict";
+
+	function ChunkManager(props) {
+	    this.worldChunks = [];
+	    this.totalBlocks = 0;
+	    this.totalChunks = 0;
+	    this.activeBlocks = 0;
+	    this.activeTriangles = 0;
+	    this.updateChunks = [];
+	    this.maxChunks = 0;
+	    this.world;
+	    this.map = [];
+	    Object.assign(this, props);
+	};
+
+	ChunkManager.prototype.PercentLoaded = function () {
+	    console.log("TOTAL: " + this.totalChunks + " MAX: " + this.maxChunks);
+	    if (this.totalChunks == 0) {
+	        return 0;
+	    }
+	    return Math.round(this.maxChunks / this.totalChunks * 100);
+	};
+
+	ChunkManager.prototype.Draw = function (time, delta) {
+	    if (this.updateChunks.length > 0) {
+	        var cid = this.updateChunks.pop();
+	        this.worldChunks[cid].Rebuild();
+	    }
+	};
+
+	ChunkManager.prototype.Blood = function (x, z, power) {
+	    var aChunks = [];
+	    var aBlocksXZ = [];
+	    var aBlocksZ = [];
+
+	    x = Math.round(x);
+	    z = Math.round(z);
+	    var cid = 0;
+	    var totals = 0;
+	    var y = this.GetHeight(x, z);
+	    y = y / this.world.blockSize;
+	    for (var rx = x + power; rx >= x - power; rx -= this.world.blockSize) {
+	        for (var rz = z + power; rz >= z - power; rz -= this.world.blockSize) {
+	            for (var ry = y + power; ry >= y - power; ry -= this.world.blockSize) {
+	                if ((rx - x) * (rx - x) + (ry - y) * (ry - y) + (rz - z) * (rz - z) <= power * power) {
+	                    if (Math.random() > 0.7) {
+	                        // Set random shade to the blocks to look as burnt.
+	                        cid = this.GetWorldChunkID(rx, rz);
+	                        if (cid == undefined) {
+	                            continue;
+	                        }
+	                        var pos = this.Translate(rx, rz, cid);
+
+	                        var yy = Math.round(ry);
+	                        if (yy <= 0) {
+	                            yy = 0;
+	                        }
+	                        if (this.worldChunks[cid.id].blocks[pos.x][pos.z][yy] != undefined) {
+	                            if (this.worldChunks[cid.id].blocks[pos.x][pos.z][yy].active) {
+	                                this.worldChunks[cid.id].blocks[pos.x][pos.z][yy].r = 111 + Math.random() * 60;
+	                                this.worldChunks[cid.id].blocks[pos.x][pos.z][yy].g = 0;
+	                                this.worldChunks[cid.id].blocks[pos.x][pos.z][yy].b = 0;
+	                                aChunks.push(cid);
+	                            }
+	                        }
+	                    }
+	                }
+	            }
+	        }
+	    }
+	    var crebuild = {};
+	    for (var i = 0; i < aChunks.length; i++) {
+	        crebuild[aChunks[i].id] = 0;
+	    }
+	    for (var c in crebuild) {
+	        this.updateChunks.push(c);
+	    }
+	};
+
+	ChunkManager.prototype.ExplodeBombSmall = function (x, z) {
+	    x = Math.round(x);
+	    z = Math.round(z);
+	    var y = this.GetHeight(x, z);
+	    y = Math.round(y / this.world.blockSize);
+	    var cid = this.GetWorldChunkID(x, z);
+	    if (cid == undefined) {
+	        return;
+	    }
+	    var pos = this.Translate(x, z, cid);
+	    if (this.worldChunks[cid.id].blocks[pos.x][pos.z][y] == undefined) {
+	        return;
+	    }
+	    this.worldChunks[cid.id].blocks[pos.x][pos.z][y].setActive(false);
+	    this.worldChunks[cid.id].Rebuild();
+
+	    for (var i = 0; i < 6; i++) {
+	        var block = this.world.physBlockPool.Get();
+	        if (block != undefined) {
+	            block.Create(x, y / 2, z, this.worldChunks[cid.id].blockSize / 2, this.worldChunks[cid.id].blocks[pos.x][pos.z][y].r, this.worldChunks[cid.id].blocks[pos.x][pos.z][y].g, this.worldChunks[cid.id].blocks[pos.x][pos.z][y].b, 2, Math.random() * 180, 2);
+	        }
+	    }
+	};
+
+	ChunkManager.prototype.ExplodeBomb = function (x, z, power, blood, iny) {
+	    // Get all blocks in the explosion.
+	    // then for each block get chunk and remove the blocks
+	    // and rebuild the affected chunks.
+	    var aChunks = [];
+	    var aBlocksXZ = [];
+	    var aBlocksY = [];
+	    x = Math.round(x);
+	    z = Math.round(z);
+	    var cid = 0;
+
+	    var totals = 0;
+	    var y;
+	    if (iny == undefined) {
+	        var y = this.GetHeight(x, z);
+	        y = Math.round(y / this.world.blockSize);
+	    } else {
+	        y = iny;
+	    }
+	    var shade = 0.5;
+
+	    var yy = 0;
+	    var pos = 0;
+	    var val = 0;
+	    var pow = 0;
+	    var rand = 0;
+	    var block = undefined;
+	    for (var rx = x + power; rx >= x - power; rx -= this.world.blockSize) {
+	        for (var rz = z + power; rz >= z - power; rz -= this.world.blockSize) {
+	            for (var ry = y + power; ry >= y - power; ry -= this.world.blockSize) {
+	                val = (rx - x) * (rx - x) + (ry - y) * (ry - y) + (rz - z) * (rz - z);
+	                pow = power * power;
+	                if (val <= pow) {
+	                    cid = this.GetWorldChunkID(rx, rz);
+	                    if (cid == undefined) {
+	                        continue;
+	                    }
+	                    pos = this.Translate(rx, rz, cid);
+	                    if (ry <= 0) {
+	                        yy = 0;
+	                    } else {
+	                        yy = Math.round(ry);
+	                    }
+	                    if (this.worldChunks[cid.id].blocks[pos.x] == undefined) {
+	                        continue;
+	                    }
+	                    if (this.worldChunks[cid.id].blocks[pos.x][pos.z] == undefined) {
+	                        continue;
+	                    }
+
+	                    if (this.worldChunks[cid.id].blocks[pos.x][pos.z][yy] != undefined) {
+	                        if (this.worldChunks[cid.id].blocks[pos.x][pos.z][yy].isActive()) {
+	                            aBlocksXZ.push(pos);
+	                            aChunks.push(cid);
+	                            aBlocksY.push(yy);
+	                            totals++;
+	                            if (Math.random() > 0.95) {
+	                                // Create PhysBlock
+	                                block = this.world.physBlockPool.Get();
+	                                if (block != undefined) {
+	                                    block.Create(rx, yy, rz, this.worldChunks[cid.id].blockSize, this.worldChunks[cid.id].blocks[pos.x][pos.z][yy].r, this.worldChunks[cid.id].blocks[pos.x][pos.z][yy].g, this.worldChunks[cid.id].blocks[pos.x][pos.z][yy].b, 3, Math.random() * 180, power);
+	                                }
+	                            }
+	                        } else {
+	                            //console.log("NO ACTIVE CID: "+cid.id+ " X: "+pos.z + " Z: "+pos.z + " Y: "+yy);
+	                        }
+	                    }
+	                } else if (val <= pow * 1.2 && val >= pow) {
+	                        // Set random shade to the blocks to look as burnt.
+	                        cid = this.GetWorldChunkID(rx, rz);
+	                        if (cid == undefined) {
+	                            continue;
+	                        }
+	                        pos = this.Translate(rx, rz, cid);
+
+	                        yy = Math.round(ry);
+	                        if (yy <= 0) {
+	                            yy = 0;
+	                        }
+	                        if (pos == undefined) {
+	                            continue;
+	                        }
+	                        if (this.worldChunks[cid.id].blocks[pos.x] == undefined) {
+	                            continue;
+	                        }
+	                        if (this.worldChunks[cid.id].blocks[pos.x][pos.z] == undefined) {
+	                            continue;
+	                        }
+	                        if (this.worldChunks[cid.id].blocks[pos.x][pos.z][yy] != undefined) {
+	                            if (this.worldChunks[cid.id].blocks[pos.x][pos.z][yy].isActive()) {
+	                                if (blood) {
+	                                    rand = Math.random() * 60;
+	                                    if (rand > 20) {
+	                                        aBlocksXZ.push(pos);
+	                                        aChunks.push(cid);
+	                                        aBlocksY.push(yy);
+	                                        this.worldChunks[cid.id].blocks[pos.x][pos.z][yy].r = 111 + rand;
+	                                        this.worldChunks[cid.id].blocks[pos.x][pos.z][yy].g = 0;
+	                                        this.worldChunks[cid.id].blocks[pos.x][pos.z][yy].b = 0;
+	                                    }
+	                                } else {
+	                                    aBlocksXZ.push(pos);
+	                                    aChunks.push(cid);
+	                                    aBlocksY.push(yy);
+	                                    this.worldChunks[cid.id].blocks[pos.x][pos.z][yy].r *= shade;
+	                                    this.worldChunks[cid.id].blocks[pos.x][pos.z][yy].g *= shade;
+	                                    this.worldChunks[cid.id].blocks[pos.x][pos.z][yy].b *= shade;
+	                                }
+	                            }
+	                        }
+	                    }
+	            }
+	        }
+	    }
+
+	    // Deactivate all and rebuild chunks
+	    var crebuild = {};
+	    for (var i = 0; i < aChunks.length; i++) {
+	        this.worldChunks[aChunks[i].id].blocks[aBlocksXZ[i].x][aBlocksXZ[i].z][aBlocksY[i]].setActive(false);
+	        // Check if on border
+	        if (aBlocksXZ[i].x == this.worldChunks[aChunks[i].id].chunkSizeX - 1) {
+	            crebuild[aChunks[i].id + 1] = 0;
+	        } else if (aBlocksXZ[i].x == 0) {
+	            crebuild[aChunks[i].id - 1] = 0;
+	        }
+
+	        if (aBlocksXZ[i].z == this.worldChunks[aChunks[i].id].chunkSizeZ - 1) {} else if (aBlocksXZ[i].z == 0) {}
+
+	        if (aBlocksY[i] == this.worldChunks[aChunks[i].id].chunkSizeY - 1) {
+	            crebuild[aChunks[i].id + Math.sqrt(this.world.map.length)] = 0;
+	        } else if (aBlocksY[i] == 0) {
+	            crebuild[aChunks[i].id - Math.sqrt(this.world.map.length)] = 0;
+	        }
+
+	        crebuild[aChunks[i].id] = 0;
+	    }
+	    for (var c in crebuild) {
+	        this.updateChunks.push(c);
+	    }
+	};
+
+	ChunkManager.prototype.AddTerrainChunk = function (chunk) {
+	    this.totalChunks++;
+	    this.totalBlocks += chunk.blocks.length * chunk.blocks.length * chunk.blocks.length;
+	    this.activeBlocks += chunk.NoOfActiveBlocks();
+	    this.worldChunks.push(chunk);
+	};
+
+	ChunkManager.prototype.BuildAllChunks = function () {
+	    for (var i = 0; i < this.worldChunks.length; i++) {
+	        this.worldChunks[i].Rebuild();
+	        this.activeTriangles += this.worldChunks[i].GetActiveTriangles();
+	    }
+	    this.AddTargets();
+	    console.log("ACTIVE TRIANGLES: " + this.activeTriangles);
+	    console.log("ACTIVE BLOCKS: " + this.activeBlocks);
+	};
+
+	ChunkManager.prototype.AddTargets = function () {
+	    for (var i = 0; i < this.worldChunks.length; i++) {
+	        var chunk = this.worldChunks[i];
+	    }
+	};
+
+	ChunkManager.prototype.GetWorldChunkID = function (x, z) {
+	    if (this.worldMap == undefined) {
+	        return;
+	    }
+	    var mp = this.world.chunkSize * this.world.blockSize;
+	    var w_x = Math.floor(Math.abs(x) / mp);
+	    var w_z = Math.floor(Math.abs(z) / mp);
+	    if (this.worldMap[w_x] == undefined) {
+	        return;
+	    }
+	    if (this.worldMap[w_x][w_z] == undefined) {
+	        return;
+	    }
+	    var cid = this.worldMap[w_x][w_z];
+	    return cid;
+	};
+
+	ChunkManager.prototype.GetChunk = function (x, z) {
+	    var mp = this.world.chunkSize * this.world.blockSize;
+	    var w_x = Math.floor(Math.abs(x) / mp);
+	    var w_z = Math.floor(Math.abs(z) / mp);
+	    if (this.worldMap[w_x][w_z] == undefined) {
+	        return;
+	    }
+	    var cid = this.worldMap[w_x][w_z];
+	    return this.worldChunks[cid.id];
+	};
+
+	ChunkManager.prototype.Translate = function (x, z, cid) {
+	    var x1 = Math.round((z - this.worldChunks[cid.id].posX) / this.world.blockSize);
+	    var z1 = Math.round((x - this.worldChunks[cid.id].posY) / this.world.blockSize);
+	    x1 = Math.abs(x1 - 1);
+	    z1 = Math.abs(z1 - 1);
+	    return { x: x1, z: z1 };
+	};
+
+	ChunkManager.prototype.GetHeight = function (x, z) {
+	    var cid = this.GetWorldChunkID(x, z);
+	    if (cid == undefined) {
+	        return undefined;
+	    }
+	    if (this.worldChunks[cid.id] == undefined) {
+	        return undefined;
+	    }
+	    var tmp = this.Translate(x, z, cid);
+
+	    var x1 = Math.round(tmp.x);
+	    var z1 = Math.round(tmp.z);
+	    if (this.worldChunks[cid.id].blocks[x1] != undefined) {
+	        if (this.worldChunks[cid.id].blocks[x1][z1] != undefined) {
+	            var y = this.worldChunks[cid.id].blocks[x1][z1].height * this.world.blockSize;
+	        }
+	    }
+
+	    if (y > 0) {
+	        return y;
+	    } else {
+	        return 0;
+	    }
+	};
+
+	ChunkManager.prototype.CheckActive = function (x, z, y) {
+	    var cid = this.GetWorldChunkID(x, z);
+	    if (cid == undefined) {
+	        return false;
+	    }
+	    var tmp = this.Translate(x, z, cid); //x+1
+	    var x1 = tmp.x;
+	    var z1 = tmp.z;
+	    if (this.worldChunks[cid.id] == undefined || this.worldChunks[cid.id].blocks[x1][z1][y] == undefined) {
+	        return false;
+	    } else {
+	        this.worldChunks[cid.id].blocks[x1][z1][y].r = 255;
+	        return !this.worldChunks[cid.id].blocks[x1][z1][y].isActive();
+	    }
+	};
+
+	module.exports = ChunkManager;
+
+/***/ },
 /* 177 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var Block = __webpack_require__(178);
-	var THREE = __webpack_require__(179);
-	var Utils = __webpack_require__(181);
+	var util = __webpack_require__(170);
+	var Loader = __webpack_require__(178);
+	var Vox = __webpack_require__(179);
+
+	/////////////////////////////////////////////////////////////
+	// Vox models
+	/////////////////////////////////////////////////////////////
+	function VoxLoader() {
+	    Loader.call(this);
+	    this.models = new Array();
+	}
+	util.inherits(VoxLoader, Loader);
+
+	VoxLoader.prototype.GetModel = function (name) {
+	    return this.models[name].chunk.Clone();
+	};
+
+	VoxLoader.prototype.Add = function (args) {
+	    this.models[args.name] = new Object();
+	    this.models[args.name].args = args;
+	    Loader.prototype.total++;
+
+	    var vox = new Vox({
+	        filename: args.file,
+	        name: args.name
+	    });
+
+	    vox.LoadModel(this.Load.bind(this));
+	    this.models[args.name].vox = vox;
+	};
+
+	VoxLoader.prototype.Load = function (vox, name) {
+	    console.log("Voxel: " + name + " loaded!");
+	    this.models[name].vox = vox;
+	    this.models[name].chunk = vox.getChunk();
+	    this.models[name].chunk.Rebuild();
+	    this.models[name].mesh = vox.getMesh();
+	    this.models[name].mesh.geometry.center();
+	    this.Loaded();
+	};
+
+	module.exports = VoxLoader;
+
+/***/ },
+/* 178 */
+/***/ function(module, exports) {
+
+	/////////////////////////////////////////////////////////////
+	// Autor: Nergal
+	// Date: 2015-01-19
+	/////////////////////////////////////////////////////////////
+	"use strict";
+
+	function Loader() {
+	    Loader.prototype.total = 0;
+	    Loader.prototype.loaded = 0;
+	    Loader.prototype.percentLoaded = 0;
+
+	    Loader.prototype.PercentLoaded = function () {
+	        return Math.round(Loader.prototype.loaded / Loader.prototype.total * 100);
+	    };
+
+	    Loader.prototype.Loaded = function () {
+	        Loader.prototype.loaded++;
+	    };
+	}
+
+	module.exports = Loader;
+
+/***/ },
+/* 179 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var VoxelData = __webpack_require__(180);
+	var Chunk = __webpack_require__(181);
+
+	var voxColors = [0x00000000, 0xffffffff, 0xffccffff, 0xff99ffff, 0xff66ffff, 0xff33ffff, 0xff00ffff, 0xffffccff, 0xffccccff, 0xff99ccff, 0xff66ccff, 0xff33ccff, 0xff00ccff, 0xffff99ff, 0xffcc99ff, 0xff9999ff, 0xff6699ff, 0xff3399ff, 0xff0099ff, 0xffff66ff, 0xffcc66ff, 0xff9966ff, 0xff6666ff, 0xff3366ff, 0xff0066ff, 0xffff33ff, 0xffcc33ff, 0xff9933ff, 0xff6633ff, 0xff3333ff, 0xff0033ff, 0xffff00ff, 0xffcc00ff, 0xff9900ff, 0xff6600ff, 0xff3300ff, 0xff0000ff, 0xffffffcc, 0xffccffcc, 0xff99ffcc, 0xff66ffcc, 0xff33ffcc, 0xff00ffcc, 0xffffcccc, 0xffcccccc, 0xff99cccc, 0xff66cccc, 0xff33cccc, 0xff00cccc, 0xffff99cc, 0xffcc99cc, 0xff9999cc, 0xff6699cc, 0xff3399cc, 0xff0099cc, 0xffff66cc, 0xffcc66cc, 0xff9966cc, 0xff6666cc, 0xff3366cc, 0xff0066cc, 0xffff33cc, 0xffcc33cc, 0xff9933cc, 0xff6633cc, 0xff3333cc, 0xff0033cc, 0xffff00cc, 0xffcc00cc, 0xff9900cc, 0xff6600cc, 0xff3300cc, 0xff0000cc, 0xffffff99, 0xffccff99, 0xff99ff99, 0xff66ff99, 0xff33ff99, 0xff00ff99, 0xffffcc99, 0xffcccc99, 0xff99cc99, 0xff66cc99, 0xff33cc99, 0xff00cc99, 0xffff9999, 0xffcc9999, 0xff999999, 0xff669999, 0xff339999, 0xff009999, 0xffff6699, 0xffcc6699, 0xff996699, 0xff666699, 0xff336699, 0xff006699, 0xffff3399, 0xffcc3399, 0xff993399, 0xff663399, 0xff333399, 0xff003399, 0xffff0099, 0xffcc0099, 0xff990099, 0xff660099, 0xff330099, 0xff000099, 0xffffff66, 0xffccff66, 0xff99ff66, 0xff66ff66, 0xff33ff66, 0xff00ff66, 0xffffcc66, 0xffcccc66, 0xff99cc66, 0xff66cc66, 0xff33cc66, 0xff00cc66, 0xffff9966, 0xffcc9966, 0xff999966, 0xff669966, 0xff339966, 0xff009966, 0xffff6666, 0xffcc6666, 0xff996666, 0xff666666, 0xff336666, 0xff006666, 0xffff3366, 0xffcc3366, 0xff993366, 0xff663366, 0xff333366, 0xff003366, 0xffff0066, 0xffcc0066, 0xff990066, 0xff660066, 0xff330066, 0xff000066, 0xffffff33, 0xffccff33, 0xff99ff33, 0xff66ff33, 0xff33ff33, 0xff00ff33, 0xffffcc33, 0xffcccc33, 0xff99cc33, 0xff66cc33, 0xff33cc33, 0xff00cc33, 0xffff9933, 0xffcc9933, 0xff999933, 0xff669933, 0xff339933, 0xff009933, 0xffff6633, 0xffcc6633, 0xff996633, 0xff666633, 0xff336633, 0xff006633, 0xffff3333, 0xffcc3333, 0xff993333, 0xff663333, 0xff333333, 0xff003333, 0xffff0033, 0xffcc0033, 0xff990033, 0xff660033, 0xff330033, 0xff000033, 0xffffff00, 0xffccff00, 0xff99ff00, 0xff66ff00, 0xff33ff00, 0xff00ff00, 0xffffcc00, 0xffcccc00, 0xff99cc00, 0xff66cc00, 0xff33cc00, 0xff00cc00, 0xffff9900, 0xffcc9900, 0xff999900, 0xff669900, 0xff339900, 0xff009900, 0xffff6600, 0xffcc6600, 0xff996600, 0xff666600, 0xff336600, 0xff006600, 0xffff3300, 0xffcc3300, 0xff993300, 0xff663300, 0xff333300, 0xff003300, 0xffff0000, 0xffcc0000, 0xff990000, 0xff660000, 0xff330000, 0xff0000ee, 0xff0000dd, 0xff0000bb, 0xff0000aa, 0xff000088, 0xff000077, 0xff000055, 0xff000044, 0xff000022, 0xff000011, 0xff00ee00, 0xff00dd00, 0xff00bb00, 0xff00aa00, 0xff008800, 0xff007700, 0xff005500, 0xff004400, 0xff002200, 0xff001100, 0xffee0000, 0xffdd0000, 0xffbb0000, 0xffaa0000, 0xff880000, 0xff770000, 0xff550000, 0xff440000, 0xff220000, 0xff110000, 0xffeeeeee, 0xffdddddd, 0xffbbbbbb, 0xffaaaaaa, 0xff888888, 0xff777777, 0xff555555, 0xff444444, 0xff222222, 0xff111111];
+
+	function Vox(opts) {
+	    this.chunk = new Chunk();
+	    this.colors = [];
+	    this.colors2 = undefined;
+	    this.voxelData = [];
+	    Object.assign(this, opts);
+	};
+
+	Vox.prototype.getChunk = function () {
+	    return this.chunk;
+	};
+
+	Vox.prototype.getMesh = function () {
+	    return this.chunk.mesh;
+	};
+
+	Vox.prototype.readInt = function (buffer, from) {
+	    return buffer[from] | buffer[from + 1] << 8 | buffer[from + 2] << 16 | buffer[from + 3] << 24;
+	};
+
+	Vox.prototype.proccesVoxData = function (arrayBuffer, loadptr, name) {
+	    var buffer = new Uint8Array(arrayBuffer);
+	    var voxId = this.readInt(buffer, 0);
+	    var version = this.readInt(buffer, 4);
+	    // TBD: Check version to support
+	    var i = 8;
+	    while (i < buffer.length) {
+	        var subSample = false;
+	        var sizex = 0,
+	            sizey = 0,
+	            sizez = 0;
+	        var id = String.fromCharCode(parseInt(buffer[i++])) + String.fromCharCode(parseInt(buffer[i++])) + String.fromCharCode(parseInt(buffer[i++])) + String.fromCharCode(parseInt(buffer[i++]));
+
+	        var chunkSize = this.readInt(buffer, i) & 0xFF;
+	        i += 4;
+	        var childChunks = this.readInt(buffer, i) & 0xFF;
+	        i += 4;
+
+	        if (id == "SIZE") {
+	            sizex = this.readInt(buffer, i) & 0xFF;
+	            i += 4;
+	            sizey = this.readInt(buffer, i) & 0xFF;
+	            i += 4;
+	            sizez = this.readInt(buffer, i) & 0xFF;
+	            i += 4;
+	            if (sizex > 32 || sizey > 32) {
+	                subSample = true;
+	            }
+	            console.log(this.filename + " => Create VOX Chunk!");
+	            this.chunk.Create(sizex, sizey, sizez);
+	            i += chunkSize - 4 * 3;
+	        } else if (id == "XYZI") {
+	            var numVoxels = Math.abs(this.readInt(buffer, i));
+	            i += 4;
+	            this.voxelData = new Array(numVoxels);
+	            for (var n = 0; n < this.voxelData.length; n++) {
+	                ;
+	                this.voxelData[n] = new VoxelData();
+	                this.voxelData[n].Create(buffer, i, subSample); // Read 4 bytes
+	                i += 4;
+	            }
+	        } else if (id == "RGBA") {
+	            console.log(this.filename + " => Regular color chunk");
+	            this.colors2 = new Array(256);
+	            for (var n = 0; n < 256; n++) {
+	                var r = buffer[i++] & 0xFF;
+	                var g = buffer[i++] & 0xFF;
+	                var b = buffer[i++] & 0xFF;
+	                var a = buffer[i++] & 0xFF;
+	                this.colors2[n] = { 'r': r, 'g': g, 'b': b, 'a': a };
+	            }
+	        } else {
+	            i += chunkSize;
+	        }
+	    }
+
+	    if (this.voxelData == null || this.voxelData.length == 0) {
+	        return null;
+	    }
+
+	    for (var n = 0; n < this.voxelData.length; n++) {
+	        if (this.colors2 == undefined) {
+	            var c = voxColors[Math.abs(this.voxelData[n].color - 1)];
+	            var cRGBA = {
+	                b: (c & 0xff0000) >> 16,
+	                g: (c & 0x00ff00) >> 8,
+	                r: c & 0x0000ff,
+	                a: 1
+	            };
+	            this.chunk.ActivateBlock(this.voxelData[n].x, this.voxelData[n].y, this.voxelData[n].z, cRGBA);
+	        } else {
+	            this.chunk.ActivateBlock(this.voxelData[n].x, this.voxelData[n].y, this.voxelData[n].z, this.colors2[Math.abs(this.voxelData[n].color - 1)]);
+	        }
+	    }
+	    loadptr(this, this.name);
+	};
+
+	Vox.prototype.onLoadHandler = function (loadptr, oEvent) {
+	    var oReq = oEvent.currentTarget;
+	    console.log("Loaded model: " + oReq.responseURL);
+
+	    var arrayBuffer = oReq.response;
+	    if (arrayBuffer) {
+	        this.proccesVoxData(arrayBuffer, loadptr);
+	    }
+	};
+
+	Vox.prototype.LoadModel = function (loadptr) {
+	    var oReq = new XMLHttpRequest();
+	    oReq.open("GET", "models/" + this.filename, true);
+	    oReq.responseType = "arraybuffer";
+	    oReq.onload = this.onLoadHandler.bind(this, loadptr);
+	    oReq.send(null);
+	};
+
+	module.exports = Vox;
+
+/***/ },
+/* 180 */
+/***/ function(module, exports) {
+
+	//==============================================================================
+	// Author: Nergal
+	// http://webgl.nu
+	// Date: 2014-11-17
+	//==============================================================================
+	"use strict";
+
+	function VoxelData() {
+	    this.x;
+	    this.y;
+	    this.z;
+	    this.color;
+
+	    VoxelData.prototype.Create = function (buffer, i, subSample) {
+	        this.x = subSample ? buffer[i] & 0xFF / 2 : buffer[i++] & 0xFF;
+	        this.y = subSample ? buffer[i] & 0xFF / 2 : buffer[i++] & 0xFF;
+	        this.z = subSample ? buffer[i] & 0xFF / 2 : buffer[i++] & 0xFF;
+	        this.color = buffer[i] & 0xFF;
+	    };
+	}
+	module.exports = VoxelData;
+
+/***/ },
+/* 181 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var Block = __webpack_require__(182);
+	var THREE = __webpack_require__(183);
+	var Utils = __webpack_require__(185);
 
 	function Chunk() {
 	    this.wireframe = false;
@@ -18696,7 +19276,7 @@
 	module.exports = Chunk;
 
 /***/ },
-/* 178 */
+/* 182 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -18733,12 +19313,12 @@
 	module.exports = Block;
 
 /***/ },
-/* 179 */
+/* 183 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var THREE = __webpack_require__(180);
+	var THREE = __webpack_require__(184);
 
 	THREE.PerspectiveCamera.prototype.setRotateX = function (deg) {
 	    if (typeof deg == 'number' && parseInt(deg) == deg) {
@@ -18768,7 +19348,7 @@
 	module.exports = THREE;
 
 /***/ },
-/* 180 */
+/* 184 */
 /***/ function(module, exports, __webpack_require__) {
 
 	// File:src/Three.js
@@ -53318,12 +53898,12 @@
 
 
 /***/ },
-/* 181 */
+/* 185 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
 
-	var THREE = __webpack_require__(179);
+	var THREE = __webpack_require__(183);
 
 	var Utils = {
 	    // Rotate an object around an arbitrary axis in object space
@@ -53523,1037 +54103,22 @@
 	module.exports = Utils;
 
 /***/ },
-/* 182 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	module.exports = {
-	  Tree: __webpack_require__(183),
-	  Guy: __webpack_require__(219)
-	};
-
-/***/ },
-/* 183 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	var Object3D = __webpack_require__(184);
-	var util = __webpack_require__(170);
-	var Entity = __webpack_require__(185);
-
-	function Tree(props) {
-	    return Tree.super_.call(this, props);
-	};
-	util.inherits(Tree, Entity);
-
-	Tree.prototype.update = function (dt) {
-	    // var y = game.chunkManager.GetHeight(this.mesh.position.x+this.chunk.blockSize*this.chunk.chunkSizeX/2,
-	    //                                     this.mesh.position.z+this.chunk.blockSize*this.chunk.chunkSizeX/2);
-
-	    // // Explode tree if ground breaks.
-	    //  if(y < this.origy) {
-	    //    // this.Hit(0,0);
-	    //  }
-	};
-
-	Tree.prototype.render = function (dt) {
-	    Tree.super_.prototype.render.call(this, dt);
-	};
-
-	Tree.prototype.hit = function (data, dmg) {
-	    this.chunk.Explode(this.mesh.position, this.scale);
-	    this.remove = 1;
-	    game.scene.remove(this.mesh);
-	    console.log("TREE HIT!");
-	};
-
-	// Tree.prototype.create = function(x,y,z, scale, type) {
-	//     this.chunk = game.voxLoader.GetModel(type);
-	//     this.mesh = this.chunk.mesh;
-	//     this.mesh.geometry.computeBoundingBox();
-	//     this.mesh.position.set(x,y,z);
-	//     this.mesh.that = this;
-	//     game.targets.push(this.mesh);
-	//     this.mesh.scale.set(scale,scale,scale);
-	//     game.scene.add(this.mesh);
-	//     this.origy = y;
-	// };
-
-	module.exports = Tree;
-
-/***/ },
-/* 184 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	var THREE = __webpack_require__(179);
-
-	function Object3D() {
-	    // THREE.Mesh.apply(this, arguments); inherite from mesh
-	    this.mesh;
-	    this.time;
-	}
-
-	Object3D.prototype.GetObject = function () {
-	    return this.mesh;
-	};
-
-	Object3D.prototype.Draw = function () {
-	    //draw object
-	};
-
-	Object3D.prototype.AddToScene = function (scene) {
-	    scene.add(this.mesh);
-	};
-	module.exports = Object3D;
-
-/***/ },
-/* 185 */
-/***/ function(module, exports, __webpack_require__) {
-
-	// Base class for anything that lives on the terrain
-	'use strict';
-
-	var _ = __webpack_require__(174);
-	var Vox = __webpack_require__(188);
-
-	// Asyncronous constructor returns a promise
-	var Entity = (function () {
-	    var id = 1; // wrap id in a closure increment on each instance
-
-	    return function Entity(props) {
-	        var _this = this;
-
-	        this.id = id;
-	        this.position = [0, 0, 0];
-	        this.scale = 2;
-	        this.remove = 0;
-	        this.origy = 0;
-	        this.mesh;
-
-	        _.extend(this, props);
-
-	        this.orgiy = this.position[2];
-
-	        if (!props.id) {
-	            id++;
-	        }
-
-	        return new Promise(function (resolve) {
-	            _this.getMesh().then(function (vox) {
-	                _this.vox = vox;
-	                _this.chunk = vox.getChunk();
-	                _this.chunk.Rebuild();
-	                _this.mesh = vox.getMesh();
-	                _this.mesh.geometry.center();
-	                _this.mesh.geometry.computeBoundingBox();
-	                _this.mesh.position.set(_this.position[0], _this.position[1], _this.position[2]);
-	                _this.mesh.scale.set(_this.scale, _this.scale, _this.scale);
-	                resolve(_this);
-	            });
-	        });
-	    };
-	})();
-
-	Entity.prototype.getMesh = function () {
-	    var _this2 = this;
-
-	    var name = this.constructor.name;
-	    return new Promise(function (resolve) {
-	        if (_this2.world.meshes[name]) {
-	            reslove(_this2.world.meshes[name]);
-	        } else {
-	            return _this2.loadVoxFile().then(function (vox) {
-	                resolve(vox);
-	            });
-	        }
-	    });
-	};
-
-	Entity.prototype.loadVoxFile = function () {
-	    var that = this;
-
-	    return new Promise(function (resolve) {
-	        var vox = new Vox({
-	            filename: that.constructor.name + ".vox",
-	            name: that.constructor.name
-	        });
-
-	        vox.LoadModel(function (vox, name) {
-	            if (_.isUndefined(that.world.meshes[name])) {
-	                that.world.meshes[name] = {};
-	            }
-	            console.log("storing model", name);
-	            that.world.meshes[name].vox = vox;
-	            resolve(vox);
-	        });
-	    });
-	};
-
-	Entity.prototype.destroy = function () {
-	    return this.world.removeEntity(this);
-	};
-
-	Entity.prototype.render = function () {
-	    // this.mesh = this.mesh || BABYLON.Mesh.CreateSphere(this.id, this.width, 2, this.world.scene);
-	    // this.mesh.position.x = this.position[0];
-	    // this.mesh.position.z = this.position[1];
-	    // this.mesh.position.y = 1;
-	    // this.mesh.showBoundingBox = true;
-	    // this.mesh.material = this.world.test_material;
-	};
-
-	module.exports = Entity;
-
-/***/ },
 /* 186 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var util = __webpack_require__(170);
-	var Loader = __webpack_require__(187);
-	var Vox = __webpack_require__(188);
-
-	/////////////////////////////////////////////////////////////
-	// Vox models
-	/////////////////////////////////////////////////////////////
-	function VoxLoader() {
-	    Loader.call(this);
-	    this.models = new Array();
-	}
-	util.inherits(VoxLoader, Loader);
-
-	VoxLoader.prototype.GetModel = function (name) {
-	    return this.models[name].chunk.Clone();
-	};
-
-	VoxLoader.prototype.Add = function (args) {
-	    this.models[args.name] = new Object();
-	    this.models[args.name].args = args;
-	    Loader.prototype.total++;
-
-	    var vox = new Vox({
-	        filename: args.file,
-	        name: args.name
-	    });
-
-	    vox.LoadModel(this.Load.bind(this));
-	    this.models[args.name].vox = vox;
-	};
-
-	VoxLoader.prototype.Load = function (vox, name) {
-	    console.log("Voxel: " + name + " loaded!");
-	    this.models[name].vox = vox;
-	    this.models[name].chunk = vox.getChunk();
-	    this.models[name].chunk.Rebuild();
-	    this.models[name].mesh = vox.getMesh();
-	    this.models[name].mesh.geometry.center();
-	    this.Loaded();
-	};
-
-	module.exports = VoxLoader;
-
-/***/ },
-/* 187 */
-/***/ function(module, exports) {
-
-	/////////////////////////////////////////////////////////////
-	// Autor: Nergal
-	// Date: 2015-01-19
-	/////////////////////////////////////////////////////////////
-	"use strict";
-
-	function Loader() {
-	    Loader.prototype.total = 0;
-	    Loader.prototype.loaded = 0;
-	    Loader.prototype.percentLoaded = 0;
-
-	    Loader.prototype.PercentLoaded = function () {
-	        return Math.round(Loader.prototype.loaded / Loader.prototype.total * 100);
-	    };
-
-	    Loader.prototype.Loaded = function () {
-	        Loader.prototype.loaded++;
-	    };
-	}
-
-	module.exports = Loader;
-
-/***/ },
-/* 188 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	var VoxelData = __webpack_require__(189);
-	var Chunk = __webpack_require__(177);
-
-	var voxColors = [0x00000000, 0xffffffff, 0xffccffff, 0xff99ffff, 0xff66ffff, 0xff33ffff, 0xff00ffff, 0xffffccff, 0xffccccff, 0xff99ccff, 0xff66ccff, 0xff33ccff, 0xff00ccff, 0xffff99ff, 0xffcc99ff, 0xff9999ff, 0xff6699ff, 0xff3399ff, 0xff0099ff, 0xffff66ff, 0xffcc66ff, 0xff9966ff, 0xff6666ff, 0xff3366ff, 0xff0066ff, 0xffff33ff, 0xffcc33ff, 0xff9933ff, 0xff6633ff, 0xff3333ff, 0xff0033ff, 0xffff00ff, 0xffcc00ff, 0xff9900ff, 0xff6600ff, 0xff3300ff, 0xff0000ff, 0xffffffcc, 0xffccffcc, 0xff99ffcc, 0xff66ffcc, 0xff33ffcc, 0xff00ffcc, 0xffffcccc, 0xffcccccc, 0xff99cccc, 0xff66cccc, 0xff33cccc, 0xff00cccc, 0xffff99cc, 0xffcc99cc, 0xff9999cc, 0xff6699cc, 0xff3399cc, 0xff0099cc, 0xffff66cc, 0xffcc66cc, 0xff9966cc, 0xff6666cc, 0xff3366cc, 0xff0066cc, 0xffff33cc, 0xffcc33cc, 0xff9933cc, 0xff6633cc, 0xff3333cc, 0xff0033cc, 0xffff00cc, 0xffcc00cc, 0xff9900cc, 0xff6600cc, 0xff3300cc, 0xff0000cc, 0xffffff99, 0xffccff99, 0xff99ff99, 0xff66ff99, 0xff33ff99, 0xff00ff99, 0xffffcc99, 0xffcccc99, 0xff99cc99, 0xff66cc99, 0xff33cc99, 0xff00cc99, 0xffff9999, 0xffcc9999, 0xff999999, 0xff669999, 0xff339999, 0xff009999, 0xffff6699, 0xffcc6699, 0xff996699, 0xff666699, 0xff336699, 0xff006699, 0xffff3399, 0xffcc3399, 0xff993399, 0xff663399, 0xff333399, 0xff003399, 0xffff0099, 0xffcc0099, 0xff990099, 0xff660099, 0xff330099, 0xff000099, 0xffffff66, 0xffccff66, 0xff99ff66, 0xff66ff66, 0xff33ff66, 0xff00ff66, 0xffffcc66, 0xffcccc66, 0xff99cc66, 0xff66cc66, 0xff33cc66, 0xff00cc66, 0xffff9966, 0xffcc9966, 0xff999966, 0xff669966, 0xff339966, 0xff009966, 0xffff6666, 0xffcc6666, 0xff996666, 0xff666666, 0xff336666, 0xff006666, 0xffff3366, 0xffcc3366, 0xff993366, 0xff663366, 0xff333366, 0xff003366, 0xffff0066, 0xffcc0066, 0xff990066, 0xff660066, 0xff330066, 0xff000066, 0xffffff33, 0xffccff33, 0xff99ff33, 0xff66ff33, 0xff33ff33, 0xff00ff33, 0xffffcc33, 0xffcccc33, 0xff99cc33, 0xff66cc33, 0xff33cc33, 0xff00cc33, 0xffff9933, 0xffcc9933, 0xff999933, 0xff669933, 0xff339933, 0xff009933, 0xffff6633, 0xffcc6633, 0xff996633, 0xff666633, 0xff336633, 0xff006633, 0xffff3333, 0xffcc3333, 0xff993333, 0xff663333, 0xff333333, 0xff003333, 0xffff0033, 0xffcc0033, 0xff990033, 0xff660033, 0xff330033, 0xff000033, 0xffffff00, 0xffccff00, 0xff99ff00, 0xff66ff00, 0xff33ff00, 0xff00ff00, 0xffffcc00, 0xffcccc00, 0xff99cc00, 0xff66cc00, 0xff33cc00, 0xff00cc00, 0xffff9900, 0xffcc9900, 0xff999900, 0xff669900, 0xff339900, 0xff009900, 0xffff6600, 0xffcc6600, 0xff996600, 0xff666600, 0xff336600, 0xff006600, 0xffff3300, 0xffcc3300, 0xff993300, 0xff663300, 0xff333300, 0xff003300, 0xffff0000, 0xffcc0000, 0xff990000, 0xff660000, 0xff330000, 0xff0000ee, 0xff0000dd, 0xff0000bb, 0xff0000aa, 0xff000088, 0xff000077, 0xff000055, 0xff000044, 0xff000022, 0xff000011, 0xff00ee00, 0xff00dd00, 0xff00bb00, 0xff00aa00, 0xff008800, 0xff007700, 0xff005500, 0xff004400, 0xff002200, 0xff001100, 0xffee0000, 0xffdd0000, 0xffbb0000, 0xffaa0000, 0xff880000, 0xff770000, 0xff550000, 0xff440000, 0xff220000, 0xff110000, 0xffeeeeee, 0xffdddddd, 0xffbbbbbb, 0xffaaaaaa, 0xff888888, 0xff777777, 0xff555555, 0xff444444, 0xff222222, 0xff111111];
-
-	function Vox(opts) {
-	    this.chunk = new Chunk();
-	    this.colors = [];
-	    this.colors2 = undefined;
-	    this.voxelData = [];
-	    Object.assign(this, opts);
-	};
-
-	Vox.prototype.getChunk = function () {
-	    return this.chunk;
-	};
-
-	Vox.prototype.getMesh = function () {
-	    return this.chunk.mesh;
-	};
-
-	Vox.prototype.readInt = function (buffer, from) {
-	    return buffer[from] | buffer[from + 1] << 8 | buffer[from + 2] << 16 | buffer[from + 3] << 24;
-	};
-
-	Vox.prototype.proccesVoxData = function (arrayBuffer, loadptr, name) {
-	    var buffer = new Uint8Array(arrayBuffer);
-	    var voxId = this.readInt(buffer, 0);
-	    var version = this.readInt(buffer, 4);
-	    // TBD: Check version to support
-	    var i = 8;
-	    while (i < buffer.length) {
-	        var subSample = false;
-	        var sizex = 0,
-	            sizey = 0,
-	            sizez = 0;
-	        var id = String.fromCharCode(parseInt(buffer[i++])) + String.fromCharCode(parseInt(buffer[i++])) + String.fromCharCode(parseInt(buffer[i++])) + String.fromCharCode(parseInt(buffer[i++]));
-
-	        var chunkSize = this.readInt(buffer, i) & 0xFF;
-	        i += 4;
-	        var childChunks = this.readInt(buffer, i) & 0xFF;
-	        i += 4;
-
-	        if (id == "SIZE") {
-	            sizex = this.readInt(buffer, i) & 0xFF;
-	            i += 4;
-	            sizey = this.readInt(buffer, i) & 0xFF;
-	            i += 4;
-	            sizez = this.readInt(buffer, i) & 0xFF;
-	            i += 4;
-	            if (sizex > 32 || sizey > 32) {
-	                subSample = true;
-	            }
-	            console.log(this.filename + " => Create VOX Chunk!");
-	            this.chunk.Create(sizex, sizey, sizez);
-	            i += chunkSize - 4 * 3;
-	        } else if (id == "XYZI") {
-	            var numVoxels = Math.abs(this.readInt(buffer, i));
-	            i += 4;
-	            this.voxelData = new Array(numVoxels);
-	            for (var n = 0; n < this.voxelData.length; n++) {
-	                ;
-	                this.voxelData[n] = new VoxelData();
-	                this.voxelData[n].Create(buffer, i, subSample); // Read 4 bytes
-	                i += 4;
-	            }
-	        } else if (id == "RGBA") {
-	            console.log(this.filename + " => Regular color chunk");
-	            this.colors2 = new Array(256);
-	            for (var n = 0; n < 256; n++) {
-	                var r = buffer[i++] & 0xFF;
-	                var g = buffer[i++] & 0xFF;
-	                var b = buffer[i++] & 0xFF;
-	                var a = buffer[i++] & 0xFF;
-	                this.colors2[n] = { 'r': r, 'g': g, 'b': b, 'a': a };
-	            }
-	        } else {
-	            i += chunkSize;
-	        }
-	    }
-
-	    if (this.voxelData == null || this.voxelData.length == 0) {
-	        return null;
-	    }
-
-	    for (var n = 0; n < this.voxelData.length; n++) {
-	        if (this.colors2 == undefined) {
-	            var c = voxColors[Math.abs(this.voxelData[n].color - 1)];
-	            var cRGBA = {
-	                b: (c & 0xff0000) >> 16,
-	                g: (c & 0x00ff00) >> 8,
-	                r: c & 0x0000ff,
-	                a: 1
-	            };
-	            this.chunk.ActivateBlock(this.voxelData[n].x, this.voxelData[n].y, this.voxelData[n].z, cRGBA);
-	        } else {
-	            this.chunk.ActivateBlock(this.voxelData[n].x, this.voxelData[n].y, this.voxelData[n].z, this.colors2[Math.abs(this.voxelData[n].color - 1)]);
-	        }
-	    }
-	    loadptr(this, this.name);
-	};
-
-	Vox.prototype.onLoadHandler = function (loadptr, oEvent) {
-	    var oReq = oEvent.currentTarget;
-	    console.log("Loaded model: " + oReq.responseURL);
-
-	    var arrayBuffer = oReq.response;
-	    if (arrayBuffer) {
-	        this.proccesVoxData(arrayBuffer, loadptr);
-	    }
-	};
-
-	Vox.prototype.LoadModel = function (loadptr) {
-	    var oReq = new XMLHttpRequest();
-	    oReq.open("GET", "models/" + this.filename, true);
-	    oReq.responseType = "arraybuffer";
-	    oReq.onload = this.onLoadHandler.bind(this, loadptr);
-	    oReq.send(null);
-	};
-
-	module.exports = Vox;
-
-/***/ },
-/* 189 */
-/***/ function(module, exports) {
-
-	//==============================================================================
-	// Author: Nergal
-	// http://webgl.nu
-	// Date: 2014-11-17
-	//==============================================================================
-	"use strict";
-
-	function VoxelData() {
-	    this.x;
-	    this.y;
-	    this.z;
-	    this.color;
-
-	    VoxelData.prototype.Create = function (buffer, i, subSample) {
-	        this.x = subSample ? buffer[i] & 0xFF / 2 : buffer[i++] & 0xFF;
-	        this.y = subSample ? buffer[i] & 0xFF / 2 : buffer[i++] & 0xFF;
-	        this.z = subSample ? buffer[i] & 0xFF / 2 : buffer[i++] & 0xFF;
-	        this.color = buffer[i] & 0xFF;
-	    };
-	}
-	module.exports = VoxelData;
-
-/***/ },
-/* 190 */
-/***/ function(module, exports, __webpack_require__) {
-
-	module.exports = __webpack_require__(191);
-
-
-/***/ },
-/* 191 */
-/***/ function(module, exports, __webpack_require__) {
-
-	var now = __webpack_require__(192),
-	  raf = __webpack_require__(193);
-
-	module.exports = Timer;
-
-	/**
-	 * @constructor
-	 */
-	function Timer(options) {
-	  this._initialized = false;
-
-	  this._fixedDeltaTime = 1000 / 60;
-	  this._fixedDeltaTimeInSeconds = this._fixedDeltaTime / 1000;
-	  this._FRAME_TIME_MAX = 250;
-	  this._elapsed = 0;
-
-	  this._config(options);
-
-	  if (this._autoStart) {
-	    this.start();
-	  }
-	}
-
-	Timer.prototype = {
-	  start: function() {
-	    if (!this._initialized) {
-	      this._initialized = true;
-
-	      this._accumulator = 0;
-	      this._tick = tick.bind(this);
-
-	      this._isPaused = false;
-	      this._prevTime = now();
-	      this._requestID = raf.request(this._tick);
-
-	      return true;
-	    }
-	    return false;
-	  },
-
-	  /** pauses the timer */
-	  pause: function() {
-	    if (this._initialized && this._isPaused) {
-	      return false;
-	    }
-
-	    this._isPaused = true;
-	    raf.cancel(this._requestID);
-
-	    this._pauseTime = now();
-	    this._onPause();
-
-	    return true;
-	  },
-
-	  /** resumes the timer */
-	  resume: function() {
-	    if (this._initialized && !this._isPaused) {
-	      return false;
-	    }
-
-	    var pauseDuration;
-
-	    this._isPaused = false;
-	    this._prevTime = now();
-
-	    pauseDuration = this._prevTime - this._pauseTime;
-	    this._onResume(pauseDuration);
-
-	    this._requestID = raf.request(this._tick);
-
-	    return true;
-	  },
-
-	  togglePause: function() {
-	    if (this._isPaused) {
-	      this.resume();
-	    } else {
-	      this.pause();
-	    }
-	  },
-
-	  /** returns true if the timer is paused */
-	  isPaused: function () {
-	    return this._isPaused;
-	  },
-
-	  _config: function(options) {
-	    var empty = function() {};
-
-	    this._update = options.update || empty;
-	    this._render = options.render || empty;
-	    this._onPause = options.onPause || empty;
-	    this._onResume = options.onResume || empty;
-
-	    this._autoStart = options.autoStart == null ? true : options.autoStart;
-	  }
-	};
-
-	function tick() {
-	  var curTime = now();
-	  var frameTime = curTime - this._prevTime;
-
-	  if (frameTime > this._FRAME_TIME_MAX) {
-	    frameTime = this._FRAME_TIME_MAX;
-	  }
-
-	  this._prevTime = curTime;
-
-	  this._accumulator += frameTime;
-
-	  while(this._accumulator >= this._fixedDeltaTime) {
-	    this._accumulator -= this._fixedDeltaTime;
-	    this._elapsed += this._fixedDeltaTime;
-	    this._update(this._fixedDeltaTimeInSeconds, this._elapsed);
-	  }
-
-	  this._render();
-
-	  this._requestID = raf.request(this._tick);
-	}
-
-
-/***/ },
-/* 192 */
-/***/ function(module, exports) {
-
-	/* WEBPACK VAR INJECTION */(function(global) {// return the current time in milliseconds
-	var d = global.Date;
-
-	module.exports = d.now || function () {
-	  return (new d()).getTime();
-	};
-
-	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
-
-/***/ },
-/* 193 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/* WEBPACK VAR INJECTION */(function(global) {/** requestAnimationFrame polyfill
-	 * http://paulirish.com/2011/requestanimationframe-for-smart-animating/
-	 * http://my.opera.com/emoller/blog/2011/12/20/requestanimationframe-for-smart-er-animating
-	 */
-	var vendors = ['ms', 'moz', 'webkit', 'o'],
-
-	  requestAnimationFrame = global.requestAnimationFrame,
-	  cancelAnimationFrame = global.cancelAnimationFrame,
-
-	  x = 0, l = vendors.length;
-
-	for (; x < l; ++x) {
-	  if (requestAnimationFrame && cancelAnimationFrame) break;
-	  requestAnimationFrame = global[vendors[x] + 'RequestAnimationFrame'];
-	  cancelAnimationFrame = global[vendors[x] + 'CancelAnimationFrame'] || global[vendors[x] + 'CancelRequestAnimationFrame'];
-	}
-
-	if (!requestAnimationFrame || !cancelAnimationFrame) {
-	  var now = __webpack_require__(192),
-	    lastTime = 0, max = Math.max;
-
-	  requestAnimationFrame = function(callback, element) {
-	    var currTime = now(),
-	      timeToCall = Math.max(0, 16 - (currTime - lastTime)),
-	      id = global.setTimeout(function () {
-	        callback(currTime + timeToCall);
-	      }, timeToCall);
-	    lastTime = currTime + timeToCall;
-	    return id;
-	  };
-
-	  cancelAnimationFrame = function (id) {
-	    global.clearTimeout(id);
-	  };
-	}
-
-	module.exports.request = requestAnimationFrame.bind(global);
-	module.exports.cancel = cancelAnimationFrame.bind(global);
-
-	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
-
-/***/ },
-/* 194 */
-/***/ function(module, exports) {
-
-	"use strict";
-
-	function ChunkManager() {
-	    this.worldChunks = [];
-	    this.totalBlocks = 0;
-	    this.totalChunks = 0;
-	    this.activeBlocks = 0;
-	    this.activeTriangles = 0;
-	    this.updateChunks = [];
-	    this.maxChunks = 0;
-	};
-
-	ChunkManager.prototype.PercentLoaded = function () {
-	    console.log("TOTAL: " + this.totalChunks + " MAX: " + this.maxChunks);
-	    if (this.totalChunks == 0) {
-	        return 0;
-	    }
-	    return Math.round(this.maxChunks / this.totalChunks * 100);
-	};
-
-	ChunkManager.prototype.Draw = function (time, delta) {
-	    if (this.updateChunks.length > 0) {
-	        var cid = this.updateChunks.pop();
-	        this.worldChunks[cid].Rebuild();
-	    }
-	};
-
-	ChunkManager.prototype.Blood = function (x, z, power) {
-	    var aChunks = [];
-	    var aBlocksXZ = [];
-	    var aBlocksZ = [];
-
-	    x = Math.round(x);
-	    z = Math.round(z);
-	    var cid = 0;
-	    var totals = 0;
-	    var y = this.GetHeight(x, z);
-	    y = y / game.world.blockSize;
-	    for (var rx = x + power; rx >= x - power; rx -= game.world.blockSize) {
-	        for (var rz = z + power; rz >= z - power; rz -= game.world.blockSize) {
-	            for (var ry = y + power; ry >= y - power; ry -= game.world.blockSize) {
-	                if ((rx - x) * (rx - x) + (ry - y) * (ry - y) + (rz - z) * (rz - z) <= power * power) {
-	                    if (Math.random() > 0.7) {
-	                        // Set random shade to the blocks to look as burnt.
-	                        cid = this.GetWorldChunkID(rx, rz);
-	                        if (cid == undefined) {
-	                            continue;
-	                        }
-	                        var pos = this.Translate(rx, rz, cid);
-
-	                        var yy = Math.round(ry);
-	                        if (yy <= 0) {
-	                            yy = 0;
-	                        }
-	                        if (this.worldChunks[cid.id].blocks[pos.x][pos.z][yy] != undefined) {
-	                            if (this.worldChunks[cid.id].blocks[pos.x][pos.z][yy].active) {
-	                                this.worldChunks[cid.id].blocks[pos.x][pos.z][yy].r = 111 + Math.random() * 60;
-	                                this.worldChunks[cid.id].blocks[pos.x][pos.z][yy].g = 0;
-	                                this.worldChunks[cid.id].blocks[pos.x][pos.z][yy].b = 0;
-	                                aChunks.push(cid);
-	                            }
-	                        }
-	                    }
-	                }
-	            }
-	        }
-	    }
-	    var crebuild = {};
-	    for (var i = 0; i < aChunks.length; i++) {
-	        crebuild[aChunks[i].id] = 0;
-	    }
-	    for (var c in crebuild) {
-	        this.updateChunks.push(c);
-	    }
-	};
-
-	ChunkManager.prototype.ExplodeBombSmall = function (x, z) {
-	    x = Math.round(x);
-	    z = Math.round(z);
-	    var y = this.GetHeight(x, z);
-	    y = Math.round(y / game.world.blockSize);
-	    var cid = this.GetWorldChunkID(x, z);
-	    if (cid == undefined) {
-	        return;
-	    }
-	    var pos = this.Translate(x, z, cid);
-	    if (this.worldChunks[cid.id].blocks[pos.x][pos.z][y] == undefined) {
-	        return;
-	    }
-	    this.worldChunks[cid.id].blocks[pos.x][pos.z][y].setActive(false);
-	    this.worldChunks[cid.id].Rebuild();
-
-	    for (var i = 0; i < 6; i++) {
-	        var block = game.physBlockPool.Get();
-	        if (block != undefined) {
-	            block.Create(x, y / 2, z, this.worldChunks[cid.id].blockSize / 2, this.worldChunks[cid.id].blocks[pos.x][pos.z][y].r, this.worldChunks[cid.id].blocks[pos.x][pos.z][y].g, this.worldChunks[cid.id].blocks[pos.x][pos.z][y].b, 2, Math.random() * 180, 2);
-	        }
-	    }
-	};
-
-	ChunkManager.prototype.ExplodeBomb = function (x, z, power, blood, iny) {
-	    // Get all blocks in the explosion.
-	    // then for each block get chunk and remove the blocks
-	    // and rebuild the affected chunks.
-	    var aChunks = [];
-	    var aBlocksXZ = [];
-	    var aBlocksY = [];
-	    x = Math.round(x);
-	    z = Math.round(z);
-	    var cid = 0;
-
-	    var totals = 0;
-	    var y;
-	    if (iny == undefined) {
-	        var y = this.GetHeight(x, z);
-	        y = Math.round(y / game.world.blockSize);
-	    } else {
-	        y = iny;
-	    }
-	    var shade = 0.5;
-
-	    var yy = 0;
-	    var pos = 0;
-	    var val = 0;
-	    var pow = 0;
-	    var rand = 0;
-	    var block = undefined;
-	    for (var rx = x + power; rx >= x - power; rx -= game.world.blockSize) {
-	        for (var rz = z + power; rz >= z - power; rz -= game.world.blockSize) {
-	            for (var ry = y + power; ry >= y - power; ry -= game.world.blockSize) {
-	                val = (rx - x) * (rx - x) + (ry - y) * (ry - y) + (rz - z) * (rz - z);
-	                pow = power * power;
-	                if (val <= pow) {
-	                    cid = this.GetWorldChunkID(rx, rz);
-	                    if (cid == undefined) {
-	                        continue;
-	                    }
-	                    pos = this.Translate(rx, rz, cid);
-	                    if (ry <= 0) {
-	                        yy = 0;
-	                    } else {
-	                        yy = Math.round(ry);
-	                    }
-	                    if (this.worldChunks[cid.id].blocks[pos.x] == undefined) {
-	                        continue;
-	                    }
-	                    if (this.worldChunks[cid.id].blocks[pos.x][pos.z] == undefined) {
-	                        continue;
-	                    }
-
-	                    if (this.worldChunks[cid.id].blocks[pos.x][pos.z][yy] != undefined) {
-	                        if (this.worldChunks[cid.id].blocks[pos.x][pos.z][yy].isActive()) {
-	                            aBlocksXZ.push(pos);
-	                            aChunks.push(cid);
-	                            aBlocksY.push(yy);
-	                            totals++;
-	                            if (Math.random() > 0.95) {
-	                                // Create PhysBlock
-	                                block = game.physBlockPool.Get();
-	                                if (block != undefined) {
-	                                    block.Create(rx, yy, rz, this.worldChunks[cid.id].blockSize, this.worldChunks[cid.id].blocks[pos.x][pos.z][yy].r, this.worldChunks[cid.id].blocks[pos.x][pos.z][yy].g, this.worldChunks[cid.id].blocks[pos.x][pos.z][yy].b, 3, Math.random() * 180, power);
-	                                }
-	                            }
-	                        } else {
-	                            //console.log("NO ACTIVE CID: "+cid.id+ " X: "+pos.z + " Z: "+pos.z + " Y: "+yy);
-	                        }
-	                    }
-	                } else if (val <= pow * 1.2 && val >= pow) {
-	                        // Set random shade to the blocks to look as burnt.
-	                        cid = this.GetWorldChunkID(rx, rz);
-	                        if (cid == undefined) {
-	                            continue;
-	                        }
-	                        pos = this.Translate(rx, rz, cid);
-
-	                        yy = Math.round(ry);
-	                        if (yy <= 0) {
-	                            yy = 0;
-	                        }
-	                        if (pos == undefined) {
-	                            continue;
-	                        }
-	                        if (this.worldChunks[cid.id].blocks[pos.x] == undefined) {
-	                            continue;
-	                        }
-	                        if (this.worldChunks[cid.id].blocks[pos.x][pos.z] == undefined) {
-	                            continue;
-	                        }
-	                        if (this.worldChunks[cid.id].blocks[pos.x][pos.z][yy] != undefined) {
-	                            if (this.worldChunks[cid.id].blocks[pos.x][pos.z][yy].isActive()) {
-	                                if (blood) {
-	                                    rand = Math.random() * 60;
-	                                    if (rand > 20) {
-	                                        aBlocksXZ.push(pos);
-	                                        aChunks.push(cid);
-	                                        aBlocksY.push(yy);
-	                                        this.worldChunks[cid.id].blocks[pos.x][pos.z][yy].r = 111 + rand;
-	                                        this.worldChunks[cid.id].blocks[pos.x][pos.z][yy].g = 0;
-	                                        this.worldChunks[cid.id].blocks[pos.x][pos.z][yy].b = 0;
-	                                    }
-	                                } else {
-	                                    aBlocksXZ.push(pos);
-	                                    aChunks.push(cid);
-	                                    aBlocksY.push(yy);
-	                                    this.worldChunks[cid.id].blocks[pos.x][pos.z][yy].r *= shade;
-	                                    this.worldChunks[cid.id].blocks[pos.x][pos.z][yy].g *= shade;
-	                                    this.worldChunks[cid.id].blocks[pos.x][pos.z][yy].b *= shade;
-	                                }
-	                            }
-	                        }
-	                    }
-	            }
-	        }
-	    }
-
-	    // Deactivate all and rebuild chunks
-	    var crebuild = {};
-	    for (var i = 0; i < aChunks.length; i++) {
-	        this.worldChunks[aChunks[i].id].blocks[aBlocksXZ[i].x][aBlocksXZ[i].z][aBlocksY[i]].setActive(false);
-	        // Check if on border
-	        if (aBlocksXZ[i].x == this.worldChunks[aChunks[i].id].chunkSizeX - 1) {
-	            crebuild[aChunks[i].id + 1] = 0;
-	        } else if (aBlocksXZ[i].x == 0) {
-	            crebuild[aChunks[i].id - 1] = 0;
-	        }
-
-	        if (aBlocksXZ[i].z == this.worldChunks[aChunks[i].id].chunkSizeZ - 1) {} else if (aBlocksXZ[i].z == 0) {}
-
-	        if (aBlocksY[i] == this.worldChunks[aChunks[i].id].chunkSizeY - 1) {
-	            crebuild[aChunks[i].id + Math.sqrt(game.world.map.length)] = 0;
-	        } else if (aBlocksY[i] == 0) {
-	            crebuild[aChunks[i].id - Math.sqrt(game.world.map.length)] = 0;
-	        }
-
-	        crebuild[aChunks[i].id] = 0;
-	    }
-	    for (var c in crebuild) {
-	        this.updateChunks.push(c);
-	    }
-	};
-
-	ChunkManager.prototype.AddWorldChunk = function (chunk) {
-	    this.totalChunks++;
-	    this.totalBlocks += chunk.blocks.length * chunk.blocks.length * chunk.blocks.length;
-	    this.activeBlocks += chunk.NoOfActiveBlocks();
-	    this.worldChunks.push(chunk);
-	};
-
-	ChunkManager.prototype.BuildAllChunks = function () {
-	    for (var i = 0; i < this.worldChunks.length; i++) {
-	        this.worldChunks[i].Rebuild();
-	        this.activeTriangles += this.worldChunks[i].GetActiveTriangles();
-	    }
-	    this.AddTargets();
-	    console.log("ACTIVE TRIANGLES: " + this.activeTriangles);
-	    console.log("ACTIVE BLOCKS: " + this.activeBlocks);
-	};
-
-	ChunkManager.prototype.AddTargets = function () {
-	    for (var i = 0; i < this.worldChunks.length; i++) {
-	        var chunk = this.worldChunks[i];
-	    }
-	};
-
-	ChunkManager.prototype.GetWorldChunkID = function (x, z) {
-	    if (game.worldMap == undefined) {
-	        return;
-	    }
-	    var mp = game.world.chunkSize * game.world.blockSize;
-	    var w_x = Math.floor(Math.abs(x) / mp);
-	    var w_z = Math.floor(Math.abs(z) / mp);
-	    if (game.worldMap[w_x] == undefined) {
-	        return;
-	    }
-	    if (game.worldMap[w_x][w_z] == undefined) {
-	        return;
-	    }
-	    var cid = game.worldMap[w_x][w_z];
-	    return cid;
-	};
-
-	ChunkManager.prototype.GetChunk = function (x, z) {
-	    var mp = game.world.chunkSize * game.world.blockSize;
-	    var w_x = Math.floor(Math.abs(x) / mp);
-	    var w_z = Math.floor(Math.abs(z) / mp);
-	    if (game.worldMap[w_x][w_z] == undefined) {
-	        return;
-	    }
-	    var cid = game.worldMap[w_x][w_z];
-	    return this.worldChunks[cid.id];
-	};
-
-	ChunkManager.prototype.Translate = function (x, z, cid) {
-	    var x1 = Math.round((z - this.worldChunks[cid.id].posX) / game.world.blockSize);
-	    var z1 = Math.round((x - this.worldChunks[cid.id].posY) / game.world.blockSize);
-	    x1 = Math.abs(x1 - 1);
-	    z1 = Math.abs(z1 - 1);
-	    return { x: x1, z: z1 };
-	};
-
-	ChunkManager.prototype.GetHeight = function (x, z) {
-	    var cid = this.GetWorldChunkID(x, z);
-	    if (cid == undefined) {
-	        return undefined;
-	    }
-	    if (this.worldChunks[cid.id] == undefined) {
-	        return undefined;
-	    }
-	    var tmp = this.Translate(x, z, cid);
-
-	    var x1 = Math.round(tmp.x);
-	    var z1 = Math.round(tmp.z);
-	    if (this.worldChunks[cid.id].blocks[x1] != undefined) {
-	        if (this.worldChunks[cid.id].blocks[x1][z1] != undefined) {
-	            var y = this.worldChunks[cid.id].blocks[x1][z1].height * game.world.blockSize;
-	        }
-	    }
-
-	    if (y > 0) {
-	        return y;
-	    } else {
-	        return 0;
-	    }
-	};
-
-	ChunkManager.prototype.CheckActive = function (x, z, y) {
-	    var cid = this.GetWorldChunkID(x, z);
-	    if (cid == undefined) {
-	        return false;
-	    }
-	    var tmp = this.Translate(x, z, cid); //x+1
-	    var x1 = tmp.x;
-	    var z1 = tmp.z;
-	    if (this.worldChunks[cid.id] == undefined || this.worldChunks[cid.id].blocks[x1][z1][y] == undefined) {
-	        return false;
-	    } else {
-	        this.worldChunks[cid.id].blocks[x1][z1][y].r = 255;
-	        return !this.worldChunks[cid.id].blocks[x1][z1][y].isActive();
-	    }
-	};
-
-	module.exports = ChunkManager;
-
-/***/ },
-/* 195 */,
-/* 196 */,
-/* 197 */,
-/* 198 */,
-/* 199 */,
-/* 200 */,
-/* 201 */,
-/* 202 */,
-/* 203 */,
-/* 204 */,
-/* 205 */,
-/* 206 */,
-/* 207 */,
-/* 208 */,
-/* 209 */,
-/* 210 */,
-/* 211 */,
-/* 212 */,
-/* 213 */,
-/* 214 */,
-/* 215 */,
-/* 216 */,
-/* 217 */,
-/* 218 */,
-/* 219 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	var util = __webpack_require__(170);
-	var Entity = __webpack_require__(185);
-	var THREE = __webpack_require__(180);
-
-	function Guy(props) {
-	    var that = this;
-	    // This is awful
-	    // This initalizes the camera to follow the Guy entity
-	    // Needed for Player setup
-	    // need to move this to a different client specific setup Guy classes
-	    // should be generic
-	    return new Promise(function (resolve) {
-	        Guy.super_.call(that, props).then(function (guy) {
-	            guy.camera_obj = new THREE.Object3D();
-	            guy.mesh.add(guy.camera_obj);
-	            guy.camera_obj.add(guy.world.camera);
-	            guy.attached_camera = 1;
-	            guy.world.camera.position.set(0, 15, 7);
-	            guy.world.camera.rotation.set(-Math.PI / 2.6, 0, Math.PI);
-	            resolve(guy);
-	        });
-	    });
-	};
-	util.inherits(Guy, Entity);
-
-	Guy.prototype.update = function (dt) {};
-
-	Guy.prototype.render = function (dt) {
-	    Guy.super_.prototype.render.call(this, dt);
-	};
-
-	module.exports = Guy;
-
-/***/ },
-/* 220 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	var ChunkTerrain = __webpack_require__(221);
+	var ChunkTerrain = __webpack_require__(187);
 
 	function TerrainLoader(props) {
 	    this.TerrainMap;
-	    this.ChunkManager;
+	    this.chunkManager;
 	    this.chunkSize = 16;
 	    this.chunks = 0;
 	    this.blocks = 0;
+
 	    Object.assign(this, props);
+	    this.map = this.chunkManager.map;
 	};
 
 	TerrainLoader.prototype.load = function (filename, wallHeight, blockSize, callback) {
@@ -54565,7 +54130,6 @@
 	};
 
 	TerrainLoader.prototype.readMap = function (callback) {
-	    debugger;
 	    this.TerrainMap = new Array(this.map.length);
 
 	    for (var i = 0; i < this.TerrainMap.length; i++) {
@@ -54598,7 +54162,7 @@
 	            var cSize = this.blockSize;
 
 	            if (total != alpha) {
-	                var c = new ChunkTerrain();
+	                var c = new ChunkTerrain({ chunkManager: this.chunkManager });
 	                c.Create(this.chunkSize, cSize, cx * cSize - this.blockSize / 2, cy * cSize - this.blockSize / 2, chunk, this.wallHeight, this.chunks);
 	                this.chunkManager.AddTerrainChunk(c);
 
@@ -54617,7 +54181,7 @@
 	};
 
 	TerrainLoader.prototype.processTerrainImageData = function (imgData, callback) {
-	    var map = new Array();
+	    var map = this.map;
 	    this.TerrainMap = new Array();
 
 	    for (var y = 0; y < this.height; y++) {
@@ -54633,11 +54197,9 @@
 	        }
 	    }
 
-	    this.map = map;
 	    console.log("Read Terrain complete.");
 	    this.chunkManager.maxChunks = this.height / this.chunkSize * (this.height / this.chunkSize);
 	    callback();
-	    return map;
 	};
 
 	TerrainLoader.prototype.extractTerrainImageData = function (callback, e) {
@@ -54668,20 +54230,21 @@
 	module.exports = TerrainLoader;
 
 /***/ },
-/* 221 */
+/* 187 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	var util = __webpack_require__(170);
-	var Chunk = __webpack_require__(177);
-	var Block = __webpack_require__(178);
-	var THREE = __webpack_require__(179);
+	var Chunk = __webpack_require__(181);
+	var Block = __webpack_require__(182);
+	var THREE = __webpack_require__(183);
 
 	// Chunks of other types such as crates/weapons/mob/player
-	function ChunkTerrain() {
+	function ChunkTerrain(props) {
 	    Chunk.call(this);
 	    this.wallHeight = 1;
+	    Object.assign(this, props);
 	};
 	util.inherits(ChunkTerrain, Chunk);
 
@@ -54774,8 +54337,8 @@
 	                    // Check for hidden blocks on edges (between chunks)
 	                    if (x == this.chunkSize - 1 && y < this.chunkSize - 1 && y > 0 && z < this.chunkSizeZ - 1) {
 	                        var id = this.cid + 1;
-	                        if (id >= 0 && id < game.chunkManager.worldChunks.length) {
-	                            if (game.chunkManager.worldChunks[id].blocks[0][y][z] != null && game.chunkManager.worldChunks[id].blocks[0][y][z].isActive()) {
+	                        if (id >= 0 && id < this.chunkManager.worldChunks.length) {
+	                            if (this.chunkManager.worldChunks[id].blocks[0][y][z] != null && this.chunkManager.worldChunks[id].blocks[0][y][z].isActive()) {
 	                                if (this.blocks[x][y - 1][z].isActive() && this.blocks[x - 1][y][z].isActive() && this.blocks[x][y + 1][z].isActive() && this.blocks[x][y][z + 1].isActive()) {
 	                                    continue;
 	                                }
@@ -54785,8 +54348,8 @@
 
 	                    if (x == 0 && y < this.chunkSize - 1 && y > 0 && z < this.chunkSizeZ - 1) {
 	                        var id = this.cid - 1;
-	                        if (id >= 0 && id < game.chunkManager.worldChunks.length) {
-	                            if (game.chunkManager.worldChunks[id].blocks[this.chunkSize - 1][y][z] != null && game.chunkManager.worldChunks[id].blocks[this.chunkSize - 1][y][z].isActive()) {
+	                        if (id >= 0 && id < this.chunkManager.worldChunks.length) {
+	                            if (this.chunkManager.worldChunks[id].blocks[this.chunkSize - 1][y][z] != null && this.chunkManager.worldChunks[id].blocks[this.chunkSize - 1][y][z].isActive()) {
 	                                if (this.blocks[x][y - 1][z].isActive() && this.blocks[x][y + 1][z].isActive() && this.blocks[x + 1][y][z].isActive() && this.blocks[x][y][z + 1].isActive()) {
 	                                    continue;
 	                                }
@@ -54795,9 +54358,9 @@
 	                    }
 
 	                    if (y == this.chunkSize - 1 && x < this.chunkSize - 1 && x > 0 && z < this.chunkSizeZ - 1) {
-	                        var id = this.cid + Math.sqrt(game.world.map.length);
-	                        if (id >= 0 && id < game.chunkManager.worldChunks.length) {
-	                            if (game.chunkManager.worldChunks[id].blocks[x][0][z] != null && game.chunkManager.worldChunks[id].blocks[x][0][z].isActive()) {
+	                        var id = this.cid + Math.sqrt(this.chunkManager.map.length);
+	                        if (id >= 0 && id < this.chunkManager.worldChunks.length) {
+	                            if (this.chunkManager.worldChunks[id].blocks[x][0][z] != null && this.chunkManager.worldChunks[id].blocks[x][0][z].isActive()) {
 	                                if (this.blocks[x - 1][y][z].isActive() && this.blocks[x + 1][y][z].isActive() && this.blocks[x][y - 1][z].isActive() && this.blocks[x][y][z + 1].isActive()) {
 	                                    continue;
 	                                }
@@ -54806,9 +54369,9 @@
 	                    }
 
 	                    if (y == 0 && x < this.chunkSize - 1 && x > 0 && z < this.chunkSizeZ - 1) {
-	                        var id = this.cid - Math.sqrt(game.world.map.length);
-	                        if (id >= 0 && id < game.chunkManager.worldChunks.length) {
-	                            if (game.chunkManager.worldChunks[id].blocks[x][this.chunkSize - 1][z] != null && game.chunkManager.worldChunks[id].blocks[x][this.chunkSize - 1][z].isActive()) {
+	                        var id = this.cid - Math.sqrt(this.chunkManager.map.length);
+	                        if (id >= 0 && id < this.chunkManager.worldChunks.length) {
+	                            if (this.chunkManager.worldChunks[id].blocks[x][this.chunkSize - 1][z] != null && this.chunkManager.worldChunks[id].blocks[x][this.chunkSize - 1][z].isActive()) {
 	                                if (this.blocks[x - 1][y][z].isActive() && this.blocks[x + 1][y][z].isActive() && this.blocks[x][y + 1][z].isActive() && this.blocks[x][y][z + 1].isActive()) {
 	                                    continue;
 	                                }
@@ -54827,8 +54390,8 @@
 	                        }
 	                    } else {
 	                        var id = this.cid - 1;
-	                        if (id != -1 && game.chunkManager.worldChunks[id].blocks[this.chunkSize - 1][y][z] != null && //game.chunkManager.worldChunks[id].blocks[x][y][z].isActive() &&
-	                        game.chunkManager.worldChunks[id].blocks[this.chunkSize - 1][y][z].drawnRightSide) {
+	                        if (id != -1 && this.chunkManager.worldChunks[id].blocks[this.chunkSize - 1][y][z] != null && //this.chunkManager.worldChunks[id].blocks[x][y][z].isActive() &&
+	                        this.chunkManager.worldChunks[id].blocks[this.chunkSize - 1][y][z].drawnRightSide) {
 	                            drawBlock = false;
 	                            this.blocks[x][y][z].drawnLeftSide = true;
 	                        } else {
@@ -54899,7 +54462,7 @@
 	                        }
 	                    } else {
 	                        var id = this.cid + 1;
-	                        if (game.chunkManager.worldChunks[id].blocks[0][y][z] != null && game.chunkManager.worldChunks[id].blocks[0][y][z].isActive() && !game.chunkManager.worldChunks[id].blocks[0][y][z].drawnLeftSide) {
+	                        if (this.chunkManager.worldChunks[id].blocks[0][y][z] != null && this.chunkManager.worldChunks[id].blocks[0][y][z].isActive() && !this.chunkManager.worldChunks[id].blocks[0][y][z].drawnLeftSide) {
 	                            this.blocks[x][y][z].drawnRightSide = true;
 	                            drawBlock = false;
 	                        } else {
@@ -55063,9 +54626,9 @@
 	                        }
 	                    } else {
 	                        //drawBlock = true;
-	                        var id = this.cid - Math.sqrt(game.world.map.length);
-	                        if (id >= 0 && id < game.chunkManager.worldChunks.length) {
-	                            if (game.chunkManager.worldChunks[id].blocks[x][this.chunkSize - 1][z] != null && game.chunkManager.worldChunks[id].blocks[x][this.chunkSize - 1][z].isActive()) {
+	                        var id = this.cid - Math.sqrt(this.chunkManager.map.length);
+	                        if (id >= 0 && id < this.chunkManager.worldChunks.length) {
+	                            if (this.chunkManager.worldChunks[id].blocks[x][this.chunkSize - 1][z] != null && this.chunkManager.worldChunks[id].blocks[x][this.chunkSize - 1][z].isActive()) {
 	                                // &&
 	                                drawBlock = false;
 	                            } else {
@@ -55141,9 +54704,9 @@
 	                            drawBlock = true;
 	                        }
 	                    } else {
-	                        var id = this.cid + Math.sqrt(game.world.map.length);
-	                        if (id >= 0 && id < game.chunkManager.worldChunks.length) {
-	                            if (game.chunkManager.worldChunks[id].blocks[x][0][z] != null && game.chunkManager.worldChunks[id].blocks[x][0][z].isActive()) {
+	                        var id = this.cid + Math.sqrt(this.chunkManager.map.length);
+	                        if (id >= 0 && id < this.chunkManager.worldChunks.length) {
+	                            if (this.chunkManager.worldChunks[id].blocks[x][0][z] != null && this.chunkManager.worldChunks[id].blocks[x][0][z].isActive()) {
 	                                drawBlock = false;
 	                            } else {
 	                                drawBlock = true;
@@ -55248,9 +54811,9 @@
 	    mesh.castShadow = true;
 
 	    if (this.mesh != undefined) {
-	        game.scene.remove(this.mesh);
+	        this.chunkManager.world.scene.remove(this.mesh);
 	    }
-	    game.scene.add(mesh);
+	    this.chunkManager.world.scene.add(mesh);
 
 	    mesh.that = this;
 	    this.mesh = mesh;
@@ -55258,6 +54821,423 @@
 	};
 
 	module.exports = ChunkTerrain;
+
+/***/ },
+/* 188 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	module.exports = {
+	  Tree: __webpack_require__(189),
+	  Guy: __webpack_require__(192)
+	};
+
+/***/ },
+/* 189 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var Object3D = __webpack_require__(190);
+	var util = __webpack_require__(170);
+	var Entity = __webpack_require__(191);
+
+	function Tree(props) {
+	    return Tree.super_.call(this, props);
+	};
+	util.inherits(Tree, Entity);
+
+	Tree.prototype.update = function (dt) {
+	    // var y = game.chunkManager.GetHeight(this.mesh.position.x+this.chunk.blockSize*this.chunk.chunkSizeX/2,
+	    //                                     this.mesh.position.z+this.chunk.blockSize*this.chunk.chunkSizeX/2);
+
+	    // // Explode tree if ground breaks.
+	    //  if(y < this.origy) {
+	    //    // this.Hit(0,0);
+	    //  }
+	};
+
+	Tree.prototype.render = function (dt) {
+	    Tree.super_.prototype.render.call(this, dt);
+	};
+
+	Tree.prototype.hit = function (data, dmg) {
+	    this.chunk.Explode(this.mesh.position, this.scale);
+	    this.remove = 1;
+	    game.scene.remove(this.mesh);
+	    console.log("TREE HIT!");
+	};
+
+	// Tree.prototype.create = function(x,y,z, scale, type) {
+	//     this.chunk = game.voxLoader.GetModel(type);
+	//     this.mesh = this.chunk.mesh;
+	//     this.mesh.geometry.computeBoundingBox();
+	//     this.mesh.position.set(x,y,z);
+	//     this.mesh.that = this;
+	//     game.targets.push(this.mesh);
+	//     this.mesh.scale.set(scale,scale,scale);
+	//     game.scene.add(this.mesh);
+	//     this.origy = y;
+	// };
+
+	module.exports = Tree;
+
+/***/ },
+/* 190 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var THREE = __webpack_require__(183);
+
+	function Object3D() {
+	    // THREE.Mesh.apply(this, arguments); inherite from mesh
+	    this.mesh;
+	    this.time;
+	}
+
+	Object3D.prototype.GetObject = function () {
+	    return this.mesh;
+	};
+
+	Object3D.prototype.Draw = function () {
+	    //draw object
+	};
+
+	Object3D.prototype.AddToScene = function (scene) {
+	    scene.add(this.mesh);
+	};
+	module.exports = Object3D;
+
+/***/ },
+/* 191 */
+/***/ function(module, exports, __webpack_require__) {
+
+	// Base class for anything that lives on the terrain
+	'use strict';
+
+	var _ = __webpack_require__(174);
+	var Vox = __webpack_require__(179);
+
+	// Asyncronous constructor returns a promise
+	var Entity = (function () {
+	    var id = 1; // wrap id in a closure increment on each instance
+
+	    return function Entity(props) {
+	        var _this = this;
+
+	        this.id = id;
+	        this.position = [0, 0, 0];
+	        this.scale = 2;
+	        this.remove = 0;
+	        this.origy = 0;
+	        this.mesh;
+
+	        _.extend(this, props);
+
+	        this.orgiy = this.position[2];
+
+	        if (!props.id) {
+	            id++;
+	        }
+
+	        return new Promise(function (resolve) {
+	            _this.getMesh().then(function (vox) {
+	                _this.vox = vox;
+	                _this.chunk = vox.getChunk();
+	                _this.chunk.Rebuild();
+	                _this.mesh = vox.getMesh();
+	                _this.mesh.geometry.center();
+	                _this.mesh.geometry.computeBoundingBox();
+	                _this.mesh.position.set(_this.position[0], _this.position[1], _this.position[2]);
+	                _this.mesh.scale.set(_this.scale, _this.scale, _this.scale);
+	                resolve(_this);
+	            });
+	        });
+	    };
+	})();
+
+	Entity.prototype.getMesh = function () {
+	    var _this2 = this;
+
+	    var name = this.constructor.name;
+	    return new Promise(function (resolve) {
+	        if (_this2.world.meshes[name]) {
+	            reslove(_this2.world.meshes[name]);
+	        } else {
+	            return _this2.loadVoxFile().then(function (vox) {
+	                resolve(vox);
+	            });
+	        }
+	    });
+	};
+
+	Entity.prototype.loadVoxFile = function () {
+	    var that = this;
+
+	    return new Promise(function (resolve) {
+	        var vox = new Vox({
+	            filename: that.constructor.name + ".vox",
+	            name: that.constructor.name
+	        });
+
+	        vox.LoadModel(function (vox, name) {
+	            if (_.isUndefined(that.world.meshes[name])) {
+	                that.world.meshes[name] = {};
+	            }
+	            console.log("storing model", name);
+	            that.world.meshes[name].vox = vox;
+	            resolve(vox);
+	        });
+	    });
+	};
+
+	Entity.prototype.destroy = function () {
+	    return this.world.removeEntity(this);
+	};
+
+	Entity.prototype.render = function () {
+	    // this.mesh = this.mesh || BABYLON.Mesh.CreateSphere(this.id, this.width, 2, this.world.scene);
+	    // this.mesh.position.x = this.position[0];
+	    // this.mesh.position.z = this.position[1];
+	    // this.mesh.position.y = 1;
+	    // this.mesh.showBoundingBox = true;
+	    // this.mesh.material = this.world.test_material;
+	};
+
+	module.exports = Entity;
+
+/***/ },
+/* 192 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var util = __webpack_require__(170);
+	var Entity = __webpack_require__(191);
+	var THREE = __webpack_require__(184);
+
+	function Guy(props) {
+	    var that = this;
+	    // This is awful
+	    // This initalizes the camera to follow the Guy entity
+	    // Needed for Player setup
+	    // need to move this to a different client specific setup Guy classes
+	    // should be generic
+	    return new Promise(function (resolve) {
+	        Guy.super_.call(that, props).then(function (guy) {
+	            guy.camera_obj = new THREE.Object3D();
+	            guy.mesh.add(guy.camera_obj);
+	            guy.camera_obj.add(guy.world.camera);
+	            guy.attached_camera = 1;
+	            guy.world.camera.position.set(0, 15, 7);
+	            guy.world.camera.rotation.set(-Math.PI / 2.6, 0, Math.PI);
+	            resolve(guy);
+	        });
+	    });
+	};
+	util.inherits(Guy, Entity);
+
+	Guy.prototype.update = function (dt) {};
+
+	Guy.prototype.render = function (dt) {
+	    Guy.super_.prototype.render.call(this, dt);
+	};
+
+	module.exports = Guy;
+
+/***/ },
+/* 193 */
+/***/ function(module, exports, __webpack_require__) {
+
+	module.exports = __webpack_require__(194);
+
+
+/***/ },
+/* 194 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var now = __webpack_require__(195),
+	  raf = __webpack_require__(196);
+
+	module.exports = Timer;
+
+	/**
+	 * @constructor
+	 */
+	function Timer(options) {
+	  this._initialized = false;
+
+	  this._fixedDeltaTime = 1000 / 60;
+	  this._fixedDeltaTimeInSeconds = this._fixedDeltaTime / 1000;
+	  this._FRAME_TIME_MAX = 250;
+	  this._elapsed = 0;
+
+	  this._config(options);
+
+	  if (this._autoStart) {
+	    this.start();
+	  }
+	}
+
+	Timer.prototype = {
+	  start: function() {
+	    if (!this._initialized) {
+	      this._initialized = true;
+
+	      this._accumulator = 0;
+	      this._tick = tick.bind(this);
+
+	      this._isPaused = false;
+	      this._prevTime = now();
+	      this._requestID = raf.request(this._tick);
+
+	      return true;
+	    }
+	    return false;
+	  },
+
+	  /** pauses the timer */
+	  pause: function() {
+	    if (this._initialized && this._isPaused) {
+	      return false;
+	    }
+
+	    this._isPaused = true;
+	    raf.cancel(this._requestID);
+
+	    this._pauseTime = now();
+	    this._onPause();
+
+	    return true;
+	  },
+
+	  /** resumes the timer */
+	  resume: function() {
+	    if (this._initialized && !this._isPaused) {
+	      return false;
+	    }
+
+	    var pauseDuration;
+
+	    this._isPaused = false;
+	    this._prevTime = now();
+
+	    pauseDuration = this._prevTime - this._pauseTime;
+	    this._onResume(pauseDuration);
+
+	    this._requestID = raf.request(this._tick);
+
+	    return true;
+	  },
+
+	  togglePause: function() {
+	    if (this._isPaused) {
+	      this.resume();
+	    } else {
+	      this.pause();
+	    }
+	  },
+
+	  /** returns true if the timer is paused */
+	  isPaused: function () {
+	    return this._isPaused;
+	  },
+
+	  _config: function(options) {
+	    var empty = function() {};
+
+	    this._update = options.update || empty;
+	    this._render = options.render || empty;
+	    this._onPause = options.onPause || empty;
+	    this._onResume = options.onResume || empty;
+
+	    this._autoStart = options.autoStart == null ? true : options.autoStart;
+	  }
+	};
+
+	function tick() {
+	  var curTime = now();
+	  var frameTime = curTime - this._prevTime;
+
+	  if (frameTime > this._FRAME_TIME_MAX) {
+	    frameTime = this._FRAME_TIME_MAX;
+	  }
+
+	  this._prevTime = curTime;
+
+	  this._accumulator += frameTime;
+
+	  while(this._accumulator >= this._fixedDeltaTime) {
+	    this._accumulator -= this._fixedDeltaTime;
+	    this._elapsed += this._fixedDeltaTime;
+	    this._update(this._fixedDeltaTimeInSeconds, this._elapsed);
+	  }
+
+	  this._render();
+
+	  this._requestID = raf.request(this._tick);
+	}
+
+
+/***/ },
+/* 195 */
+/***/ function(module, exports) {
+
+	/* WEBPACK VAR INJECTION */(function(global) {// return the current time in milliseconds
+	var d = global.Date;
+
+	module.exports = d.now || function () {
+	  return (new d()).getTime();
+	};
+
+	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
+
+/***/ },
+/* 196 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/* WEBPACK VAR INJECTION */(function(global) {/** requestAnimationFrame polyfill
+	 * http://paulirish.com/2011/requestanimationframe-for-smart-animating/
+	 * http://my.opera.com/emoller/blog/2011/12/20/requestanimationframe-for-smart-er-animating
+	 */
+	var vendors = ['ms', 'moz', 'webkit', 'o'],
+
+	  requestAnimationFrame = global.requestAnimationFrame,
+	  cancelAnimationFrame = global.cancelAnimationFrame,
+
+	  x = 0, l = vendors.length;
+
+	for (; x < l; ++x) {
+	  if (requestAnimationFrame && cancelAnimationFrame) break;
+	  requestAnimationFrame = global[vendors[x] + 'RequestAnimationFrame'];
+	  cancelAnimationFrame = global[vendors[x] + 'CancelAnimationFrame'] || global[vendors[x] + 'CancelRequestAnimationFrame'];
+	}
+
+	if (!requestAnimationFrame || !cancelAnimationFrame) {
+	  var now = __webpack_require__(195),
+	    lastTime = 0, max = Math.max;
+
+	  requestAnimationFrame = function(callback, element) {
+	    var currTime = now(),
+	      timeToCall = Math.max(0, 16 - (currTime - lastTime)),
+	      id = global.setTimeout(function () {
+	        callback(currTime + timeToCall);
+	      }, timeToCall);
+	    lastTime = currTime + timeToCall;
+	    return id;
+	  };
+
+	  cancelAnimationFrame = function (id) {
+	    global.clearTimeout(id);
+	  };
+	}
+
+	module.exports.request = requestAnimationFrame.bind(global);
+	module.exports.cancel = cancelAnimationFrame.bind(global);
+
+	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
 
 /***/ }
 /******/ ]);

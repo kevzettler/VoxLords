@@ -2,11 +2,13 @@ const ChunkTerrain = require('./ChunkTerrain');
 
 function TerrainLoader(props){
     this.TerrainMap;
-    this.ChunkManager;
+    this.chunkManager;
     this.chunkSize = 16;
     this.chunks = 0;
     this.blocks = 0;
-    Object.assign(this, props);
+
+    Object.assign(this,props);
+    this.map = this.chunkManager.map;
 };
 
 TerrainLoader.prototype.load = function(filename, wallHeight, blockSize, callback) {
@@ -18,7 +20,6 @@ TerrainLoader.prototype.load = function(filename, wallHeight, blockSize, callbac
 };
 
 TerrainLoader.prototype.readMap = function(callback) {
-    debugger;
     this.TerrainMap = new Array(this.map.length);
     
     for(var i = 0; i < this.TerrainMap.length; i++) {
@@ -51,7 +52,7 @@ TerrainLoader.prototype.readMap = function(callback) {
             var cSize = this.blockSize;
 
             if(total != alpha) {
-                var c = new ChunkTerrain();
+                var c = new ChunkTerrain({chunkManager: this.chunkManager});
                 c.Create(this.chunkSize, cSize, cx * cSize-this.blockSize/2, cy * cSize-this.blockSize/2, chunk, this.wallHeight, this.chunks);
                 this.chunkManager.AddTerrainChunk(c);
                 
@@ -70,7 +71,7 @@ TerrainLoader.prototype.readMap = function(callback) {
 }; 
 
 TerrainLoader.prototype.processTerrainImageData = function(imgData, callback){  
-    const map = new Array();  
+    const map = this.map; 
     this.TerrainMap = new Array();
 
     for(var y = 0; y < this.height; y++) {
@@ -86,11 +87,9 @@ TerrainLoader.prototype.processTerrainImageData = function(imgData, callback){
         }
     }
 
-    this.map = map;
     console.log("Read Terrain complete.");
     this.chunkManager.maxChunks = (this.height / this.chunkSize)*(this.height/this.chunkSize);
     callback();
-    return map;
 };
 
 TerrainLoader.prototype.extractTerrainImageData = function(callback, e){

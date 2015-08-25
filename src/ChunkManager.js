@@ -1,4 +1,4 @@
-function ChunkManager() {
+function ChunkManager(props) {
     this.worldChunks = [];
     this.totalBlocks = 0;
     this.totalChunks = 0;
@@ -6,7 +6,10 @@ function ChunkManager() {
     this.activeTriangles = 0;
     this.updateChunks = [];
     this.maxChunks = 0;
-};  
+    this.world;
+    this.map = [];
+    Object.assign(this,props);
+};
 
 ChunkManager.prototype.PercentLoaded = function() {
     console.log("TOTAL: "+this.totalChunks + " MAX: "+this.maxChunks);
@@ -34,10 +37,10 @@ ChunkManager.prototype.Blood = function(x, z, power) {
     var cid = 0;
     var totals = 0;
     var y = this.GetHeight(x,z);
-    y = y/game.world.blockSize;
-    for(var rx = x+power; rx >= x-power; rx-=game.world.blockSize) {
-        for(var rz = z+power; rz >= z-power; rz-=game.world.blockSize) {
-            for(var ry = y+power; ry >= y-power; ry-=game.world.blockSize) {
+    y = y/this.world.blockSize;
+    for(var rx = x+power; rx >= x-power; rx-=this.world.blockSize) {
+        for(var rz = z+power; rz >= z-power; rz-=this.world.blockSize) {
+            for(var ry = y+power; ry >= y-power; ry-=this.world.blockSize) {
                 if((rx-x)*(rx-x)+(ry-y)*(ry-y)+(rz-z)*(rz-z) <= power*power) {
                     if(Math.random() > 0.7) {
                         // Set random shade to the blocks to look as burnt.
@@ -75,7 +78,7 @@ ChunkManager.prototype.ExplodeBombSmall = function(x,z) {
     x = Math.round(x);
     z = Math.round(z);
     var y = this.GetHeight(x, z);
-    y = Math.round(y/game.world.blockSize);
+    y = Math.round(y/this.world.blockSize);
     var cid = this.GetWorldChunkID(x, z);
     if(cid == undefined) {
         return;
@@ -88,7 +91,7 @@ ChunkManager.prototype.ExplodeBombSmall = function(x,z) {
     this.worldChunks[cid.id].Rebuild();
 
     for(var i = 0; i < 6; i++) {
-        var block = game.physBlockPool.Get();
+        var block = this.world.physBlockPool.Get();
         if(block != undefined) {
             block.Create(x,y/2,z,
                          this.worldChunks[cid.id].blockSize/2,
@@ -117,7 +120,7 @@ ChunkManager.prototype.ExplodeBomb = function(x,z, power, blood, iny) {
     var y;
     if(iny == undefined) {
         var y = this.GetHeight(x,z);
-        y = Math.round(y/game.world.blockSize);
+        y = Math.round(y/this.world.blockSize);
     } else {
         y = iny;
     }
@@ -129,9 +132,9 @@ ChunkManager.prototype.ExplodeBomb = function(x,z, power, blood, iny) {
     var pow = 0;
     var rand = 0;
     var block = undefined;
-    for(var rx = x+power; rx >= x-power; rx-=game.world.blockSize) {
-        for(var rz = z+power; rz >= z-power; rz-=game.world.blockSize) {
-            for(var ry = y+power; ry >= y-power; ry-=game.world.blockSize) {
+    for(var rx = x+power; rx >= x-power; rx-=this.world.blockSize) {
+        for(var rz = z+power; rz >= z-power; rz-=this.world.blockSize) {
+            for(var ry = y+power; ry >= y-power; ry-=this.world.blockSize) {
                 val = (rx-x)*(rx-x)+(ry-y)*(ry-y)+(rz-z)*(rz-z);
                 pow = power*power;
                 if(val <= pow) {
@@ -158,7 +161,7 @@ ChunkManager.prototype.ExplodeBomb = function(x,z, power, blood, iny) {
                             totals++;
                             if(Math.random() > 0.95) {
                                 // Create PhysBlock
-                                block = game.physBlockPool.Get();
+                                block = this.world.physBlockPool.Get();
                                 if(block != undefined) {
                                     block.Create(rx,yy,rz,
                                              this.worldChunks[cid.id].blockSize,
@@ -240,9 +243,9 @@ ChunkManager.prototype.ExplodeBomb = function(x,z, power, blood, iny) {
         }
 
         if(aBlocksY[i] == this.worldChunks[aChunks[i].id].chunkSizeY-1) {
-            crebuild[aChunks[i].id + Math.sqrt(game.world.map.length)] = 0;
+            crebuild[aChunks[i].id + Math.sqrt(this.world.map.length)] = 0;
         } else if(aBlocksY[i] == 0) {
-            crebuild[aChunks[i].id - Math.sqrt(game.world.map.length)] = 0;
+            crebuild[aChunks[i].id - Math.sqrt(this.world.map.length)] = 0;
         }
 
         crebuild[aChunks[i].id] = 0;
@@ -252,7 +255,7 @@ ChunkManager.prototype.ExplodeBomb = function(x,z, power, blood, iny) {
     }
 };
 
-ChunkManager.prototype.AddWorldChunk = function(chunk) {
+ChunkManager.prototype.AddTerrainChunk = function(chunk) {
    this.totalChunks++;
    this.totalBlocks += (chunk.blocks.length*chunk.blocks.length*chunk.blocks.length);
    this.activeBlocks += chunk.NoOfActiveBlocks();
@@ -276,36 +279,36 @@ ChunkManager.prototype.AddTargets = function() {
 };
 
 ChunkManager.prototype.GetWorldChunkID = function(x,z) {
-    if(game.worldMap == undefined) {
+    if(this.worldMap == undefined) {
         return;
     }
-    var mp = game.world.chunkSize*game.world.blockSize;
+    var mp = this.world.chunkSize*this.world.blockSize;
     var w_x = Math.floor(Math.abs(x)/mp);
     var w_z = Math.floor(Math.abs(z)/mp);
-    if(game.worldMap[w_x] == undefined) {
+    if(this.worldMap[w_x] == undefined) {
         return;
     }
-    if(game.worldMap[w_x][w_z] == undefined) {
+    if(this.worldMap[w_x][w_z] == undefined) {
         return;
     }
-    var cid = game.worldMap[w_x][w_z];
+    var cid = this.worldMap[w_x][w_z];
     return cid;
 };
 
 ChunkManager.prototype.GetChunk = function(x,z) {
-    var mp = game.world.chunkSize*game.world.blockSize;
+    var mp = this.world.chunkSize*this.world.blockSize;
     var w_x = Math.floor(Math.abs(x)/mp);
     var w_z = Math.floor(Math.abs(z)/mp);
-    if(game.worldMap[w_x][w_z] == undefined) {
+    if(this.worldMap[w_x][w_z] == undefined) {
         return; 
     }
-    var cid = game.worldMap[w_x][w_z];
+    var cid = this.worldMap[w_x][w_z];
     return this.worldChunks[cid.id];
 };
 
 ChunkManager.prototype.Translate = function(x, z, cid) {
-    var x1 = Math.round((z-this.worldChunks[cid.id].posX) / game.world.blockSize);
-    var z1 = Math.round((x-this.worldChunks[cid.id].posY) / game.world.blockSize); 
+    var x1 = Math.round((z-this.worldChunks[cid.id].posX) / this.world.blockSize);
+    var z1 = Math.round((x-this.worldChunks[cid.id].posY) / this.world.blockSize); 
     x1 = Math.abs(x1-1); 
     z1 = Math.abs(z1-1);
     return {x: x1, z: z1};
@@ -325,7 +328,7 @@ ChunkManager.prototype.GetHeight = function(x, z) {
     var z1 = Math.round(tmp.z);
     if(this.worldChunks[cid.id].blocks[x1] != undefined) {
         if(this.worldChunks[cid.id].blocks[x1][z1] != undefined) {
-            var y = this.worldChunks[cid.id].blocks[x1][z1].height*game.world.blockSize;
+            var y = this.worldChunks[cid.id].blocks[x1][z1].height*this.world.blockSize;
         }
     }
 
