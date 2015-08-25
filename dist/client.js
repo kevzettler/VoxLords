@@ -5572,15 +5572,17 @@
 	  this.terrain = [];
 
 	  this.scene = new THREE.Scene();
-	  this.chunkManager = new ChunkManager({ world: this });
 
-	  var tl = new TerrainLoader({
-	    chunkManager: this.chunkManager
-	  });
+	  var tl = new TerrainLoader({ world: this });
 
-	  tl.load('maps/map4.png', this.wallHeight, this.blockSize, function (terrainChunks) {
-	    debugger;
+	  tl.load('maps/map4.png', this.wallHeight, this.blockSize, function (terrainChunkJSON) {
+	    _this.chunkManager = new ChunkManager({
+	      world: _this,
+	      terrainChunkJSON: terrainChunkJSON
+	    });
+
 	    _this.chunkManager.BuildAllChunks();
+
 	    if (props.entities) {
 	      var ents = props.entities;
 	      delete props.entities;
@@ -18087,11 +18089,15 @@
 
 /***/ },
 /* 176 */
-/***/ function(module, exports) {
+/***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
 
+	var ChunkTerrain = __webpack_require__(187);
+
 	function ChunkManager(props) {
+	    var _this = this;
+
 	    this.worldChunks = [];
 	    this.totalBlocks = 0;
 	    this.totalChunks = 0;
@@ -18100,7 +18106,22 @@
 	    this.updateChunks = [];
 	    this.maxChunks = 0;
 	    this.world;
-	    this.map = [];
+	    //    this.map = [];
+
+	    //const c = new ChunkTerrain({chunkManager: this.chunkManager});
+	    //c.Create(this.chunkSize, cSize, cx * cSize-this.blockSize/2, cy * cSize-this.blockSize/2, chunk, this.wallHeight, this.chunks);
+	    //this.chunkManager.AddTerrainChunk(c);
+	    if (props.terrainChunkJSON) {
+	        this.worldChunks = _.map(props.terrainChunkJSON, function (tcdata) {
+	            var ct = new ChunkTerrain({ chunkManager: _this });
+	            ct.Create(tcdata.chunkSize, tcdata.blockSize, tcdata.posX, tcdata.posY, tcdata.map, tcdata.wallHeight, tcdata.id);
+	            _this.AddTerrainChunk(ct);
+	            return ct;
+	        });
+
+	        delete props.terrainChunkJSON;
+	    }
+
 	    Object.assign(this, props);
 	};
 
@@ -54110,54 +54131,51 @@
 	var ChunkTerrain = __webpack_require__(187);
 
 	function TerrainLoader(props) {
-	    this.TerrainMap;
-	    this.chunkManager;
-	    this.chunkSize = 16;
+	    //    this.chunkManager;
+	    //    this.chunkSize = 16;
 	    this.chunks = 0;
 	    this.blocks = 0;
 
 	    Object.assign(this, props);
-	    this.map = this.chunkManager.map;
+	    this.chunkSize = this.world.chunkSize;
+	    //    this.map = this.chunkManager.map;
+	};
+
+	TerrainLoader.prototype.imageLoadHandler = function (callback, loadEvent) {
+	    var imgData = this.extractTerrainImageData(loadEvent);
+	    var terrainData = this.processTerrainImageData(imgData);
+	    var chunkList = this.readTerrainData(terrainData);
+	    callback(chunkList);
 	};
 
 	TerrainLoader.prototype.load = function (filename, wallHeight, blockSize, callback) {
-	    var _this = this;
-
 	    this.wallHeight = wallHeight;
 	    this.blockSize = blockSize;
-	    this.readTerrainImage(filename, function () {
-	        _this.readMap(callback);
-	    });
+	    this.readTerrainImage(filename, this.imageLoadHandler.bind(this, callback));
 	};
 
-	TerrainLoader.prototype.readMap = function (callback) {
+	TerrainLoader.prototype.readTerrainData = function (terrainData) {
 	    var chunkList = [];
 
-	    this.TerrainMap = new Array(this.map.length);
+	    this.mapHeight = this.blockSize * terrainData.length;
+	    this.mapWidth = this.blockSize * terrainData.length;
 
-	    for (var i = 0; i < this.TerrainMap.length; i++) {
-	        this.TerrainMap[i] = new Array();
-	    }
-
-	    this.mapHeight = this.blockSize * this.map.length;
-	    this.mapWidth = this.blockSize * this.map.length;
-
-	    for (var cy = 0; cy < this.map.length; cy += this.chunkSize) {
+	    for (var cy = 0; cy < terrainData.length; cy += this.chunkSize) {
 	        var alpha = 0;
 	        var total = 0;
 	        var chunk = new Array();
-	        for (var cx = 0; cx < this.map.length; cx += this.chunkSize) {
+	        for (var cx = 0; cx < terrainData.length; cx += this.chunkSize) {
 	            var ix = 0;
 	            for (var x = cx; x < cx + this.chunkSize; x++) {
 	                chunk[ix] = new Array();
 	                var iy = 0;
 	                for (var y = cy; y < cy + this.chunkSize; y++) {
-	                    if (this.map[x][y] == 0) {
+	                    if (terrainData[x][y] == 0) {
 	                        alpha++;
 	                    } else {
 	                        this.blocks++;
 	                    }
-	                    chunk[ix][iy++] = this.map[x][y];
+	                    chunk[ix][iy++] = terrainData[x][y];
 	                    total++;
 	                }
 	                ix++;
@@ -54165,8 +54183,6 @@
 	            var cSize = this.blockSize;
 
 	            if (total != alpha) {
-	                var c = new ChunkTerrain({ chunkManager: this.chunkManager });
-
 	                //this is the data structure for making chunks
 	                var terrainChunk = {
 	                    chunkSize: this.chunkSize,
@@ -54180,46 +54196,43 @@
 
 	                chunkList.push(terrainChunk);
 
-	                c.Create(this.chunkSize, cSize, cx * cSize - this.blockSize / 2, cy * cSize - this.blockSize / 2, chunk, this.wallHeight, this.chunks);
-	                this.chunkManager.AddTerrainChunk(c);
+	                //const c = new ChunkTerrain({chunkManager: this.chunkManager});
+	                //c.Create(this.chunkSize, cSize, cx * cSize-this.blockSize/2, cy * cSize-this.blockSize/2, chunk, this.wallHeight, this.chunks);
+	                //this.chunkManager.AddTerrainChunk(c);
 
 	                // Save to Terrain map
-	                var z = this.chunks % (this.map.length / this.chunkSize);
-	                var x = Math.floor(this.chunks / (this.map.length / this.chunkSize));
-	                this.TerrainMap[x][z] = { 'id': this.chunks, 'avgHeight': c.GetAvgHeight() };
-	                this.chunks++;
+	                //var z = this.chunks%(terrainData.length/this.chunkSize);
+	                //var x = Math.floor(this.chunks/(terrainData.length/this.chunkSize));
+	                //this.TerrainMap[x][z] = {'id': this.chunks, 'avgHeight': c.GetAvgHeight()};
+	                //this.chunks++;
 	            } else {
-	                console.log("=> Skipping invisible chunk.");
-	            }
+	                    console.log("=> Skipping invisible chunk.");
+	                }
 	        }
 	    }
 
-	    callback(chunkList);
+	    return chunkList;
 	};
 
-	TerrainLoader.prototype.processTerrainImageData = function (imgData, callback) {
-	    var map = this.map;
-	    this.TerrainMap = new Array();
+	TerrainLoader.prototype.processTerrainImageData = function (imgData) {
+	    var terrainData = [];
 
 	    for (var y = 0; y < this.height; y++) {
 	        var pos = y * this.width * 4;
-	        map[y] = new Array();
-	        this.TerrainMap[y] = new Array();
+	        terrainData[y] = new Array();
 	        for (var x = 0; x < this.width; x++) {
 	            var r = imgData.data[pos++];
 	            var g = imgData.data[pos++];
 	            var b = imgData.data[pos++];
 	            var a = imgData.data[pos++];
-	            map[y][x] = { 'r': r, 'g': g, 'b': b, 'a': a };
+	            terrainData[y][x] = { 'r': r, 'g': g, 'b': b, 'a': a };
 	        }
 	    }
 
-	    console.log("Read Terrain complete.");
-	    this.chunkManager.maxChunks = this.height / this.chunkSize * (this.height / this.chunkSize);
-	    callback();
+	    return terrainData;
 	};
 
-	TerrainLoader.prototype.extractTerrainImageData = function (callback, e) {
+	TerrainLoader.prototype.extractTerrainImageData = function (e) {
 	    var ctx = document.createElement('canvas').getContext('2d');
 	    var image = e.target;
 
@@ -54230,7 +54243,8 @@
 	    this.height = image.height;
 
 	    var imgData = ctx.getImageData(0, 0, this.width, this.height);
-	    this.processTerrainImageData(imgData, callback);
+
+	    return imgData;
 	};
 
 	TerrainLoader.prototype.readTerrainImage = function (filename, callback) {
@@ -54241,7 +54255,7 @@
 	    // a < 50 = floor
 	    var image = new Image();
 	    image.src = "/" + filename;
-	    image.onload = this.extractTerrainImageData.bind(this, callback);
+	    image.onload = callback;
 	};
 
 	module.exports = TerrainLoader;

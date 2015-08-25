@@ -28,15 +28,18 @@ function World(props) {
     this.terrain = [];
     
     this.scene = new THREE.Scene();
-    this.chunkManager = new ChunkManager({world: this});
 
-    const tl = new TerrainLoader({
-      chunkManager: this.chunkManager
-    });
+    const tl = new TerrainLoader({world: this});
 
-    tl.load('maps/map4.png', this.wallHeight, this.blockSize, (terrainChunks) =>{
-      debugger;
+    tl.load('maps/map4.png', this.wallHeight, this.blockSize, (terrainChunkJSON) =>{
+      this.chunkManager = new ChunkManager({
+        world: this,
+        terrainChunkJSON: terrainChunkJSON
+      });
+      
       this.chunkManager.BuildAllChunks();
+
+
       if(props.entities){
         let ents = props.entities;
         delete props.entities;

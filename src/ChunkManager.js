@@ -1,3 +1,5 @@
+const ChunkTerrain = require('./ChunkTerrain');
+
 function ChunkManager(props) {
     this.worldChunks = [];
     this.totalBlocks = 0;
@@ -7,8 +9,33 @@ function ChunkManager(props) {
     this.updateChunks = [];
     this.maxChunks = 0;
     this.world;
-    this.map = [];
+//    this.map = [];
+
+    //const c = new ChunkTerrain({chunkManager: this.chunkManager});
+    //c.Create(this.chunkSize, cSize, cx * cSize-this.blockSize/2, cy * cSize-this.blockSize/2, chunk, this.wallHeight, this.chunks);
+    //this.chunkManager.AddTerrainChunk(c);
+    if(props.terrainChunkJSON){
+        this.worldChunks = _.map(props.terrainChunkJSON, (tcdata) => {
+            var ct = new ChunkTerrain({chunkManager: this});
+            ct.Create(
+                tcdata.chunkSize, 
+                tcdata.blockSize,
+                tcdata.posX,
+                tcdata.posY,
+                tcdata.map,
+                tcdata.wallHeight,
+                tcdata.id
+            );
+            this.AddTerrainChunk(ct);
+            return ct;
+        });
+
+        delete props.terrainChunkJSON;
+    }
+
     Object.assign(this,props);
+
+
 };
 
 ChunkManager.prototype.Draw = function (time, delta) {
