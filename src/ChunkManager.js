@@ -11,14 +11,6 @@ function ChunkManager(props) {
     Object.assign(this,props);
 };
 
-ChunkManager.prototype.PercentLoaded = function() {
-    console.log("TOTAL: "+this.totalChunks + " MAX: "+this.maxChunks);
-    if(this.totalChunks == 0){
-        return 0;
-    }
-    return Math.round((this.maxChunks/this.totalChunks)*100);
-};
-
 ChunkManager.prototype.Draw = function (time, delta) {
     if(this.updateChunks.length > 0) {
         var cid = this.updateChunks.pop();
@@ -259,7 +251,7 @@ ChunkManager.prototype.AddTerrainChunk = function(chunk) {
    this.totalChunks++;
    this.totalBlocks += (chunk.blocks.length*chunk.blocks.length*chunk.blocks.length);
    this.activeBlocks += chunk.NoOfActiveBlocks();
-   this.worldChunks.push(chunk); 
+   this.worldChunks.push(chunk);
 };
 
 ChunkManager.prototype.BuildAllChunks = function() {

@@ -51,6 +51,13 @@ Game.prototype.getWorldState = function(callback){
       wallHeight: 20,
       useWater: true,
       waterPosition: 0.2,
+      
+      player: {
+        username: "kevzettler",
+        position: [16, 2, 119],
+        model: "Guy"
+      },
+
       entities: {
           "Guy": [
             {position:[16, 2, 119]}

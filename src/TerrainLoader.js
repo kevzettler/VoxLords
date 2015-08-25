@@ -14,12 +14,14 @@ function TerrainLoader(props){
 TerrainLoader.prototype.load = function(filename, wallHeight, blockSize, callback) {
     this.wallHeight = wallHeight;
     this.blockSize = blockSize;
-    this.readTerrainImage(filename, function(){
+    this.readTerrainImage(filename, () => {
         this.readMap(callback);
-    }.bind(this));
+    });
 };
 
 TerrainLoader.prototype.readMap = function(callback) {
+    const chunkList = [];
+
     this.TerrainMap = new Array(this.map.length);
     
     for(var i = 0; i < this.TerrainMap.length; i++) {
@@ -52,7 +54,21 @@ TerrainLoader.prototype.readMap = function(callback) {
             var cSize = this.blockSize;
 
             if(total != alpha) {
-                var c = new ChunkTerrain({chunkManager: this.chunkManager});
+                const c = new ChunkTerrain({chunkManager: this.chunkManager});
+
+                //this is the data structure for making chunks
+                const terrainChunk = {
+                    chunkSize: this.chunkSize,
+                    blockSize: cSize,
+                    posX: cx * cSize-this.blockSize/2,
+                    posY: cy * cSize-this.blockSize/2,
+                    map: chunk,
+                    wallHeight: this.wallHeight,
+                    id: this.chunks
+                };
+
+                chunkList.push(terrainChunk);
+
                 c.Create(this.chunkSize, cSize, cx * cSize-this.blockSize/2, cy * cSize-this.blockSize/2, chunk, this.wallHeight, this.chunks);
                 this.chunkManager.AddTerrainChunk(c);
                 
@@ -67,7 +83,7 @@ TerrainLoader.prototype.readMap = function(callback) {
         }
     }
 
-    callback();
+    callback(chunkList);
 }; 
 
 TerrainLoader.prototype.processTerrainImageData = function(imgData, callback){  

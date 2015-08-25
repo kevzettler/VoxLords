@@ -4881,6 +4881,13 @@
 	    wallHeight: 20,
 	    useWater: true,
 	    waterPosition: 0.2,
+
+	    player: {
+	      username: "kevzettler",
+	      position: [16, 2, 119],
+	      model: "Guy"
+	    },
+
 	    entities: {
 	      "Guy": [{ position: [16, 2, 119] }],
 
@@ -5567,18 +5574,18 @@
 	  this.scene = new THREE.Scene();
 	  this.chunkManager = new ChunkManager({ world: this });
 
-	  if (props.entities) {
-	    var ents = props.entities;
-	    delete props.entities;
-	    this.importEntities(ents);
-	  }
-
 	  var tl = new TerrainLoader({
 	    chunkManager: this.chunkManager
 	  });
 
-	  tl.load('maps/map4.png', this.wallHeight, this.blockSize, function () {
+	  tl.load('maps/map4.png', this.wallHeight, this.blockSize, function (terrainChunks) {
+	    debugger;
 	    _this.chunkManager.BuildAllChunks();
+	    if (props.entities) {
+	      var ents = props.entities;
+	      delete props.entities;
+	      _this.importEntities(ents);
+	    }
 	  });
 
 	  if (!is_server) {
@@ -18095,14 +18102,6 @@
 	    this.world;
 	    this.map = [];
 	    Object.assign(this, props);
-	};
-
-	ChunkManager.prototype.PercentLoaded = function () {
-	    console.log("TOTAL: " + this.totalChunks + " MAX: " + this.maxChunks);
-	    if (this.totalChunks == 0) {
-	        return 0;
-	    }
-	    return Math.round(this.maxChunks / this.totalChunks * 100);
 	};
 
 	ChunkManager.prototype.Draw = function (time, delta) {
@@ -54122,14 +54121,18 @@
 	};
 
 	TerrainLoader.prototype.load = function (filename, wallHeight, blockSize, callback) {
+	    var _this = this;
+
 	    this.wallHeight = wallHeight;
 	    this.blockSize = blockSize;
-	    this.readTerrainImage(filename, (function () {
-	        this.readMap(callback);
-	    }).bind(this));
+	    this.readTerrainImage(filename, function () {
+	        _this.readMap(callback);
+	    });
 	};
 
 	TerrainLoader.prototype.readMap = function (callback) {
+	    var chunkList = [];
+
 	    this.TerrainMap = new Array(this.map.length);
 
 	    for (var i = 0; i < this.TerrainMap.length; i++) {
@@ -54163,6 +54166,20 @@
 
 	            if (total != alpha) {
 	                var c = new ChunkTerrain({ chunkManager: this.chunkManager });
+
+	                //this is the data structure for making chunks
+	                var terrainChunk = {
+	                    chunkSize: this.chunkSize,
+	                    blockSize: cSize,
+	                    posX: cx * cSize - this.blockSize / 2,
+	                    posY: cy * cSize - this.blockSize / 2,
+	                    map: chunk,
+	                    wallHeight: this.wallHeight,
+	                    id: this.chunks
+	                };
+
+	                chunkList.push(terrainChunk);
+
 	                c.Create(this.chunkSize, cSize, cx * cSize - this.blockSize / 2, cy * cSize - this.blockSize / 2, chunk, this.wallHeight, this.chunks);
 	                this.chunkManager.AddTerrainChunk(c);
 
@@ -54177,7 +54194,7 @@
 	        }
 	    }
 
-	    callback();
+	    callback(chunkList);
 	};
 
 	TerrainLoader.prototype.processTerrainImageData = function (imgData, callback) {

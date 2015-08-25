@@ -30,18 +30,18 @@ function World(props) {
     this.scene = new THREE.Scene();
     this.chunkManager = new ChunkManager({world: this});
 
-    if(props.entities){
-      let ents = props.entities;
-      delete props.entities;
-      this.importEntities(ents);
-    }
-
     const tl = new TerrainLoader({
       chunkManager: this.chunkManager
     });
 
-    tl.load('maps/map4.png', this.wallHeight, this.blockSize, () =>{
+    tl.load('maps/map4.png', this.wallHeight, this.blockSize, (terrainChunks) =>{
+      debugger;
       this.chunkManager.BuildAllChunks();
+      if(props.entities){
+        let ents = props.entities;
+        delete props.entities;
+        this.importEntities(ents);
+      }
     });
 
     if(!is_server){ //put in client object?
