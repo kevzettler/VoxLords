@@ -128,7 +128,7 @@ ChunkTerrain.prototype.Rebuild = function() {
 
 
                     if(y == this.chunkSize-1 && x < this.chunkSize-1 && x > 0 && z < this.chunkSizeZ-1) {
-                        var id = this.cid + Math.sqrt(this.chunkManager.map.length);
+                        var id = this.cid + Math.sqrt(this.chunkManager.terrainChunkJSON.length);
                         if(id >= 0 && id < this.chunkManager.worldChunks.length ) {
                             if(this.chunkManager.worldChunks[id].blocks[x][0][z] != null && this.chunkManager.worldChunks[id].blocks[x][0][z].isActive()) {
                                 if(this.blocks[x-1][y][z].isActive() && 
@@ -142,7 +142,7 @@ ChunkTerrain.prototype.Rebuild = function() {
                     }
 
                     if(y == 0 && x < this.chunkSize-1 && x > 0 && z < this.chunkSizeZ-1 ) {
-                        var id = this.cid - Math.sqrt(this.chunkManager.map.length);
+                        var id = this.cid - Math.sqrt(this.chunkManager.terrainChunkJSON.length);
                         if(id >= 0 && id < this.chunkManager.worldChunks.length ) {
                             if(this.chunkManager.worldChunks[id].blocks[x][this.chunkSize-1][z] != null && this.chunkManager.worldChunks[id].blocks[x][this.chunkSize-1][z].isActive()) {
                                 if(this.blocks[x-1][y][z].isActive() && 
@@ -440,7 +440,7 @@ ChunkTerrain.prototype.Rebuild = function() {
                         }
                     } else {
                         //drawBlock = true;
-                        var id = this.cid - Math.sqrt(this.chunkManager.map.length);
+                        var id = this.cid - Math.sqrt(this.chunkManager.terrainChunkJSON.length);
                         if(id >= 0  && id < this.chunkManager.worldChunks.length) {
                             if(this.chunkManager.worldChunks[id].blocks[x][this.chunkSize-1][z] != null && this.chunkManager.worldChunks[id].blocks[x][this.chunkSize-1][z].isActive()) { // && 
                                 drawBlock = false;
@@ -528,7 +528,7 @@ ChunkTerrain.prototype.Rebuild = function() {
                             drawBlock = true;
                         }
                     } else {
-                        var id = this.cid + Math.sqrt(this.chunkManager.map.length);
+                        var id = this.cid + Math.sqrt(this.chunkManager.terrainChunkJSON.length);
                         if(id >= 0  && id < this.chunkManager.worldChunks.length) {
                             if(this.chunkManager.worldChunks[id].blocks[x][0][z] != null && this.chunkManager.worldChunks[id].blocks[x][0][z].isActive()) {
                                 drawBlock = false;

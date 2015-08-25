@@ -14,9 +14,13 @@ function ChunkManager(props) {
     //const c = new ChunkTerrain({chunkManager: this.chunkManager});
     //c.Create(this.chunkSize, cSize, cx * cSize-this.blockSize/2, cy * cSize-this.blockSize/2, chunk, this.wallHeight, this.chunks);
     //this.chunkManager.AddTerrainChunk(c);
-    if(props.terrainChunkJSON){
-        this.worldChunks = _.map(props.terrainChunkJSON, (tcdata) => {
-            var ct = new ChunkTerrain({chunkManager: this});
+    Object.assign(this,props);
+    
+    debugger;    
+    if(this.terrainChunkJSON.length){
+        //KJZ I suspect this is wrong causing duplicate terrain chunks
+        _.each(this.terrainChunkJSON, (tcdata) => {
+            const ct = new ChunkTerrain({chunkManager: this});
             ct.Create(
                 tcdata.chunkSize, 
                 tcdata.blockSize,
@@ -26,16 +30,11 @@ function ChunkManager(props) {
                 tcdata.wallHeight,
                 tcdata.id
             );
+
+            this.worldChunks.push(ct);
             this.AddTerrainChunk(ct);
-            return ct;
         });
-
-        delete props.terrainChunkJSON;
     }
-
-    Object.assign(this,props);
-
-
 };
 
 ChunkManager.prototype.Draw = function (time, delta) {
