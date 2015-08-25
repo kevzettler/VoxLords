@@ -1,3 +1,5 @@
+const ChunkTerrain = require('./ChunkTerrain');
+
 function ChunkManager(props) {
     this.worldChunks = [];
     this.totalBlocks = 0;
@@ -18,6 +20,18 @@ ChunkManager.prototype.Draw = function (time, delta) {
     }
 };
 
+
+ChunkManager.prototype.createChunkFromData = function(chunkData){
+    const c = new ChunkTerrain({chunkManager: this});                
+    c.Create(chunkData.chunkSize, 
+             chunkData.blockSize, 
+             chunkData.posX,
+             chunkData.posY,
+             chunkData.map, 
+             chunkData.wallHeight,
+             chunkData.id);
+    this.AddTerrainChunk(c);  
+};
 
 ChunkManager.prototype.Blood = function(x, z, power) {
     var aChunks = [];

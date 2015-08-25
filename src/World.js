@@ -35,7 +35,6 @@ function World(props) {
     });
 
     tl.load('maps/map4.png', this.wallHeight, this.blockSize, (terrainChunks) =>{
-      debugger;
       this.chunkManager.BuildAllChunks();
       if(props.entities){
         let ents = props.entities;

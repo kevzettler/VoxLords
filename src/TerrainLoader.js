@@ -54,7 +54,7 @@ TerrainLoader.prototype.readMap = function(callback) {
             var cSize = this.blockSize;
 
             if(total != alpha) {
-                const c = new ChunkTerrain({chunkManager: this.chunkManager});
+
 
                 //this is the data structure for making chunks
                 const terrainChunk = {
@@ -68,14 +68,16 @@ TerrainLoader.prototype.readMap = function(callback) {
                 };
 
                 chunkList.push(terrainChunk);
-
-                c.Create(this.chunkSize, cSize, cx * cSize-this.blockSize/2, cy * cSize-this.blockSize/2, chunk, this.wallHeight, this.chunks);
-                this.chunkManager.AddTerrainChunk(c);
+                this.chunkManager.createChunkFromData(terrainChunk);
+                
+               // const c = new ChunkTerrain({chunkManager: this.chunkManager});                
+               // c.Create(this.chunkSize, cSize, cx * cSize-this.blockSize/2, cy * cSize-this.blockSize/2, chunk, this.wallHeight, this.chunks);
+               // this.chunkManager.AddTerrainChunk(c);
                 
                 // Save to Terrain map
-                var z = this.chunks%(this.map.length/this.chunkSize);
-                var x = Math.floor(this.chunks/(this.map.length/this.chunkSize));
-                this.TerrainMap[x][z] = {'id': this.chunks, 'avgHeight': c.GetAvgHeight()};
+                //var z = this.chunks%(this.map.length/this.chunkSize);
+                //var x = Math.floor(this.chunks/(this.map.length/this.chunkSize));
+                //this.TerrainMap[x][z] = {'id': this.chunks, 'avgHeight': c.GetAvgHeight()};
                 this.chunks++;
             } else {
                 console.log("=> Skipping invisible chunk.");
