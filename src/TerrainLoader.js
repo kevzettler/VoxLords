@@ -74,7 +74,7 @@ TerrainLoader.prototype.readTerrainData = function(terrainData) {
                 //var z = this.chunks%(terrainData.length/this.chunkSize);
                 //var x = Math.floor(this.chunks/(terrainData.length/this.chunkSize));
                 //this.TerrainMap[x][z] = {'id': this.chunks, 'avgHeight': c.GetAvgHeight()};
-                //this.chunks++;
+                this.chunks++;
             } else {
                 console.log("=> Skipping invisible chunk.");
             }

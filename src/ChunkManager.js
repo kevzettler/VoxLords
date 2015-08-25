@@ -16,8 +16,8 @@ function ChunkManager(props) {
     //this.chunkManager.AddTerrainChunk(c);
     Object.assign(this,props);
     
-    debugger;    
     if(this.terrainChunkJSON.length){
+        debugger;
         //KJZ I suspect this is wrong causing duplicate terrain chunks
         _.each(this.terrainChunkJSON, (tcdata) => {
             const ct = new ChunkTerrain({chunkManager: this});
