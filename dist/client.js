@@ -4882,9 +4882,9 @@
 	    useWater: true,
 	    waterPosition: 0.2,
 	    entities: {
-	      "Guy": [{ position: [16, -0.5, 119] }],
+	      "Guy": [{ position: [16, 2, 119] }],
 
-	      "Tree": [{ position: [0, -0.5, 90], scale: 2 }, { position: [45, 2, 60], scale: 2 }, { position: [59, 2, 35], scale: 2 }, { position: [17, 2, 13], scale: 2 }, { position: [33, 2, 13], scale: 2 }, { position: [110, 2.5, 16], scale: 2 }, { position: [107, 2.5, 27], scale: 2 }, { position: [92, 3.5, 109], scale: 2 }, { position: [86, 3.5, 107], scale: 2 }]
+	      "Tree": [{ position: [8, 2, 110], scale: 2 }, { position: [45, 2, 60], scale: 2 }, { position: [59, 2, 35], scale: 2 }, { position: [17, 2, 13], scale: 2 }, { position: [33, 2, 13], scale: 2 }, { position: [110, 2.5, 16], scale: 2 }, { position: [107, 2.5, 27], scale: 2 }, { position: [92, 3.5, 109], scale: 2 }, { position: [86, 3.5, 107], scale: 2 }]
 	    },
 	    terrain: []
 	  };
