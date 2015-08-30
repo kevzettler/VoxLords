@@ -2,6 +2,7 @@ const _ = require('lodash');
 const ChunkManager = require('./ChunkManager');
 const VoxLoader = require('./VoxLoader');
 const TerrainLoader = require('./TerrainLoader');
+const ClientManager = require('./ClientManager');
 
 const EntityClasses = require('./entities');
 const THREE = require('three');
@@ -40,6 +41,11 @@ function World(props) {
       
       this.chunkManager.BuildAllChunks();
 
+      if(!is_server){ //put in client object?
+        this.client = new ClientManager({
+          scene: this.scene
+        });
+      }
 
       if(props.entities){
         let ents = props.entities;
@@ -48,79 +54,9 @@ function World(props) {
       }
     });
 
-    if(!is_server){ //put in client object?
-      this.viewAngle = 40;
-      this.aspect = window.innerWidth/window.innerHeight;
-      this.near = 1;
-      this.far = 61;
-      
-      this.camera = new THREE.PerspectiveCamera(this.viewAngle, this.aspect, this.near, this.far);
-      this.scene.add(this.camera);
-      //this.camera.aspect = this.aspect;
-      //this.camera.updateProjectionMatrix();
-      this.camera.position.set(16, 0.5, 119);
-      //this.camera.rotation.set(-Math.PI/2.6, 0, Math.PI);
-      //this.camera.lookAt(new THREE.Vector3(8,2,110));
-
-
-
-      window.camera = this.camera;
-      
-
-      this.renderer = new THREE.WebGLRenderer( {antialias: true} );
-      this.renderer.setSize(window.innerWidth, window.innerHeight);
-      this.renderer.shadowMapEnabled = true;
-      this.renderer.shadowMapType = THREE.PCFSoftShadowMap;
-      
-      this.keyboard = new THREEx.KeyboardState();
-      this.container = document.getElementById('container');
-      this.container.appendChild(this.renderer.domElement);
-      THREEx.WindowResize(this.renderer, this.camera);
-      this.fogColor = 0xeddeab;
-      this.clearColor = 0xeddeab;
-      //this.scene.fog = new THREE.Fog( this.fogColor, 40, 60 );
-      this.renderer.setClearColor(this.clearColor, 1);
-
-      // Init lights
-      this.setLights();
-    }
-
     Object.assign(this, props);
 };
 
-World.prototype.setLights = function() {
-    console.log("Initiate lights...");
-    var ambientLight = new THREE.AmbientLight( 0x000033 );
-    this.scene.add( ambientLight );
-
-    var hemiLight = new THREE.HemisphereLight( 0xffffff, 0xffffff, 0.9 );
-    hemiLight.color.setHSL( 0.6, 1, 0.6 );
-    hemiLight.groundColor.setHSL( 0.095, 1, 0.75 );
-    hemiLight.position.set( 0, 500, 0 );
-    this.scene.add( hemiLight );
-
-    var dirLight = new THREE.DirectionalLight( 0xffffff, 1 );
-    dirLight.color.setHSL( 0.1, 1, 0.95 );
-    dirLight.position.set( 10, 10.75, 10 );
-    dirLight.position.multiplyScalar( 10 );
-    this.scene.add( dirLight );
-
-    dirLight.castShadow = true;
-
-    dirLight.shadowMapWidth = 2048;
-    dirLight.shadowMapHeight = 2048;
-
-    var d = 150;
-
-    dirLight.shadowCameraLeft = -d;
-    dirLight.shadowCameraRight = d;
-    dirLight.shadowCameraTop = d;
-    dirLight.shadowCameraBottom = -d;
-
-    dirLight.shadowCameraFar = 3500;
-    dirLight.shadowBias = -0.0001;
-    dirLight.shadowDarkness = 0.45;
-};
 
 World.prototype.importEntities = function(entity_json_tree){
   const world = this;
@@ -162,10 +98,9 @@ World.prototype.update = function(delta){
 };
 
 World.prototype.render = function(){
-  // _.each(this.flatEntities(), function(entity){
-  //   entity.render();
-  // },this);
-  this.renderer.render(this.scene, this.camera);
+  if(this.client){
+    this.client.render();
+  }
 };
 
 module.exports = World;

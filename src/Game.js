@@ -27,7 +27,7 @@ Game.prototype.update = function(dt, elapsed){
 
 Game.prototype.render = function(){
     if(is_server){return true;}
-    this.world.render();
+    this.world.render.call(this.world);
 };
 
 Game.prototype.getWorldState = function(callback){
@@ -52,12 +52,6 @@ Game.prototype.getWorldState = function(callback){
       useWater: true,
       waterPosition: 0.2,
       
-      player: {
-        username: "kevzettler",
-        position: [16, 2, 119],
-        model: "Guy"
-      },
-
       entities: {
           "Guy": [
             {position:[16, 2, 119]}
