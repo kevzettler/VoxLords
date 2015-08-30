@@ -23,13 +23,13 @@ ChunkManager.prototype.processChunkList = function(chunkList){
 };
 
 ChunkManager.prototype.createChunkFromData = function(chunkData){
-    const c = new ChunkTerrain({chunkManager: this});                
-    c.Create(chunkData.chunkSize,
-             chunkData.blockSize,
-             chunkData.posX,
+    const c = new ChunkTerrain({
+        chunkManager: this
+    });
+
+    c.Create(chunkData.posX,
              chunkData.posY,
-             chunkData.map,
-             chunkData.wallHeight,
+             chunkData.mapData,
              chunkData.id);
     this.AddTerrainChunk(c);
 };
@@ -277,21 +277,23 @@ ChunkManager.prototype.AddTerrainChunk = function(chunk) {
    this.worldChunks.push(chunk);
 };
 
-ChunkManager.prototype.BuildAllChunks = function() {
-    for(var i = 0; i < this.worldChunks.length; i++) {
-        this.worldChunks[i].Rebuild();
-        this.activeTriangles += this.worldChunks[i].GetActiveTriangles();
-    }
-    this.AddTargets();
+ChunkManager.prototype.BuildAllChunksIterator = function(chunk){
+    chunk.Rebuild();
+    this.activeTriangles += chunk.GetActiveTriangles();
+};
+
+ChunkManager.prototype.BuildAllChunks = function(chunkList) {
+    _.each(chunkList, this.BuildAllChunksIterator.bind(this));
+    //this.AddTargets();
     console.log("ACTIVE TRIANGLES: "+this.activeTriangles);
     console.log("ACTIVE BLOCKS: "+this.activeBlocks);
 };
 
-ChunkManager.prototype.AddTargets = function() {
-    for(var i = 0; i < this.worldChunks.length; i++) {
-        var chunk = this.worldChunks[i];
-    }
-};
+// ChunkManager.prototype.AddTargets = function() {
+//     for(var i = 0; i < this.worldChunks.length; i++) {
+//         var chunk = this.worldChunks[i];
+//     }
+// };
 
 ChunkManager.prototype.GetWorldChunkID = function(x,z) {
     if(this.worldMap == undefined) {
@@ -369,5 +371,13 @@ ChunkManager.prototype.CheckActive = function(x, z, y) {
         return !this.worldChunks[cid.id].blocks[x1][z1][y].isActive();
     }
 };
+
+ChunkManager.prototype.export = function(){
+
+};
+
+ChunkManager.prototype.serialize = function(){
+    return JSON.stringify(this.export());
+}
 
 module.exports = ChunkManager;

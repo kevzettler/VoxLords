@@ -5,19 +5,22 @@ const THREE = require('./ThreeHelpers');
 
 // Chunks of other types such as crates/weapons/mob/player
 function ChunkTerrain(props) {
-  Chunk.call(this);
+  ChunkTerrain.super_.call(this);  
+
   this.wallHeight = 1;
+  this.worldWallHeight = 20; //wtf  
+  this.chunkSize = 16;
+  this.chunkSizeX = 16;
+  this.chunkSizeY = 16;
+  this.chunkSizeZ = 16;
+  this.blockSize = 0.5;
+  
   Object.assign(this,props);
 };
 util.inherits(ChunkTerrain,Chunk);
 
-ChunkTerrain.prototype.Create = function(chunkSize, blockSize, posX, posY, map, wallHeight, id) {
+ChunkTerrain.prototype.Create = function(posX, posY, mapData, id) {
     this.cid = id;
-    this.chunkSize = chunkSize;
-    this.chunkSizeX = chunkSize;
-    this.chunkSizeY = chunkSize;
-    this.chunkSizeZ = chunkSize;
-    this.blockSize = blockSize;
     this.posX = posX;
     this.posY = posY;
 
@@ -31,12 +34,12 @@ ChunkTerrain.prototype.Create = function(chunkSize, blockSize, posX, posY, map, 
         for(var y = 0; y < this.chunkSize; y++) {
             this.blocks[x][y] = new Array();
             tmpBlocks[x][y] = new Array();
-            this.wallHeight = map[x][y].a/wallHeight;
+            this.wallHeight = mapData[x][y].a/this.worldWallHeight; // WTF
             var v = 0;
             for(var z = 0; z < this.chunkSize; z++) {
                 visible = false; 
 
-                if(map[x][y].a > 0  && z <= this.wallHeight) {
+                if(mapData[x][y].a > 0  && z <= this.wallHeight) {
                     visible = true;
                     tmpBlocks[x][y][z] = 1;
                     v++;
@@ -61,7 +64,7 @@ ChunkTerrain.prototype.Create = function(chunkSize, blockSize, posX, posY, map, 
                 if(tmpBlocks[x][y][z] == 1) {
                     visible = true;
                 }
-                this.blocks[x][y][z].Create(visible, map[x][y].r, map[x][y].g, map[x][y].b, map[x][y].a);
+                this.blocks[x][y][z].Create(visible, mapData[x][y].r, mapData[x][y].g, mapData[x][y].b, mapData[x][y].a);
             }
         }
     }

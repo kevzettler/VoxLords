@@ -1,14 +1,11 @@
 const ChunkTerrain = require('./ChunkTerrain');
 
 function TerrainLoader(props){
-//    this.chunkManager;
-//    this.chunkSize = 16;
     this.chunks = 0;
     this.blocks = 0;
 
     Object.assign(this,props);
     this.chunkSize = this.world.chunkSize;
-//    this.map = this.chunkManager.map;
 };
 
 TerrainLoader.prototype.imageLoadHandler = function(callback, loadEvent){
@@ -53,17 +50,17 @@ TerrainLoader.prototype.readTerrainData = function(terrainData) {
             var cSize = this.blockSize;
 
             if(total != alpha) {
-
+                debugger;
                 //this is the data structure for making chunks
                 const terrainChunk = {
-                    chunkSize: this.chunkSize,
-                    blockSize: cSize,
                     posX: cx * cSize-this.blockSize/2,
                     posY: cy * cSize-this.blockSize/2,
-                    map: chunk.splice(0), //KJZ wtf this is being silently mutated
-                    //because its define din the parent loop
+                    /* wtf */
+                    //this is actually passing a subset of the map color data {a r g b}
+                    //Its used to determine the chunks height for blocks
+                    mapData: chunk.splice(0), //KJZ wtf this is being silently mutated
+                    //because its defined in the parent loop
                     //not sure what it does yet
-                    wallHeight: this.wallHeight,
                     id: this.chunks
                 };
 

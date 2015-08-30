@@ -33,13 +33,15 @@ function World(props) {
     const tl = new TerrainLoader({world: this});
 
     tl.load('maps/map4.png', this.wallHeight, this.blockSize, (terrainChunkJSON) =>{
-      
+
       this.chunkManager = new ChunkManager({
         world: this,
         terrainChunkJSON: terrainChunkJSON
       });
+
+      window.chunkManager = this.chunkManager;
       
-      this.chunkManager.BuildAllChunks();
+      this.chunkManager.BuildAllChunks(this.chunkManager.worldChunks);
 
       if(!is_server){ //put in client object?
         this.client = new ClientManager({
