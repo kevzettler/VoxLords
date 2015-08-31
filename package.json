@@ -25,8 +25,11 @@
     "webpack": "^1.11.0"
   },
   "dependencies": {
+    "fixed-game-loop": "^0.2.0",
+    "immutable": "^3.7.4",
     "lodash": "^3.10.1",
-    "three": "^0.70.0",
-    "vectors": "^0.1.0"
+    "three": "^0.70.1",
+    "vectors": "^0.1.0",
+    "webpack-require": "0.0.13"
   }
 }

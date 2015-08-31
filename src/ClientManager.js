@@ -1,4 +1,4 @@
-const THREE = require('three');
+const THREE = require('./ThreeHelpers');
 
 /* responsible for rendering different clients */
 function ClientManager(props){

@@ -1,4 +1,3 @@
-navigator = {};
 const util = require('util');
 const World = require('./World.js');
 const GameLoop = require('fixed-game-loop');
@@ -43,7 +42,6 @@ Game.prototype.getWorldState = function(callback){
       mapId: 4,
       mapFile: "maps/map4.png",
       mapName: "Voxadu Beach: Home of Lord Bolvox",
-      playerPosition: new THREE.Vector3(16, 0, 119),
       playerModel: "player",
       fogColor: 0xeddeab,
       clearColor: 0xeddeab,
@@ -69,6 +67,7 @@ Game.prototype.getWorldState = function(callback){
             {position:[86,3.5,107], scale:2}
           ]
       },
+      
       terrain: []
   };
   callback(worldState);

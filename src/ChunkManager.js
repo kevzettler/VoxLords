@@ -1,4 +1,5 @@
 const ChunkTerrain = require('./ChunkTerrain');
+const Immutable = require('immutable');
 
 function ChunkManager(props) {
     this.worldChunks = [];
@@ -11,15 +12,17 @@ function ChunkManager(props) {
     this.world;
 
     if(props.terrainChunkJSON.length){
-        this.processChunkList(props.terrainChunkJSON);
-        delete this.terrainChunkJSON;
+        const terrainChunks = Immutable.fromJS(props.terrainChunkJSON);
+        delete props.terrainChunkJSON;
+        this.processChunkList(terrainChunks);
     }
 
     Object.assign(this,props);
 };
 
 ChunkManager.prototype.processChunkList = function(chunkList){
-    _.each(chunkList, this.createChunkFromData.bind(this));
+    debugger;
+    chunkList.forEach(this.createChunkFromData.bind(this));
 };
 
 ChunkManager.prototype.createChunkFromData = function(chunkData){
@@ -27,10 +30,11 @@ ChunkManager.prototype.createChunkFromData = function(chunkData){
         chunkManager: this
     });
 
-    c.Create(chunkData.posX,
-             chunkData.posY,
-             chunkData.mapData,
-             chunkData.id);
+    c.Create(chunkData.get('posX'),
+             chunkData.get('posY'),
+             chunkData.get('mapData').toJS(),
+             chunkData.get('id')
+            );
     this.AddTerrainChunk(c);
 };
 
@@ -372,8 +376,17 @@ ChunkManager.prototype.CheckActive = function(x, z, y) {
     }
 };
 
-ChunkManager.prototype.export = function(){
 
+ChunkManager.prototype.export = function(){
+    return _.map(this.worldChunks, (chunk) => {
+        return {
+            posX: chunk.posX,
+            posY: chunk.posY,
+            posZ: chunk.posZ,
+            cid: chunk.cid,
+            blocks: chunk.blocks
+        };
+    });
 };
 
 ChunkManager.prototype.serialize = function(){

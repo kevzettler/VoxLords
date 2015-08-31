@@ -2,10 +2,112 @@
   "name": "VoxLords",
   "version": "1.0.0",
   "dependencies": {
+    "fixed-game-loop": {
+      "version": "0.2.0",
+      "from": "fixed-game-loop@",
+      "resolved": "https://registry.npmjs.org/fixed-game-loop/-/fixed-game-loop-0.2.0.tgz"
+    },
+    "immutable": {
+      "version": "3.7.4",
+      "from": "immutable@",
+      "resolved": "https://registry.npmjs.org/immutable/-/immutable-3.7.4.tgz"
+    },
+    "lodash": {
+      "version": "3.10.1",
+      "from": "lodash@",
+      "resolved": "https://registry.npmjs.org/lodash/-/lodash-3.10.1.tgz"
+    },
     "three": {
-      "version": "0.70.0",
-      "from": "three@0.70.0",
-      "resolved": "https://registry.npmjs.org/three/-/three-0.70.0.tgz"
+      "version": "0.70.1",
+      "from": "three@0.70.1",
+      "resolved": "https://registry.npmjs.org/three/-/three-0.70.1.tgz"
+    },
+    "vectors": {
+      "version": "0.1.0",
+      "from": "vectors@",
+      "resolved": "https://registry.npmjs.org/vectors/-/vectors-0.1.0.tgz"
+    },
+    "webpack-require": {
+      "version": "0.0.13",
+      "from": "webpack-require@",
+      "resolved": "https://registry.npmjs.org/webpack-require/-/webpack-require-0.0.13.tgz",
+      "dependencies": {
+        "invariant": {
+          "version": "2.1.0",
+          "from": "invariant@^2.1.0",
+          "resolved": "https://registry.npmjs.org/invariant/-/invariant-2.1.0.tgz",
+          "dependencies": {
+            "envify": {
+              "version": "3.4.0",
+              "from": "envify@^3.0.0",
+              "resolved": "https://registry.npmjs.org/envify/-/envify-3.4.0.tgz",
+              "dependencies": {
+                "through": {
+                  "version": "2.3.8",
+                  "from": "through@~2.3.4",
+                  "resolved": "https://registry.npmjs.org/through/-/through-2.3.8.tgz"
+                },
+                "jstransform": {
+                  "version": "10.1.0",
+                  "from": "jstransform@^10.0.1",
+                  "resolved": "https://registry.npmjs.org/jstransform/-/jstransform-10.1.0.tgz",
+                  "dependencies": {
+                    "base62": {
+                      "version": "0.1.1",
+                      "from": "base62@0.1.1",
+                      "resolved": "https://registry.npmjs.org/base62/-/base62-0.1.1.tgz"
+                    },
+                    "esprima-fb": {
+                      "version": "13001.1001.0-dev-harmony-fb",
+                      "from": "esprima-fb@13001.1001.0-dev-harmony-fb",
+                      "resolved": "https://registry.npmjs.org/esprima-fb/-/esprima-fb-13001.1001.0-dev-harmony-fb.tgz"
+                    },
+                    "source-map": {
+                      "version": "0.1.31",
+                      "from": "source-map@0.1.31",
+                      "resolved": "https://registry.npmjs.org/source-map/-/source-map-0.1.31.tgz",
+                      "dependencies": {
+                        "amdefine": {
+                          "version": "1.0.0",
+                          "from": "amdefine@>=0.0.4",
+                          "resolved": "https://registry.npmjs.org/amdefine/-/amdefine-1.0.0.tgz"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "memory-fs": {
+          "version": "0.2.0",
+          "from": "memory-fs@^0.2.0",
+          "resolved": "https://registry.npmjs.org/memory-fs/-/memory-fs-0.2.0.tgz"
+        },
+        "object-assign": {
+          "version": "3.0.0",
+          "from": "object-assign@^3.0.0",
+          "resolved": "https://registry.npmjs.org/object-assign/-/object-assign-3.0.0.tgz"
+        },
+        "path-is-absolute": {
+          "version": "1.0.0",
+          "from": "path-is-absolute@^1.0.0",
+          "resolved": "https://registry.npmjs.org/path-is-absolute/-/path-is-absolute-1.0.0.tgz"
+        },
+        "source-map": {
+          "version": "0.4.4",
+          "from": "source-map@^0.4.4",
+          "resolved": "https://registry.npmjs.org/source-map/-/source-map-0.4.4.tgz",
+          "dependencies": {
+            "amdefine": {
+              "version": "1.0.0",
+              "from": "amdefine@>=0.0.4",
+              "resolved": "https://registry.npmjs.org/amdefine/-/amdefine-1.0.0.tgz"
+            }
+          }
+        }
+      }
     }
   }
 }
