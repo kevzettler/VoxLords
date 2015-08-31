@@ -25,6 +25,7 @@
     "webpack": "^1.11.0"
   },
   "dependencies": {
+    "canvas": "^1.2.8",
     "fixed-game-loop": "^0.2.0",
     "immutable": "^3.7.4",
     "lodash": "^3.10.1",
