@@ -16,8 +16,6 @@ function World(props) {
     this.chunkSize = 16;
     this.chunks = 0;
     this.blocks = 0;
-    this.hemiLight = undefined;
-    this.dirLight = undefined;
     this.blockSize = 0.5;
     this.wallHeight = 20;
     this.useWater = true;
@@ -39,8 +37,6 @@ function World(props) {
         terrainChunkJSON: terrainChunkJSON
       });
 
-      window.chunkManager = this.chunkManager;
-      
       this.chunkManager.BuildAllChunks(this.chunkManager.worldChunks);
 
       if(!is_server){ //put in client object?
@@ -57,6 +53,27 @@ function World(props) {
     });
 
     Object.assign(this, props);
+};
+
+World.prototype.loadEntityModel = function(entity_type, callback){
+      const vox = new Vox({
+      filename: entity_type+".vox",
+      name: entity_type
+    });
+
+    vox.LoadModel((vox, entity_type) => {
+        if(_.isUndefined(this.meshes[entity_type])){
+          this.meshes[entity_type] = {};
+        }
+
+        console.log("storing model", name);
+        that.world.meshes[name].vox = vox;
+        callback();
+    });
+}
+
+World.prototype.loadEntitiyModels = function(entity_types){
+  async.each(entity_types, this.loadEntityModel.bind(this));
 };
 
 

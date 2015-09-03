@@ -1,5 +1,6 @@
 const ChunkTerrain = require('./ChunkTerrain');
 const Immutable = require('immutable');
+const _ = require('lodash');
 
 function ChunkManager(props) {
     this.worldChunks = [];

@@ -15,7 +15,6 @@ const Game = function(network, canvas){
   
   this.getWorldState((worldState) => {
     this.world = new World(worldState);
-    window.world = this.world;    
     this.loop.start();
   });
 };
@@ -42,7 +41,6 @@ Game.prototype.getWorldState = function(callback){
       mapId: 4,
       mapFile: "maps/map4.png",
       mapName: "Voxadu Beach: Home of Lord Bolvox",
-      playerModel: "player",
       fogColor: 0xeddeab,
       clearColor: 0xeddeab,
       blockSize: 0.5,
@@ -67,9 +65,10 @@ Game.prototype.getWorldState = function(callback){
             {position:[86,3.5,107], scale:2}
           ]
       },
-      
+
       terrain: []
   };
+  
   callback(worldState);
 };
 

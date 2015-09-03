@@ -1,6 +1,7 @@
 const ChunkTerrain = require('./ChunkTerrain');
 const is_server = (typeof process === 'object' && process + '' === '[object process]');
-
+const Canvas = require('canvas');
+const fs = require('fs');
 
 function TerrainLoader(props){
     this.chunks = 0;
@@ -96,7 +97,8 @@ TerrainLoader.prototype.processTerrainImageData = function(imgData){
 };
 
 TerrainLoader.prototype.extractTerrainImageData = function(e){
-    const ctx = document.createElement('canvas').getContext('2d');
+    const canvas = new Canvas();
+    const ctx = canvas.getContext('2d');
     const image = e.target;
 
     ctx.canvas.width  = image.width;
@@ -116,9 +118,26 @@ TerrainLoader.prototype.readTerrainImage = function(filename, callback) {
     // Read RGBA (alpha is height)
     // 255 = max height
     // a < 50 = floor
-    var image = new Image();
-    image.src = "/"+filename;
-    image.onload = callback;
+    fs.readFile(__dirname + "/../" + filename, (err, imageData) => {
+        if(err){
+            console.log("error reading map file", err);
+        }
+
+        var image = new Canvas.Image();
+        image.src = imageData;
+        callback({target: image});
+    })
 };
+
+// TerrainLoader.prototype.readTerrainImage = function(filename, callback) {
+//     // Read png file binary and get color for each pixel
+//     // one pixel = one block
+//     // Read RGBA (alpha is height)
+//     // 255 = max height
+//     // a < 50 = floor
+//     var image = new Image();
+//     image.src = "/"+filename;
+//     image.onload = callback;
+// };
 
 module.exports = TerrainLoader;
