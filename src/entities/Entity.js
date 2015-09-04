@@ -22,19 +22,19 @@ const Entity = (function(){
       id++;
     }
 
-    return new Promise((resolve) =>{
-        this.getMesh().then((vox) =>{
-            this.vox = vox;
-            this.chunk = vox.getChunk();
-            this.chunk.Rebuild();
-            this.mesh = vox.getMesh();
-            this.mesh.geometry.center();
-            this.mesh.geometry.computeBoundingBox();
-            this.mesh.position.set(this.position[0], this.position[1], this.position[2]);
-            this.mesh.scale.set(this.scale,this.scale,this.scale);            
-            resolve(this);
-        });
-    });
+    // return new Promise((resolve) =>{
+    //     this.getMesh().then((vox) =>{
+    //         this.vox = vox;
+    //         this.chunk = vox.getChunk();
+    //         this.chunk.Rebuild();
+    //         this.mesh = vox.getMesh();
+    //         this.mesh.geometry.center();
+    //         this.mesh.geometry.computeBoundingBox();
+    //         this.mesh.position.set(this.position[0], this.position[1], this.position[2]);
+    //         this.mesh.scale.set(this.scale,this.scale,this.scale);            
+    //         resolve(this);
+    //     });
+    // });
   };
 })();
 

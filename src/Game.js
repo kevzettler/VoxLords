@@ -20,6 +20,8 @@ const Game = function(network, canvas){
 };
 
 Game.prototype.update = function(dt, elapsed){
+  debugger;
+  console.log("updating");
   this.world.update.call(this.world, dt);
 };
 

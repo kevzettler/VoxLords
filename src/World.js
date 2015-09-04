@@ -1,11 +1,13 @@
 const _ = require('lodash');
 const ChunkManager = require('./ChunkManager');
 const VoxLoader = require('./VoxLoader');
+const Vox = require('./Vox');
 const TerrainLoader = require('./TerrainLoader');
 const ClientManager = require('./ClientManager');
 
 const EntityClasses = require('./entities');
 const THREE = require('three');
+const async = require('async');
 const is_server = (typeof process === 'object' && process + '' === '[object process]');
 
 function World(props) {
@@ -56,8 +58,8 @@ function World(props) {
 };
 
 World.prototype.loadEntityModel = function(entity_type, callback){
-      const vox = new Vox({
-      filename: entity_type+".vox",
+    const vox = new Vox({
+      filename: __dirname+ "/../models/" + entity_type+".vox",
       name: entity_type
     });
 
@@ -66,26 +68,28 @@ World.prototype.loadEntityModel = function(entity_type, callback){
           this.meshes[entity_type] = {};
         }
 
-        console.log("storing model", name);
-        that.world.meshes[name].vox = vox;
+        this.meshes[entity_type].vox = vox;
         callback();
     });
 }
 
-World.prototype.loadEntitiyModels = function(entity_types){
-  async.each(entity_types, this.loadEntityModel.bind(this));
+World.prototype.importEntities = function(entity_tree){
+  console.log("import Entities");
+  const entity_types = _.keys(entity_tree);
+
+  async.each(entity_types, 
+             this.loadEntityModel.bind(this), 
+             this.registerEntities(entity_tree));
 };
 
-
-World.prototype.importEntities = function(entity_json_tree){
-  const world = this;
-  _.each(_.keys(entity_json_tree), function(entity_type){
-    _.each(entity_json_tree[entity_type], function(entity_props){
+World.prototype.registerEntities = function(entity_tree){
+  const world = this;  
+  _.each(_.keys(entity_tree), function(entity_type){
+    _.each(entity_tree[entity_type], function(entity_props){
       delete entity_props.world;
       entity_props.world = world;
-      new EntityClasses[entity_type](entity_props).then((entInstance) => {
-        world.registerEntity(entInstance);
-      });
+      const et = new EntityClasses[entity_type](entity_props);
+      world.registerEntity(et);
     });
   });
 };

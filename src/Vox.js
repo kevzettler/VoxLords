@@ -127,7 +127,12 @@ Vox.prototype.onLoadHandler = function (loadptr, oEvent) {
 };
 
 Vox.prototype.LoadModel = function (callback){
-    fs.readFile(this.filename, callback);
+    fs.readFile(this.filename, (err, fileBuffer) => {
+        if(err){
+            console.error(this.filename, err);
+        }
+        this.proccesVoxData(fileBuffer, callback);
+    });
 };
 
 // Vox.prototype.LoadModel = function(loadptr) {

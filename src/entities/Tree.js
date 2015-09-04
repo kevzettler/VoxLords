@@ -3,7 +3,7 @@ const util = require('util');
 const Entity = require('./Entity');
 
 function Tree(props) {
-    return Tree.super_.call(this,props);
+    Tree.super_.call(this,props);
 };
 util.inherits(Tree, Entity);
 
