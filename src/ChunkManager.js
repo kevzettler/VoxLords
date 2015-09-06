@@ -10,25 +10,25 @@ function ChunkManager(props) {
     this.activeTriangles = 0;
     this.updateChunks = [];
     this.maxChunks = 0;
-    this.world;
+    this.blockSize = 0.5;
+    this.scene = null;
 
-    if(props.terrainChunkJSON.length){
-        const terrainChunks = Immutable.fromJS(props.terrainChunkJSON);
-        delete props.terrainChunkJSON;
-        this.processChunkList(terrainChunks);
-    }
+    Object.assign(this,props);    
+};
 
-    Object.assign(this,props);
+ChunkManager.prototype.init = function(terrainChunkJSON){
+    const terrainChunks = Immutable.fromJS(terrainChunkJSON);
+    this.processChunkList(terrainChunks);
 };
 
 ChunkManager.prototype.processChunkList = function(chunkList){
-    debugger;
     chunkList.forEach(this.createChunkFromData.bind(this));
 };
 
 ChunkManager.prototype.createChunkFromData = function(chunkData){
     const c = new ChunkTerrain({
-        chunkManager: this
+        scene: this.scene,
+        worldChunks: Immutable.fromJS(this.worldChunks)
     });
 
     c.Create(chunkData.get('posX'),
@@ -57,10 +57,10 @@ ChunkManager.prototype.Blood = function(x, z, power) {
     var cid = 0;
     var totals = 0;
     var y = this.GetHeight(x,z);
-    y = y/this.world.blockSize;
-    for(var rx = x+power; rx >= x-power; rx-=this.world.blockSize) {
-        for(var rz = z+power; rz >= z-power; rz-=this.world.blockSize) {
-            for(var ry = y+power; ry >= y-power; ry-=this.world.blockSize) {
+    y = y/this.blockSize;
+    for(var rx = x+power; rx >= x-power; rx-=this.blockSize) {
+        for(var rz = z+power; rz >= z-power; rz-=this.blockSize) {
+            for(var ry = y+power; ry >= y-power; ry-=this.blockSize) {
                 if((rx-x)*(rx-x)+(ry-y)*(ry-y)+(rz-z)*(rz-z) <= power*power) {
                     if(Math.random() > 0.7) {
                         // Set random shade to the blocks to look as burnt.
@@ -98,7 +98,7 @@ ChunkManager.prototype.ExplodeBombSmall = function(x,z) {
     x = Math.round(x);
     z = Math.round(z);
     var y = this.GetHeight(x, z);
-    y = Math.round(y/this.world.blockSize);
+    y = Math.round(y/this.blockSize);
     var cid = this.GetWorldChunkID(x, z);
     if(cid == undefined) {
         return;
@@ -140,7 +140,7 @@ ChunkManager.prototype.ExplodeBomb = function(x,z, power, blood, iny) {
     var y;
     if(iny == undefined) {
         var y = this.GetHeight(x,z);
-        y = Math.round(y/this.world.blockSize);
+        y = Math.round(y/this.blockSize);
     } else {
         y = iny;
     }
@@ -152,9 +152,9 @@ ChunkManager.prototype.ExplodeBomb = function(x,z, power, blood, iny) {
     var pow = 0;
     var rand = 0;
     var block = undefined;
-    for(var rx = x+power; rx >= x-power; rx-=this.world.blockSize) {
-        for(var rz = z+power; rz >= z-power; rz-=this.world.blockSize) {
-            for(var ry = y+power; ry >= y-power; ry-=this.world.blockSize) {
+    for(var rx = x+power; rx >= x-power; rx-=this.blockSize) {
+        for(var rz = z+power; rz >= z-power; rz-=this.blockSize) {
+            for(var ry = y+power; ry >= y-power; ry-=this.blockSize) {
                 val = (rx-x)*(rx-x)+(ry-y)*(ry-y)+(rz-z)*(rz-z);
                 pow = power*power;
                 if(val <= pow) {
@@ -304,7 +304,7 @@ ChunkManager.prototype.GetWorldChunkID = function(x,z) {
     if(this.worldMap == undefined) {
         return;
     }
-    var mp = this.world.chunkSize*this.world.blockSize;
+    var mp = this.world.chunkSize*this.blockSize;
     var w_x = Math.floor(Math.abs(x)/mp);
     var w_z = Math.floor(Math.abs(z)/mp);
     if(this.worldMap[w_x] == undefined) {
@@ -318,7 +318,7 @@ ChunkManager.prototype.GetWorldChunkID = function(x,z) {
 };
 
 ChunkManager.prototype.GetChunk = function(x,z) {
-    var mp = this.world.chunkSize*this.world.blockSize;
+    var mp = this.world.chunkSize*this.blockSize;
     var w_x = Math.floor(Math.abs(x)/mp);
     var w_z = Math.floor(Math.abs(z)/mp);
     if(this.worldMap[w_x][w_z] == undefined) {
@@ -329,8 +329,8 @@ ChunkManager.prototype.GetChunk = function(x,z) {
 };
 
 ChunkManager.prototype.Translate = function(x, z, cid) {
-    var x1 = Math.round((z-this.worldChunks[cid.id].posX) / this.world.blockSize);
-    var z1 = Math.round((x-this.worldChunks[cid.id].posY) / this.world.blockSize); 
+    var x1 = Math.round((z-this.worldChunks[cid.id].posX) / this.blockSize);
+    var z1 = Math.round((x-this.worldChunks[cid.id].posY) / this.blockSize); 
     x1 = Math.abs(x1-1); 
     z1 = Math.abs(z1-1);
     return {x: x1, z: z1};
@@ -350,7 +350,7 @@ ChunkManager.prototype.GetHeight = function(x, z) {
     var z1 = Math.round(tmp.z);
     if(this.worldChunks[cid.id].blocks[x1] != undefined) {
         if(this.worldChunks[cid.id].blocks[x1][z1] != undefined) {
-            var y = this.worldChunks[cid.id].blocks[x1][z1].height*this.world.blockSize;
+            var y = this.worldChunks[cid.id].blocks[x1][z1].height*this.blockSize;
         }
     }
 

@@ -40,9 +40,9 @@ Entity.prototype.attachVox = function(vox){
 }
 
 
-Entity.prototype.destroy = function(){
-  return this.world.removeEntity(this);
-};
+// Entity.prototype.destroy = function(){
+//   return this.world.removeEntity(this);
+// };
 
 Entity.prototype.render = function(){
   // this.mesh = this.mesh || BABYLON.Mesh.CreateSphere(this.id, this.width, 2, this.world.scene);

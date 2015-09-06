@@ -1,9 +1,12 @@
 const _ = require('lodash');
+const fs = require('fs-extra');
 const ChunkManager = require('./ChunkManager');
 const VoxLoader = require('./VoxLoader');
 const Vox = require('./Vox');
 const TerrainLoader = require('./TerrainLoader');
 const ClientManager = require('./ClientManager');
+
+const JSONStream = require('JSONStream');
 
 const EntityClasses = require('./entities');
 const THREE = require('three');
@@ -29,16 +32,20 @@ function World(props) {
     this.terrain = [];
     
     this.scene = new THREE.Scene();
+    this.tl = new TerrainLoader({clunkSize: this.chunkSize});
 
-    const tl = new TerrainLoader({world: this});
+    Object.assign(this, props);
+};
 
-    tl.load('maps/map4.png', this.wallHeight, this.blockSize, (terrainChunkJSON) =>{
+World.prototype.fetchAssets = function(callback){
+    this.tl.load('maps/map4.png', this.wallHeight, this.blockSize, (terrainChunkJSON) =>{
 
       this.chunkManager = new ChunkManager({
-        world: this,
-        terrainChunkJSON: terrainChunkJSON
+        blockSize: this.blockSize,
+        scene: this.scene
       });
 
+      this.chunkManager.init(terrainChunkJSON);
       this.chunkManager.BuildAllChunks(this.chunkManager.worldChunks);
 
       if(!is_server){ //put in client object?
@@ -47,14 +54,12 @@ function World(props) {
         });
       }
 
-      if(props.entities){
-        let ents = props.entities;
-        delete props.entities;
-        this.importEntities(ents);
+      if(this.entities){
+        const ents = this.entities;
+        this.entities = {};
+        this.importEntities(ents, callback);
       }
     });
-
-    Object.assign(this, props);
 };
 
 World.prototype.loadEntityModel = function(entity_type, callback){
@@ -73,15 +78,15 @@ World.prototype.loadEntityModel = function(entity_type, callback){
     });
 }
 
-World.prototype.importEntities = function(entity_tree){
+World.prototype.importEntities = function(entity_tree, callback){
   const entity_types = _.keys(entity_tree);
 
   async.each(entity_types,
-             this.loadEntityModel.bind(this), 
-             this.registerEntities.bind(this, entity_tree));
+             this.loadEntityModel.bind(this),
+             this.registerEntities.bind(this, entity_tree, callback));
 };
 
-World.prototype.registerEntities = function(entity_tree, err){
+World.prototype.registerEntities = function(entity_tree, callback, err){
   if(err){
     console.log("some error");
   }
@@ -90,12 +95,14 @@ World.prototype.registerEntities = function(entity_tree, err){
   _.each(_.keys(entity_tree), function(entity_type){
     _.each(entity_tree[entity_type], function(entity_props){
       delete entity_props.world;
-      entity_props.world = world;
+//      entity_props.world = world;
       entity_props.vox = world.meshes[entity_type].vox;
       const et = new EntityClasses[entity_type](entity_props);
       world.registerEntity(et);
     });
   });
+
+  callback();
 };
 
 World.prototype.registerEntity = function(entity){
@@ -128,6 +135,23 @@ World.prototype.render = function(){
   if(this.client){
     this.client.render();
   }
+};
+
+World.prototype.exportKey = function(key, callback){
+    console.log("World.exportKey ", key);
+    fs.outputJson(__dirname+ "/../world_data/"+key+".json", this[key], function(err){
+      if(err){
+        throw err;
+      }
+      console.log(key, " world_data");
+    });
+};
+
+World.prototype.export = function(){
+  console.log("World.export()");
+  async.each(_.keys(this), this.exportKey.bind(this), () =>{
+    console.log("done saving world data");
+  });
 };
 
 module.exports = World;

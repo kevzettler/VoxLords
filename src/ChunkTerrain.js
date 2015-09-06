@@ -5,7 +5,7 @@ const THREE = require('./ThreeHelpers');
 
 // Chunks of other types such as crates/weapons/mob/player
 function ChunkTerrain(props) {
-  ChunkTerrain.super_.call(this);  
+  ChunkTerrain.super_.call(this);
 
   this.wallHeight = 1;
   this.worldWallHeight = 20; //wtf  
@@ -14,6 +14,7 @@ function ChunkTerrain(props) {
   this.chunkSizeY = 16;
   this.chunkSizeZ = 16;
   this.blockSize = 0.5;
+  this.scene = null;
   
   Object.assign(this,props);
 };
@@ -102,8 +103,8 @@ ChunkTerrain.prototype.Rebuild = function() {
                     // Check for hidden blocks on edges (between chunks)
                     if(x == this.chunkSize-1 && y < this.chunkSize-1 && y > 0 && z < this.chunkSizeZ-1) {
                         var id = this.cid + 1;
-                        if(id >= 0 && id < this.chunkManager.worldChunks.length ) {
-                            if(this.chunkManager.worldChunks[id].blocks[0][y][z] != null && this.chunkManager.worldChunks[id].blocks[0][y][z].isActive()) {
+                        if(id >= 0 && id < this.worldChunks.size ) {
+                            if(this.worldChunks[id].blocks[0][y][z] != null && this.worldChunks[id].blocks[0][y][z].isActive()) {
                                 if(this.blocks[x][y-1][z].isActive() && 
                                    this.blocks[x-1][y][z].isActive() &&
                                        this.blocks[x][y+1][z].isActive() &&
@@ -116,8 +117,8 @@ ChunkTerrain.prototype.Rebuild = function() {
 
                     if(x == 0 && y < this.chunkSize-1 && y > 0 && z < this.chunkSizeZ-1 ) {
                         var id = this.cid - 1;
-                        if(id >= 0 && id < this.chunkManager.worldChunks.length ) {
-                            if(this.chunkManager.worldChunks[id].blocks[this.chunkSize-1][y][z] != null && this.chunkManager.worldChunks[id].blocks[this.chunkSize-1][y][z].isActive()) {
+                        if(id >= 0 && id < this.worldChunks.size ) {
+                            if(this.worldChunks[id].blocks[this.chunkSize-1][y][z] != null && this.worldChunks[id].blocks[this.chunkSize-1][y][z].isActive()) {
                                 if(this.blocks[x][y-1][z].isActive() && 
                                    this.blocks[x][y+1][z].isActive() &&
                                        this.blocks[x+1][y][z].isActive() &&
@@ -130,9 +131,9 @@ ChunkTerrain.prototype.Rebuild = function() {
 
 
                     if(y == this.chunkSize-1 && x < this.chunkSize-1 && x > 0 && z < this.chunkSizeZ-1) {
-                        var id = this.cid + Math.sqrt(this.chunkManager.worldChunks.length);
-                        if(id >= 0 && id < this.chunkManager.worldChunks.length ) {
-                            if(this.chunkManager.worldChunks[id].blocks[x][0][z] != null && this.chunkManager.worldChunks[id].blocks[x][0][z].isActive()) {
+                        var id = this.cid + Math.sqrt(this.worldChunks.size);
+                        if(id >= 0 && id < this.worldChunks.size ) {
+                            if(this.worldChunks[id].blocks[x][0][z] != null && this.worldChunks[id].blocks[x][0][z].isActive()) {
                                 if(this.blocks[x-1][y][z].isActive() && 
                                    this.blocks[x+1][y][z].isActive() &&
                                        this.blocks[x][y-1][z].isActive() &&
@@ -144,9 +145,9 @@ ChunkTerrain.prototype.Rebuild = function() {
                     }
 
                     if(y == 0 && x < this.chunkSize-1 && x > 0 && z < this.chunkSizeZ-1 ) {
-                        var id = this.cid - Math.sqrt(this.chunkManager.worldChunks.length);
-                        if(id >= 0 && id < this.chunkManager.worldChunks.length ) {
-                            if(this.chunkManager.worldChunks[id].blocks[x][this.chunkSize-1][z] != null && this.chunkManager.worldChunks[id].blocks[x][this.chunkSize-1][z].isActive()) {
+                        var id = this.cid - Math.sqrt(this.worldChunks.size);
+                        if(id >= 0 && id < this.worldChunks.size ) {
+                            if(this.worldChunks[id].blocks[x][this.chunkSize-1][z] != null && this.worldChunks[id].blocks[x][this.chunkSize-1][z].isActive()) {
                                 if(this.blocks[x-1][y][z].isActive() && 
                                    this.blocks[x+1][y][z].isActive() &&
                                        this.blocks[x][y+1][z].isActive() &&
@@ -168,8 +169,8 @@ ChunkTerrain.prototype.Rebuild = function() {
                         } 
                     } else {
                         var id = this.cid - 1;
-                        if(id != -1 && this.chunkManager.worldChunks[id].blocks[this.chunkSize-1][y][z] != null && //this.chunkManager.worldChunks[id].blocks[x][y][z].isActive() && 
-                           this.chunkManager.worldChunks[id].blocks[this.chunkSize-1][y][z].drawnRightSide) {
+                        if(id != -1 && this.worldChunks[id].blocks[this.chunkSize-1][y][z] != null && //this.worldChunks[id].blocks[x][y][z].isActive() && 
+                           this.worldChunks[id].blocks[this.chunkSize-1][y][z].drawnRightSide) {
                             drawBlock = false;
                             this.blocks[x][y][z].drawnLeftSide = true;
                         } else {
@@ -251,8 +252,8 @@ ChunkTerrain.prototype.Rebuild = function() {
                         }
                     } else {
                         var id = this.cid + 1;
-                        if(this.chunkManager.worldChunks[id].blocks[0][y][z] != null && this.chunkManager.worldChunks[id].blocks[0][y][z].isActive() && 
-                           !this.chunkManager.worldChunks[id].blocks[0][y][z].drawnLeftSide) {
+                        if(this.worldChunks[id].blocks[0][y][z] != null && this.worldChunks[id].blocks[0][y][z].isActive() && 
+                           !this.worldChunks[id].blocks[0][y][z].drawnLeftSide) {
                             this.blocks[x][y][z].drawnRightSide = true;
                             drawBlock = false;
                         } else {
@@ -442,9 +443,9 @@ ChunkTerrain.prototype.Rebuild = function() {
                         }
                     } else {
                         //drawBlock = true;
-                        var id = this.cid - Math.sqrt(this.chunkManager.worldChunks.length);
-                        if(id >= 0  && id < this.chunkManager.worldChunks.length) {
-                            if(this.chunkManager.worldChunks[id].blocks[x][this.chunkSize-1][z] != null && this.chunkManager.worldChunks[id].blocks[x][this.chunkSize-1][z].isActive()) { // && 
+                        var id = this.cid - Math.sqrt(this.worldChunks.size);
+                        if(id >= 0  && id < this.worldChunks.size) {
+                            if(this.worldChunks[id].blocks[x][this.chunkSize-1][z] != null && this.worldChunks[id].blocks[x][this.chunkSize-1][z].isActive()) { // && 
                                 drawBlock = false;
                             } else {
                                 drawBlock = true;
@@ -530,9 +531,9 @@ ChunkTerrain.prototype.Rebuild = function() {
                             drawBlock = true;
                         }
                     } else {
-                        var id = this.cid + Math.sqrt(this.chunkManager.worldChunks.length);
-                        if(id >= 0  && id < this.chunkManager.worldChunks.length) {
-                            if(this.chunkManager.worldChunks[id].blocks[x][0][z] != null && this.chunkManager.worldChunks[id].blocks[x][0][z].isActive()) {
+                        var id = this.cid + Math.sqrt(this.worldChunks.size);
+                        if(id >= 0  && id < this.worldChunks.size) {
+                            if(this.worldChunks[id].blocks[x][0][z] != null && this.worldChunks[id].blocks[x][0][z].isActive()) {
                                 drawBlock = false;
                             } else {
                                 drawBlock = true;
@@ -649,9 +650,9 @@ ChunkTerrain.prototype.Rebuild = function() {
    mesh.castShadow = true;
 
    if(this.mesh != undefined) {
-        this.chunkManager.world.scene.remove(this.mesh);
+        this.scene.remove(this.mesh);
    }
-   this.chunkManager.world.scene.add( mesh );
+   this.scene.add( mesh );
 
    mesh.that = this;
    this.mesh = mesh;

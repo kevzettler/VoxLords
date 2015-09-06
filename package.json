@@ -31,6 +31,7 @@
     "async": "^1.4.2",
     "canvas": "^1.2.8",
     "fixed-game-loop": "^0.2.0",
+    "fs-extra": "^0.24.0",
     "immutable": "^3.7.4",
     "lodash": "^3.10.1",
     "three": "^0.70.1",

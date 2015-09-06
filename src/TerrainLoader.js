@@ -6,9 +6,9 @@ const fs = require('fs');
 function TerrainLoader(props){
     this.chunks = 0;
     this.blocks = 0;
+    this.chunkSize = 16;
 
     Object.assign(this,props);
-    this.chunkSize = this.world.chunkSize;
 };
 
 TerrainLoader.prototype.imageLoadHandler = function(callback, loadEvent){
@@ -53,7 +53,6 @@ TerrainLoader.prototype.readTerrainData = function(terrainData) {
             var cSize = this.blockSize;
 
             if(total != alpha) {
-                debugger;
                 //this is the data structure for making chunks
                 const terrainChunk = {
                     posX: cx * cSize-this.blockSize/2,

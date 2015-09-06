@@ -15,11 +15,17 @@ const Game = function(props){
   
   this.getWorldState((worldState) => {
     this.world = new World(worldState);
-    this.loop.start();
+    this.world.fetchAssets(() => {
+        console.log(JSON.stringify(
+          this.world.chunkManager.worldChunks[0]
+        ));
+//      this.loop.start();
+    });
   });
 };
 
 Game.prototype.update = function(dt, elapsed){
+  debugger;
   this.world.update.call(this.world, dt);
 };
 
