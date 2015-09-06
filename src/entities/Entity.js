@@ -28,9 +28,9 @@ const Entity = (function(){
   };
 })();
 
-Entity.prototype.attachVox = function(Vox){
-    this.vox = Vox;
-    this.chunk = Vox.getChunk();
+Entity.prototype.attachVox = function(vox){
+    this.vox = vox;
+    this.chunk = vox.getChunk();
     this.chunk.Rebuild();
     this.mesh = vox.getMesh();
     this.mesh.geometry.center();

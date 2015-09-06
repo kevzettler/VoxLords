@@ -74,7 +74,6 @@ World.prototype.loadEntityModel = function(entity_type, callback){
 }
 
 World.prototype.importEntities = function(entity_tree){
-  console.log("import Entities");
   const entity_types = _.keys(entity_tree);
 
   async.each(entity_types,
@@ -92,7 +91,7 @@ World.prototype.registerEntities = function(entity_tree, err){
     _.each(entity_tree[entity_type], function(entity_props){
       delete entity_props.world;
       entity_props.world = world;
-      entity_props.vox = world.meshes[entity_type];
+      entity_props.vox = world.meshes[entity_type].vox;
       const et = new EntityClasses[entity_type](entity_props);
       world.registerEntity(et);
     });
