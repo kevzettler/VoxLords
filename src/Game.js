@@ -4,9 +4,9 @@ const GameLoop = require('fixed-game-loop');
 const is_server = (typeof process === 'object' && process + '' === '[object process]');
 const THREE = require('three');
 
-const Game = function(network, canvas){
-  this.network = network;
-  this.canvas = canvas;
+const Game = function(props){
+  this.network = props.network;
+  this.canvas = props.canvas;
 
   this.loop = new GameLoop({
     update: this.update.bind(this),
@@ -20,8 +20,6 @@ const Game = function(network, canvas){
 };
 
 Game.prototype.update = function(dt, elapsed){
-  debugger;
-  console.log("updating");
   this.world.update.call(this.world, dt);
 };
 

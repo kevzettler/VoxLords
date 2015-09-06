@@ -77,17 +77,22 @@ World.prototype.importEntities = function(entity_tree){
   console.log("import Entities");
   const entity_types = _.keys(entity_tree);
 
-  async.each(entity_types, 
+  async.each(entity_types,
              this.loadEntityModel.bind(this), 
-             this.registerEntities(entity_tree));
+             this.registerEntities.bind(this, entity_tree));
 };
 
-World.prototype.registerEntities = function(entity_tree){
-  const world = this;  
+World.prototype.registerEntities = function(entity_tree, err){
+  if(err){
+    console.log("some error");
+  }
+
+  const world = this;
   _.each(_.keys(entity_tree), function(entity_type){
     _.each(entity_tree[entity_type], function(entity_props){
       delete entity_props.world;
       entity_props.world = world;
+      entity_props.vox = world.meshes[entity_type];
       const et = new EntityClasses[entity_type](entity_props);
       world.registerEntity(et);
     });

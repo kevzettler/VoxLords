@@ -2,4 +2,7 @@ require('babel/register')({
     stage: 0
 });
 const Game = require('./Game');
-const game = new Game();
+const game = new Game({
+    network: null,
+    canvas: null,
+});
