@@ -5,9 +5,9 @@ const is_server = (typeof process === 'object' && process + '' === '[object proc
 function TerrainLoader(props){
     this.chunks = 0;
     this.blocks = 0;
+    this.chunkSize = 16;
 
     Object.assign(this,props);
-    this.chunkSize = this.world.chunkSize;
 };
 
 TerrainLoader.prototype.imageLoadHandler = function(callback, loadEvent){

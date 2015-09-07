@@ -30,7 +30,9 @@ function World(props) {
     
     this.scene = new THREE.Scene();
 
-    const tl = new TerrainLoader({world: this});
+    const tl = new TerrainLoader({
+      chunkSize: this.chunkSize
+    });
 
     tl.load('maps/map4.png', this.wallHeight, this.blockSize, (terrainChunkJSON) =>{
 
