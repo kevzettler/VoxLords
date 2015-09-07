@@ -75,7 +75,6 @@ ClientManager.prototype.render = function(){
 };
 
 ClientManager.prototype.initPlayerCamera = function(player_entity){
-    debugger;
     player_entity.camera_obj = new THREE.Object3D();
     player_entity.mesh.add(player_entity.camera_obj);
     player_entity.camera_obj.add(this.camera);

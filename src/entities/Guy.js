@@ -3,6 +3,7 @@ const Entity = require('./Entity');
 const THREE = require('three');
 
 function Guy(props){
+    debugger;
     Guy.super_.call(this,props);
 };
 util.inherits(Guy, Entity);

@@ -1,7 +1,6 @@
 const ChunkTerrain = require('./ChunkTerrain');
 const is_server = (typeof process === 'object' && process + '' === '[object process]');
 
-
 function TerrainLoader(props){
     this.chunks = 0;
     this.blocks = 0;

@@ -3,54 +3,77 @@ const World = require('./World.js');
 const GameLoop = require('fixed-game-loop');
 const is_server = (typeof process === 'object' && process + '' === '[object process]');
 const THREE = require('three');
+const Immutable = require('immutable');
+const TerrainLoader = require('./TerrainLoader');
+const Vox = require('./Vox');
+const async = require('async');
 
-const Game = function(network, canvas){
-  this.network = network;
-  this.canvas = canvas;
+const Game = function(props){
+  this.network = props.network;
+  this.canvas = props.canvas;
 
-  this.loop = new GameLoop({
-    update: this.update.bind(this),
-    render: this.render.bind(this)
-  });
-  
   this.getWorldState((worldState) => {
     this.world = new World(worldState);
-    window.world = this.world;    
+    window.world = this.world;
+
+    this.loop = new GameLoop({
+      update: this.update.bind(this),
+      render: this.render.bind(this)
+    });
+
     this.loop.start();
   });
 };
 
-Game.prototype.update = function(dt, elapsed){
-  this.world.update.call(this.world, dt);
+Game.prototype.TerrainLoadHandler = function(callback, terrainChunkJSON){
+    // this.chunkManager = new ChunkManager({
+    //   blockSize: this.blockSize,
+    //   scene: this.scene
+    // });
+    // this.chunkManager.processChunkList(Immutable.fromJS(terrainChunkJSON));
+    // this.chunkManager.BuildAllChunks(this.chunkManager.worldChunks);
+    callback(terrainChunkJSON);
 };
 
-Game.prototype.render = function(){
-    if(is_server){return true;}
-    this.world.render.call(this.world);
+Game.prototype.loadTerrain = function(callback){
+  const wallHeight = 20;
+  const blockSize = 0.5;
+  const tl = new TerrainLoader();
+
+  tl.load('maps/map4.png', 
+          wallHeight, 
+          blockSize,
+          this.TerrainLoadHandler.bind(this, callback));
 };
 
-Game.prototype.getWorldState = function(callback){
-  //pulled on startup. Either stored in a db or fetched from client on server
-  if(is_server){
-    //get terrain
-    //get entities
-  }else{
+Game.prototype.loadVoxFile = function(entity_name, callback){
+    const vox = new Vox({
+        filename: entity_name+".vox",
+        name: entity_name
+    });
+    
+    vox.LoadModel((vox, name) =>{
+        console.log("loaded mesh", name);
+        callback(null, {[name]: vox});
+    });
+};
 
+Game.prototype.loadEntityMeshes = function(entities, callback){
+  function mergeMeshes(err, entity_meshes){
+      const reducedMeshes = _.reduce(entity_meshes, (total, mesh) =>{
+        return Object.assign(total, mesh);
+      });
+      callback(reducedMeshes);
   }
 
-  const worldState = {
-      mapId: 4,
-      mapFile: "maps/map4.png",
-      mapName: "Voxadu Beach: Home of Lord Bolvox",
-      playerModel: "player",
-      fogColor: 0xeddeab,
-      clearColor: 0xeddeab,
-      blockSize: 0.5,
-      wallHeight: 20,
-      useWater: true,
-      waterPosition: 0.2,
-      
-      entities: {
+  async.map(Object.keys(entities), 
+            this.loadVoxFile.bind(this), 
+            mergeMeshes);
+};
+
+Game.prototype.loadEntities = function(callback){
+      //TODO pull this from redis or something
+      const entities = {
           "Guy": [
             {position:[16, 2, 119]}
           ],
@@ -66,11 +89,57 @@ Game.prototype.getWorldState = function(callback){
             {position:[92,3.5,109], scale:2},
             {position:[86,3.5,107], scale:2}
           ]
-      },
-      
+      };
+
+    this.loadEntityMeshes(entities, (entity_meshes) =>{
+        const allEntityData = {};
+        _.each(_.keys(entity_meshes), (entity_type) => {
+          allEntityData[entity_type] = {
+            mesh: entity_meshes[entity_type],
+            instances: entities[entity_type]
+          };
+        });
+
+        callback(allEntityData);
+    });
+};
+
+Game.prototype.getWorldState = function(callback){
+  //TODO pull on startup. Either stored in a db or fetched from client on server
+  // if(is_server){
+  //   //get terrain
+  //   //get entities
+  // }else{ }
+  const worldState = {
+      mapId: 4,
+      mapFile: "maps/map4.png",
+      mapName: "Voxadu Beach: Home of Lord Bolvox",
+      playerModel: "player",
+      fogColor: 0xeddeab,
+      clearColor: 0xeddeab,
+      blockSize: 0.5,
+      wallHeight: 20,
+      useWater: true,
+      waterPosition: 0.2,
       terrain: []
   };
-  callback(worldState);
+
+  this.loadTerrain((terrainData) => {
+    worldState.terrain = terrainData;
+    this.loadEntities((entityData) => {
+      worldState.entities = entityData;
+      callback(Immutable.fromJS(worldState));
+    });
+  });
+};
+
+Game.prototype.update = function(dt, elapsed){
+  this.world.update.call(this.world, dt);
+};
+
+Game.prototype.render = function(){
+    if(is_server){return true;}
+    this.world.render.call(this.world);
 };
 
 module.exports = Game;

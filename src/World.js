@@ -10,98 +10,94 @@ const THREE = require('three');
 const Immutable = require('immutable');
 const is_server = (typeof process === 'object' && process + '' === '[object process]');
 
-window.Immutable = Immutable;
-
-function World(props) {
-    this.width = 0;
-    this.height = 0;
-    this.name = "Unknown";
-    this.map = undefined;
-    this.chunkSize = 16;
-    this.chunks = 0;
-    this.blocks = 0;
-    this.hemiLight = undefined;
-    this.dirLight = undefined;
-    this.blockSize = 0.5;
-    this.wallHeight = 20;
-    this.useWater = true;
-    this.waterPosition = 0.2;
-    this.mapWidth = 0;
-    this.mapHeight = 0;
-    this.meshes = Immutable.Map();
-    this.entities = Immutable.Map();
-    this.terrain = [];
-    
+function World(worldState) {
+    // this.width = 0;
+    // this.height = 0;
+    // this.name = "Unknown";
+    // this.map = undefined;
+    // this.chunkSize = 16;
+    // this.chunks = 0;
+    // this.blocks = 0;
+    // this.hemiLight = undefined;
+    // this.dirLight = undefined;
+    // this.blockSize = 0.5;
+    // this.wallHeight = 20;
+    // this.useWater = true;
+    // this.waterPosition = 0.2;
+    // this.mapWidth = 0;
+    // this.mapHeight = 0;
     this.scene = new THREE.Scene();
-
-    const tl = new TerrainLoader({
-      chunkSize: this.chunkSize
-    });
-
-    tl.load('maps/map4.png', this.wallHeight, this.blockSize, (terrainChunkJSON) =>{
-
-      this.chunkManager = new ChunkManager({
-        blockSize: this.blockSize,
-        scene: this.scene
-      });
-      this.chunkManager.processChunkList(Immutable.fromJS(terrainChunkJSON));
-      this.chunkManager.BuildAllChunks(this.chunkManager.worldChunks);
-
-      if(!is_server){ //put in client object?
-        this.client = new ClientManager({
-          scene: this.scene
-        });
-      }
-
-      if(props.entities){
-        let ents = props.entities;
-        delete props.entities;
-        this.importEntities(ents);
-      }
-    });
-
-    debugger;
-    Object.assign(this, props);
-};
-
-World.prototype.loadVoxFile = function(entity_name, callback){
-    const vox = new Vox({
-        filename: entity_name+".vox",
-        name: entity_name
-    });
+    this.entities = {};
     
-    vox.LoadModel((vox, name) =>{
-        console.log("storing model", name);
-        this.meshes = this.meshes.set(name, vox);
-        callback();
+    this.buildTerrain(
+      worldState.get('blockSize'),
+      this.scene,
+      worldState.get('terrain')
+    );
+
+    this.importEntities(worldState.get('entities'));
+
+    this.client = new ClientManager({
+      scene: this.scene
     });
+    this.client.initPlayerCamera(this.entities.Guy[0]);
+
+    // const tl = new TerrainLoader({
+    //   chunkSize: this.chunkSize
+    // });
+
+    // tl.load('maps/map4.png', this.wallHeight, this.blockSize, (terrainChunkJSON) =>{
+
+    //   this.chunkManager = new ChunkManager({
+    //     blockSize: this.blockSize,
+    //     scene: this.scene
+    //   });
+    //   this.chunkManager.processChunkList(Immutable.fromJS(terrainChunkJSON));
+    //   this.chunkManager.BuildAllChunks(this.chunkManager.worldChunks);
+
+    //   if(!is_server){ //put in client object?
+    //     this.client = new ClientManager({
+    //       scene: this.scene
+    //     });
+    //   }
+
+    //   if(props.entities){
+    //     let ents = props.entities;
+    //     delete props.entities;
+    //     this.importEntities(ents);
+    //   }
+    // });
 };
 
-World.prototype.importEntities = function(entity_tree){
-  const world = this;
-  const entity_types = _.keys(entity_tree);
-  async.each(entity_types, this.loadVoxFile.bind(this), () =>{
-    _.each(entity_types, function(entity_type){
-      _.each(entity_tree[entity_type], function(entity_props){
-        const ent = new EntityClasses[entity_type](entity_props);
-        ent.attachVox(world.meshes.get(entity_type));
-        world.registerEntity(ent);
-      });
+World.prototype.buildTerrain = function(blockSize, scene, terrainChunkJSON){
+    const chunkManager = new ChunkManager({
+      blockSize: blockSize,
+      scene: scene
     });
-    this.client.initPlayerCamera(this.entities.get('Guy').get(0));    
+    chunkManager.processChunkList(terrainChunkJSON);
+    chunkManager.BuildAllChunks(chunkManager.worldChunks);
+}
+
+World.prototype.initEntityType = function(entity_entry, entity_type){
+  entity_entry.get('instances').forEach((entity_props) =>{
+    const ent = new EntityClasses[entity_type](entity_props);
+    ent.attachVox(entity_entry.get('mesh'));
+    this.registerEntity(ent);
   });
+};
+
+World.prototype.importEntities = function(entity_map){
+  const entity_iterator = entity_map.entries();
+  entity_map.forEach(this.initEntityType.bind(this));
 };
 
 World.prototype.registerEntity = function(entity){
   const entity_type = entity.constructor.name;
-  // if(_.isUndefined(this.entities[entity_type])){
-  //   const eTree = Immutable.Map();
-  //   eTree[entity.id] = entity;
-  //   this.entities[entity_type] = eTree;
-  // }
-
   this.scene.add(entity.mesh);
-  this.entities = this.entities.setIn(entity_type, Immutable.Map(entity));
+  if(!this.entities[entity_type]){
+    this.entities[entity_type] = [];
+  }
+  this.entities[entity_type].push(entity);
 };
 
 World.prototype.flatEntities = function(){

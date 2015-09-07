@@ -14,27 +14,13 @@ const Entity = (function(){
     this.origy = 0;    
     this.mesh;
 
-    _.extend(this, props);
+    _.extend(this, props.toJS());
 
     this.orgiy = this.position[2];
     
     if(!props.id){
       id++;
     }
-
-    // return new Promise((resolve) =>{
-    //     this.getMesh().then((vox) =>{
-    //         this.vox = vox;
-    //         this.chunk = vox.getChunk();
-    //         this.chunk.Rebuild();
-    //         this.mesh = vox.getMesh();
-    //         this.mesh.geometry.center();
-    //         this.mesh.geometry.computeBoundingBox();
-    //         this.mesh.position.set(this.position[0], this.position[1], this.position[2]);
-    //         this.mesh.scale.set(this.scale,this.scale,this.scale);            
-    //         resolve(this);
-    //     });
-    // });
   };
 })();
 
