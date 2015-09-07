@@ -251,7 +251,6 @@ ChunkTerrain.prototype.Rebuild = function() {
                         }
                     } else {
                         var id = this.cid - 1;
-                          debugger;                       
                           if(this.worldChunks.get(id).blocks[0][y][z] != null && this.worldChunks.get(id).blocks[0][y][z].isActive() && 
                              !this.worldChunks.get(id).blocks[0][y][z].drawnLeftSide) {
                               this.blocks[x][y][z].drawnRightSide = true;

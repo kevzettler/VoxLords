@@ -10,6 +10,8 @@ const THREE = require('three');
 const Immutable = require('immutable');
 const is_server = (typeof process === 'object' && process + '' === '[object process]');
 
+window.Immutable = Immutable;
+
 function World(props) {
     this.width = 0;
     this.height = 0;
@@ -26,8 +28,8 @@ function World(props) {
     this.waterPosition = 0.2;
     this.mapWidth = 0;
     this.mapHeight = 0;
-    this.meshes = {};
-    this.entities = {};
+    this.meshes = Immutable.Map();
+    this.entities = Immutable.Map();
     this.terrain = [];
     
     this.scene = new THREE.Scene();
@@ -58,6 +60,7 @@ function World(props) {
       }
     });
 
+    debugger;
     Object.assign(this, props);
 };
 
@@ -68,12 +71,8 @@ World.prototype.loadVoxFile = function(entity_name, callback){
     });
     
     vox.LoadModel((vox, name) =>{
-        if(_.isUndefined(this.meshes[name])){
-            this.meshes[name] = {};
-        }
-
         console.log("storing model", name);
-        this.meshes[name].vox = vox;
+        this.meshes = this.meshes.set(name, vox);
         callback();
     });
 };
@@ -85,23 +84,24 @@ World.prototype.importEntities = function(entity_tree){
     _.each(entity_types, function(entity_type){
       _.each(entity_tree[entity_type], function(entity_props){
         const ent = new EntityClasses[entity_type](entity_props);
-        ent.attachVox(world.meshes[entity_type].vox);
+        ent.attachVox(world.meshes.get(entity_type));
         world.registerEntity(ent);
       });
     });
+    this.client.initPlayerCamera(this.entities.get('Guy').get(0));    
   });
 };
 
 World.prototype.registerEntity = function(entity){
   const entity_type = entity.constructor.name;
-  if(_.isUndefined(this.entities[entity_type])){
-    const eTree = {};
-    eTree[entity.id] = entity;
-    this.entities[entity_type] = eTree;
-  }
+  // if(_.isUndefined(this.entities[entity_type])){
+  //   const eTree = Immutable.Map();
+  //   eTree[entity.id] = entity;
+  //   this.entities[entity_type] = eTree;
+  // }
 
   this.scene.add(entity.mesh);
-  this.entities[entity_type][entity.id] = entity;
+  this.entities = this.entities.setIn(entity_type, Immutable.Map(entity));
 };
 
 World.prototype.flatEntities = function(){
