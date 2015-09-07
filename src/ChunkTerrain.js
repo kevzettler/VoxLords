@@ -103,7 +103,6 @@ ChunkTerrain.prototype.Rebuild = function() {
                     if(x == this.chunkSize-1 && y < this.chunkSize-1 && y > 0 && z < this.chunkSizeZ-1) {
                         var id = this.cid + 1;
                         if(id >= 0 && id < this.worldChunks.size ) {
-                          if(typeof this.worldChunks.get(id) != 'undefined'){
                             if(this.worldChunks.get(id).blocks[0][y][z] != null && this.worldChunks.get(id).blocks[0][y][z].isActive()) {
                                 if(this.blocks[x][y-1][z].isActive() && 
                                    this.blocks[x-1][y][z].isActive() &&
@@ -113,13 +112,11 @@ ChunkTerrain.prototype.Rebuild = function() {
                                 }
                             }
                           }
-                        }
                     }
 
                     if(x == 0 && y < this.chunkSize-1 && y > 0 && z < this.chunkSizeZ-1 ) {
                         var id = this.cid - 1;
                         if(id >= 0 && id < this.worldChunks.size ) {
-                          if(typeof this.worldChunks.get(id) != 'undefined'){ 
                             if(this.worldChunks.get(id).blocks[this.chunkSize-1][y][z] != null && this.worldChunks.get(id).blocks[this.chunkSize-1][y][z].isActive()) {
                                 if(this.blocks[x][y-1][z].isActive() && 
                                    this.blocks[x][y+1][z].isActive() &&
@@ -128,7 +125,6 @@ ChunkTerrain.prototype.Rebuild = function() {
                                     continue;
                                 }
                             }
-                          }
                         }
                     }
 
@@ -136,7 +132,6 @@ ChunkTerrain.prototype.Rebuild = function() {
                     if(y == this.chunkSize-1 && x < this.chunkSize-1 && x > 0 && z < this.chunkSizeZ-1) {
                         var id = this.cid + Math.sqrt(this.worldChunks.size);
                         if(id >= 0 && id < this.worldChunks.size ) {
-                          if(typeof this.worldChunks.get(id) != 'undefined'){                          
                             if(this.worldChunks.get(id).blocks[x][0][z] != null && this.worldChunks.get(id).blocks[x][0][z].isActive()) {
                                 if(this.blocks[x-1][y][z].isActive() && 
                                    this.blocks[x+1][y][z].isActive() &&
@@ -145,14 +140,12 @@ ChunkTerrain.prototype.Rebuild = function() {
                                     continue;
                                 }
                             }
-                          }
                         }
                     }
 
                     if(y == 0 && x < this.chunkSize-1 && x > 0 && z < this.chunkSizeZ-1 ) {
                         var id = this.cid - Math.sqrt(this.worldChunks.size);
                         if(id >= 0 && id < this.worldChunks.size ) {
-                          if(typeof this.worldChunks.get(id) != 'undefined'){
                             if(this.worldChunks.get(id).blocks[x][this.chunkSize-1][z] != null && this.worldChunks.get(id).blocks[x][this.chunkSize-1][z].isActive()) {
                                 if(this.blocks[x-1][y][z].isActive() && 
                                    this.blocks[x+1][y][z].isActive() &&
@@ -162,7 +155,6 @@ ChunkTerrain.prototype.Rebuild = function() {
                                 }
                             }
                           }
-                        }
                     }
 
                     var sides = 0;
@@ -258,8 +250,8 @@ ChunkTerrain.prototype.Rebuild = function() {
                             drawBlock = true;
                         }
                     } else {
-                        var id = this.cid + 1;
-                      if(typeof this.worldChunks.get(id) != 'undefined'){
+                        var id = this.cid - 1;
+                          debugger;                       
                           if(this.worldChunks.get(id).blocks[0][y][z] != null && this.worldChunks.get(id).blocks[0][y][z].isActive() && 
                              !this.worldChunks.get(id).blocks[0][y][z].drawnLeftSide) {
                               this.blocks[x][y][z].drawnRightSide = true;
@@ -267,9 +259,6 @@ ChunkTerrain.prototype.Rebuild = function() {
                           } else {
                              drawBlock = true;
                           }
-                      }else{
-                        drawBlock = false;
-                      }
                     }
 
                     if(drawBlock) {
