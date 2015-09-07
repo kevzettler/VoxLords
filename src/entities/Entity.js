@@ -22,58 +22,69 @@ const Entity = (function(){
       id++;
     }
 
-    return new Promise((resolve) =>{
-        this.getMesh().then((vox) =>{
-            this.vox = vox;
-            this.chunk = vox.getChunk();
-            this.chunk.Rebuild();
-            this.mesh = vox.getMesh();
-            this.mesh.geometry.center();
-            this.mesh.geometry.computeBoundingBox();
-            this.mesh.position.set(this.position[0], this.position[1], this.position[2]);
-            this.mesh.scale.set(this.scale,this.scale,this.scale);            
-            resolve(this);
-        });
-    });
+    // return new Promise((resolve) =>{
+    //     this.getMesh().then((vox) =>{
+    //         this.vox = vox;
+    //         this.chunk = vox.getChunk();
+    //         this.chunk.Rebuild();
+    //         this.mesh = vox.getMesh();
+    //         this.mesh.geometry.center();
+    //         this.mesh.geometry.computeBoundingBox();
+    //         this.mesh.position.set(this.position[0], this.position[1], this.position[2]);
+    //         this.mesh.scale.set(this.scale,this.scale,this.scale);            
+    //         resolve(this);
+    //     });
+    // });
   };
 })();
 
-Entity.prototype.getMesh = function() {
-    const name = this.constructor.name;
-    return new Promise((resolve) =>{
-        if(this.world.meshes[name]){
-            reslove(this.world.meshes[name]);
-        }else{
-            return this.loadVoxFile().then((vox) =>{
-                resolve(vox);
-            });
-        }
-    })
-};
+Entity.prototype.attachVox = function(vox){
+    this.vox = vox;
+    this.chunk = vox.getChunk();
+    this.chunk.Rebuild();
+    this.mesh = vox.getMesh();
+    this.mesh.geometry.center();
+    this.mesh.geometry.computeBoundingBox();
+    this.mesh.position.set(this.position[0], this.position[1], this.position[2]);
+    this.mesh.scale.set(this.scale,this.scale,this.scale); 
+}
 
-Entity.prototype.loadVoxFile = function(){
-    const that = this;
+// Entity.prototype.getMesh = function() {
+//     const name = this.constructor.name;
+//     return new Promise((resolve) =>{
+//         if(this.world.meshes[name]){
+//             reslove(this.world.meshes[name]);
+//         }else{
+//             return this.loadVoxFile().then((vox) =>{
+//                 resolve(vox);
+//             });
+//         }
+//     })
+// };
 
-    return new Promise((resolve) =>{
-        const vox = new Vox({
-            filename: that.constructor.name+".vox",
-            name: that.constructor.name
-        });
+// Entity.prototype.loadVoxFile = function(){
+//     const that = this;
+
+//     return new Promise((resolve) =>{
+//         const vox = new Vox({
+//             filename: that.constructor.name+".vox",
+//             name: that.constructor.name
+//         });
         
-        vox.LoadModel((vox, name) =>{
-            if(_.isUndefined(that.world.meshes[name])){
-                that.world.meshes[name] = {};
-            }
-            console.log("storing model", name);
-            that.world.meshes[name].vox = vox;
-            resolve(vox);
-        });
-    });
-};
+//         vox.LoadModel((vox, name) =>{
+//             if(_.isUndefined(that.world.meshes[name])){
+//                 that.world.meshes[name] = {};
+//             }
+//             console.log("storing model", name);
+//             that.world.meshes[name].vox = vox;
+//             resolve(vox);
+//         });
+//     });
+// };
 
-Entity.prototype.destroy = function(){
-  return this.world.removeEntity(this);
-};
+// Entity.prototype.destroy = function(){
+//   return this.world.removeEntity(this);
+// };
 
 Entity.prototype.render = function(){
   // this.mesh = this.mesh || BABYLON.Mesh.CreateSphere(this.id, this.width, 2, this.world.scene);

@@ -1,9 +1,10 @@
 const _ = require('lodash');
+const async = require('async');
 const ChunkManager = require('./ChunkManager');
 const VoxLoader = require('./VoxLoader');
 const TerrainLoader = require('./TerrainLoader');
 const ClientManager = require('./ClientManager');
-
+const Vox = require('./Vox');
 const EntityClasses = require('./entities');
 const THREE = require('three');
 const Immutable = require('immutable');
@@ -60,15 +61,32 @@ function World(props) {
     Object.assign(this, props);
 };
 
+World.prototype.loadVoxFile = function(entity_name, callback){
+    const vox = new Vox({
+        filename: entity_name+".vox",
+        name: entity_name
+    });
+    
+    vox.LoadModel((vox, name) =>{
+        if(_.isUndefined(this.meshes[name])){
+            this.meshes[name] = {};
+        }
 
-World.prototype.importEntities = function(entity_json_tree){
+        console.log("storing model", name);
+        this.meshes[name].vox = vox;
+        callback();
+    });
+};
+
+World.prototype.importEntities = function(entity_tree){
   const world = this;
-  _.each(_.keys(entity_json_tree), function(entity_type){
-    _.each(entity_json_tree[entity_type], function(entity_props){
-      delete entity_props.world;
-      entity_props.world = world;
-      new EntityClasses[entity_type](entity_props).then((entInstance) => {
-        world.registerEntity(entInstance);
+  const entity_types = _.keys(entity_tree);
+  async.each(entity_types, this.loadVoxFile.bind(this), () =>{
+    _.each(entity_types, function(entity_type){
+      _.each(entity_tree[entity_type], function(entity_props){
+        const ent = new EntityClasses[entity_type](entity_props);
+        ent.attachVox(world.meshes[entity_type].vox);
+        world.registerEntity(ent);
       });
     });
   });
