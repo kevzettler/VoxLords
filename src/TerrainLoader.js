@@ -52,7 +52,6 @@ TerrainLoader.prototype.readTerrainData = function(terrainData) {
             var cSize = this.blockSize;
 
             if(total != alpha) {
-                debugger;
                 //this is the data structure for making chunks
                 const terrainChunk = {
                     posX: cx * cSize-this.blockSize/2,

@@ -6,6 +6,7 @@ const ClientManager = require('./ClientManager');
 
 const EntityClasses = require('./entities');
 const THREE = require('three');
+const Immutable = require('immutable');
 const is_server = (typeof process === 'object' && process + '' === '[object process]');
 
 function World(props) {
@@ -37,12 +38,10 @@ function World(props) {
     tl.load('maps/map4.png', this.wallHeight, this.blockSize, (terrainChunkJSON) =>{
 
       this.chunkManager = new ChunkManager({
-        world: this,
-        terrainChunkJSON: terrainChunkJSON
+        blockSize: this.blockSize,
+        scene: this.scene
       });
-
-      window.chunkManager = this.chunkManager;
-      
+      this.chunkManager.processChunkList(Immutable.fromJS(terrainChunkJSON));
       this.chunkManager.BuildAllChunks(this.chunkManager.worldChunks);
 
       if(!is_server){ //put in client object?
