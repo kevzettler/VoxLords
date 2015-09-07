@@ -72,6 +72,7 @@ Game.prototype.loadEntityMeshes = function(entities, callback){
 };
 
 Game.prototype.loadEntities = function(callback){
+
       //TODO pull this from redis or something
       const entities = {
           "Guy": [
@@ -110,6 +111,7 @@ Game.prototype.getWorldState = function(callback){
   //   //get terrain
   //   //get entities
   // }else{ }
+  
   const worldState = {
       mapId: 4,
       mapFile: "maps/map4.png",

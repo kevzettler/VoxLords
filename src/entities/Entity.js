@@ -35,51 +35,5 @@ Entity.prototype.attachVox = function(vox){
     this.mesh.scale.set(this.scale,this.scale,this.scale); 
 }
 
-// Entity.prototype.getMesh = function() {
-//     const name = this.constructor.name;
-//     return new Promise((resolve) =>{
-//         if(this.world.meshes[name]){
-//             reslove(this.world.meshes[name]);
-//         }else{
-//             return this.loadVoxFile().then((vox) =>{
-//                 resolve(vox);
-//             });
-//         }
-//     })
-// };
-
-// Entity.prototype.loadVoxFile = function(){
-//     const that = this;
-
-//     return new Promise((resolve) =>{
-//         const vox = new Vox({
-//             filename: that.constructor.name+".vox",
-//             name: that.constructor.name
-//         });
-        
-//         vox.LoadModel((vox, name) =>{
-//             if(_.isUndefined(that.world.meshes[name])){
-//                 that.world.meshes[name] = {};
-//             }
-//             console.log("storing model", name);
-//             that.world.meshes[name].vox = vox;
-//             resolve(vox);
-//         });
-//     });
-// };
-
-// Entity.prototype.destroy = function(){
-//   return this.world.removeEntity(this);
-// };
-
-Entity.prototype.render = function(){
-  // this.mesh = this.mesh || BABYLON.Mesh.CreateSphere(this.id, this.width, 2, this.world.scene);
-  // this.mesh.position.x = this.position[0];
-  // this.mesh.position.z = this.position[1];
-  // this.mesh.position.y = 1;
-  // this.mesh.showBoundingBox = true;
-  // this.mesh.material = this.world.test_material;
-};
-
 
 module.exports = Entity;

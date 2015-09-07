@@ -33,7 +33,6 @@ function ClientManager(props){
 
   // Init lights
   this.setLights();
-
 };
 
 ClientManager.prototype.setLights = function() {

@@ -41,32 +41,6 @@ function World(worldState) {
       scene: this.scene
     });
     this.client.initPlayerCamera(this.entities.Guy[0]);
-
-    // const tl = new TerrainLoader({
-    //   chunkSize: this.chunkSize
-    // });
-
-    // tl.load('maps/map4.png', this.wallHeight, this.blockSize, (terrainChunkJSON) =>{
-
-    //   this.chunkManager = new ChunkManager({
-    //     blockSize: this.blockSize,
-    //     scene: this.scene
-    //   });
-    //   this.chunkManager.processChunkList(Immutable.fromJS(terrainChunkJSON));
-    //   this.chunkManager.BuildAllChunks(this.chunkManager.worldChunks);
-
-    //   if(!is_server){ //put in client object?
-    //     this.client = new ClientManager({
-    //       scene: this.scene
-    //     });
-    //   }
-
-    //   if(props.entities){
-    //     let ents = props.entities;
-    //     delete props.entities;
-    //     this.importEntities(ents);
-    //   }
-    // });
 };
 
 World.prototype.buildTerrain = function(blockSize, scene, terrainChunkJSON){
