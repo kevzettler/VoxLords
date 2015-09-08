@@ -68,7 +68,8 @@ Game.prototype.loadEntities = function(callback){
       const entities = {
           "Guy": [
             {
-             position:[16, 200, 119], 
+//             position:[16, 200, 119],
+             position:[76,200,107], 
              display: 'kevisazombie'
             }
           ],
@@ -83,6 +84,13 @@ Game.prototype.loadEntities = function(callback){
             {position:[107,2.5,27], scale:2},
             {position:[92,3.5,109], scale:2},
             {position:[86,3.5,107], scale:2}
+          ],
+
+          "Cloud": [
+            {position:[16, 20, 110], scale:2},
+            {position:[20, 30, 90], scale:2},            
+            {position:[16, 40, 110], scale:2},
+            {position:[16, 80, 110], scale:2},                        
           ]
       };
 

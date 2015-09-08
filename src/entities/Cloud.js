@@ -1,18 +1,18 @@
 const util = require('util');
-const Object3D = require('./Object3D');
+const Entity = require('./Entity');
 
 ////////////////////////////////////////////////////////////
 // Cloud
 /////////////////////////////////////////////////////////////
-function Cloud() {
-    Object3D.call(this);
+function Cloud(props) {
     this.chunk = undefined;
     this.scale = 2;
     this.remove = 0;
     this.speed = 0;
     this.snow = true;
+    Cloud.super_.call(this,props);
 }
-util.inherits(Cloud, Object3D);
+util.inherits(Cloud, Entity);
 
 Cloud.prototype.Draw = function(time, delta) {
     this.mesh.position.z += this.speed;

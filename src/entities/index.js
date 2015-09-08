@@ -1,4 +1,5 @@
 module.exports = {
   Tree: require('./Tree'),
-  Guy: require('./Guy')
+  Guy: require('./Guy'),
+  Cloud: require('./Cloud')
 };

@@ -57,6 +57,7 @@ World.prototype.initEntityType = function(entity_entry, entity_type){
   entity_entry.get('instances').forEach((entity_props) =>{
     const ent = new EntityClasses[entity_type](entity_props);
     ent.attachVox(entity_entry.get('mesh'));
+    ent.scene = this.scene;
     this.registerEntity(ent);
   });
 };
