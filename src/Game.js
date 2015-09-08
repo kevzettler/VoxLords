@@ -25,15 +25,6 @@ const Game = function(props){
   });
 };
 
-Game.prototype.TerrainLoadHandler = function(callback, terrainChunkJSON){
-    // this.chunkManager = new ChunkManager({
-    //   blockSize: this.blockSize,
-    //   scene: this.scene
-    // });
-    // this.chunkManager.processChunkList(Immutable.fromJS(terrainChunkJSON));
-    // this.chunkManager.BuildAllChunks(this.chunkManager.worldChunks);
-    callback(terrainChunkJSON);
-};
 
 Game.prototype.loadTerrain = function(callback){
   const wallHeight = 20;
@@ -43,7 +34,7 @@ Game.prototype.loadTerrain = function(callback){
   tl.load('maps/map4.png', 
           wallHeight, 
           blockSize,
-          this.TerrainLoadHandler.bind(this, callback));
+          (terrainChunkJSON) => {callback(terrainChunkJSON)});
 };
 
 Game.prototype.loadVoxFile = function(entity_name, callback){
@@ -76,7 +67,10 @@ Game.prototype.loadEntities = function(callback){
       //TODO pull this from redis or something
       const entities = {
           "Guy": [
-            {position:[16, 2, 119]}
+            {
+             position:[16, 200, 119], 
+             display: 'kevisazombie'
+            }
           ],
 
           "Tree": [
@@ -111,7 +105,7 @@ Game.prototype.getWorldState = function(callback){
   //   //get terrain
   //   //get entities
   // }else{ }
-  
+
   const worldState = {
       mapId: 4,
       mapFile: "maps/map4.png",

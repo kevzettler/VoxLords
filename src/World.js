@@ -40,6 +40,7 @@ function World(worldState) {
     this.client = new ClientManager({
       scene: this.scene
     });
+    window.guy = this.entities.Guy[0];
     this.client.initPlayerCamera(this.entities.Guy[0]);
 };
 
@@ -81,11 +82,12 @@ World.prototype.flatEntities = function(){
 World.prototype.update = function(delta){
   const invMaxFps = 1/60;
   THREE.AnimationHandler.update(invMaxFps);
+
+  //Redraw explode chunks here
   //this.chunkManager.Draw(delta, invMaxFps);
 
-  _.each(this.entities.Actor, function(actor){
-    actor.update(delta);
-  });
+  //update all non static entities here
+  this.entities.Guy[0].update();
 };
 
 World.prototype.render = function(){

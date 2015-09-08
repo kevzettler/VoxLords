@@ -3,13 +3,12 @@ const Entity = require('./Entity');
 const THREE = require('three');
 
 function Guy(props){
-    debugger;
     Guy.super_.call(this,props);
 };
 util.inherits(Guy, Entity);
 
 Guy.prototype.update = function(dt){
-
+    Guy.super_.prototype.update.call(this, dt);
 };
 
 Guy.prototype.render = function(dt){
