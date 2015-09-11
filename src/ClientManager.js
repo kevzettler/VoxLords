@@ -22,7 +22,7 @@ function ClientManager(props){
   
   this.keyboard = new THREEx.KeyboardState();
 
-  this.container.appendChild(this.renderer.domElement);
+  this.render_container.appendChild(this.renderer.domElement);
 
   THREEx.WindowResize(this.renderer, this.camera);
   this.fogColor = 0xeddeab;

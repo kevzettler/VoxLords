@@ -9,11 +9,12 @@ const Vox = require('./Vox');
 const async = require('async');
 
 const Game = function(props){
-  this.network = props.network;
-  this.render_container = props.render_container;
+  this.network = null;
+  this.render_container = null;
+  Object.assign(this, props);
 
   this.getWorldState((worldState) => {
-    this.world = new World(worldState, render_container);
+    this.world = new World(worldState, this.render_container);
     window.world = this.world;
 
     this.loop = new GameLoop({

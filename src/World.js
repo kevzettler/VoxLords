@@ -39,7 +39,8 @@ function World(worldState, render_container) {
     if(render_container){
       this.client = new ClientManager({
         scene: this.scene,
-        player_entity: this.entities.Guy[0]
+        player_entity: this.entities.Guy[0],
+        render_container: render_container
       });
     }
 
