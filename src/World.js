@@ -9,7 +9,7 @@ const EntityClasses = require('./entities');
 const THREE = require('three');
 const Immutable = require('immutable');
 
-function World(worldState, render_container) {
+function World(worldState, Game) {
     // this.width = 0;
     // this.height = 0;
     // this.name = "Unknown";
@@ -36,13 +36,18 @@ function World(worldState, render_container) {
 
     this.importEntities(worldState.get('entities'));
 
-    if(render_container){
+    if(Game.render_container){
       this.client = new ClientManager({
         scene: this.scene,
         player_entity: this.entities.Guy[0],
-        render_container: render_container
+        Game: Game
+      });
+    }else{
+      Game.network.subscribe("user_input", (user_input) =>{
+        console.log("SERVER: got some user input", user_input);
       });
     }
+
 
     window.guy = this.entities.Guy[0];
 };

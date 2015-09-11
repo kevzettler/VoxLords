@@ -11,10 +11,12 @@ const async = require('async');
 const Game = function(props){
   this.network = null;
   this.render_container = null;
+  this.render_tick = 0;
+  this.update_tick = 0;
   Object.assign(this, props);
 
   this.getWorldState((worldState) => {
-    this.world = new World(worldState, this.render_container);
+    this.world = new World(worldState, this);
     window.world = this.world;
 
     this.loop = new GameLoop({
@@ -139,11 +141,13 @@ Game.prototype.getWorldState = function(callback){
 
 Game.prototype.update = function(dt, elapsed){
   this.world.update.call(this.world, dt);
+  this.update_tick++;
 };
 
 Game.prototype.render = function(){
     if(is_server){return true;}
     this.world.render.call(this.world);
+    this.render_tick++;
 };
 
 module.exports = Game;

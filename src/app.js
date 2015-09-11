@@ -6,7 +6,7 @@ const network = {
 
     send: function(channel, message){
         this.channels[channel].forEach(function(client){
-            clent(message);
+            client(message);
         });
     },
 

@@ -1,5 +1,5 @@
 const THREE = require('./ThreeHelpers');
-const Utils = require('./Utils');
+const InputManager = require('./inputManager.js');
 
 /* responsible for rendering different clients */
 function ClientManager(props){
@@ -22,7 +22,7 @@ function ClientManager(props){
   
   this.keyboard = new THREEx.KeyboardState();
 
-  this.render_container.appendChild(this.renderer.domElement);
+  this.Game.render_container.appendChild(this.renderer.domElement);
 
   THREEx.WindowResize(this.renderer, this.camera);
   this.fogColor = 0xeddeab;
@@ -31,39 +31,15 @@ function ClientManager(props){
   this.renderer.setClearColor(this.clearColor, 1);
 
   this.initPlayerCamera(this.player_entity);
-  this.initPlayerControls();
-  Utils.LockPointer();
+
+  this.inputManager = new InputManager({
+    player_entity: this.player_entity,
+    Game: this.Game
+  });
 
   // Init lights
   this.setLights();
 };
-
-ClientManager.prototype.initPlayerControls = function(){
-  document.addEventListener('mousemove', this.onMouseMove.bind(this));
-  document.addEventListener('keypress', this.onKeyPress.bind(this));
-  document.addEventListener('keyup', this.onKeyUp.bind(this));
-};
-
-ClientManager.prototype.onKeyPress = function(){
-
-};
-
-ClientManager.prototype.onKeyUp = function(){
-
-};
-
-ClientManager.prototype.onMouseMove = function(event) {
-    if(this.player_entity.attached_camera == 1) {
-        var movementX = event.movementX || event.mozMovementX || event.webkitMovementX ||0;
-        var movementY = event.movementY || event.mozMovementY || event.webkitMovementY || 0;
-        var x = movementX*0.001;
-        var y = movementY*0.001;
-        
-        var xAxis = new THREE.Vector3(0,0,1);
-        Utils.rotateAroundObjectAxis(this.player_entity.mesh, xAxis, -(Math.PI / 2)*x);
-    }
-};
-
 
 ClientManager.prototype.setLights = function() {
     console.log("Initiate lights...");
@@ -113,4 +89,10 @@ ClientManager.prototype.initPlayerCamera = function(player_entity){
 };
 
 module.exports = ClientManager;
+
+
+
+
+
+
 
