@@ -1,4 +1,5 @@
 const THREE = require('./ThreeHelpers');
+const Utils = require('./Utils');
 
 /* responsible for rendering different clients */
 function ClientManager(props){
@@ -6,12 +7,13 @@ function ClientManager(props){
   this.aspect = window.innerWidth/window.innerHeight;
   this.near = 1;
   this.far = 61;
+  this.player_entity = null;
 
   Object.assign(this, props);  
   
 
   this.camera = new THREE.PerspectiveCamera(this.viewAngle, this.aspect, this.near, this.far);
-  this.scene.add(this.camera);
+  //this.scene.add(this.camera);
   this.camera.position.set(16, 0.5, 119);
   window.camera = this.camera;
 
@@ -31,9 +33,26 @@ function ClientManager(props){
   this.scene.fog = new THREE.Fog( this.fogColor, 40, 60 );
   this.renderer.setClearColor(this.clearColor, 1);
 
+  this.initPlayerCamera(this.player_entity);
+  document.addEventListener('mousemove', this.onMouseMove.bind(this));
+
   // Init lights
   this.setLights();
 };
+
+
+ClientManager.prototype.onMouseMove = function(event) {
+    if(this.player_entity.attached_camera == 1) {
+        var movementX = event.movementX || event.mozMovementX || event.webkitMovementX ||0;
+        var movementY = event.movementY || event.mozMovementY || event.webkitMovementY || 0;
+        var x = movementX*0.001;
+        var y = movementY*0.001;
+        
+        var xAxis = new THREE.Vector3(0,0,1);
+        Utils.rotateAroundObjectAxis(this.player_entity.mesh, xAxis, -(Math.PI / 2)*x);
+    }
+};
+
 
 ClientManager.prototype.setLights = function() {
     console.log("Initiate lights...");

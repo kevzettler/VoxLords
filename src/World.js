@@ -38,10 +38,12 @@ function World(worldState) {
     this.importEntities(worldState.get('entities'));
 
     this.client = new ClientManager({
-      scene: this.scene
+      scene: this.scene,
+      player_entity: this.entities.Guy[0]
     });
+
     window.guy = this.entities.Guy[0];
-    this.client.initPlayerCamera(this.entities.Guy[0]);
+//    this.client.initPlayerCamera(this.entities.Guy[0]);
 };
 
 World.prototype.buildTerrain = function(blockSize, scene, terrainChunkJSON){
