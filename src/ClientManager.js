@@ -8,13 +8,11 @@ function ClientManager(props){
   this.near = 1;
   this.far = 61;
   this.player_entity = null;
+  this.container = null;
 
   Object.assign(this, props);  
   
-
   this.camera = new THREE.PerspectiveCamera(this.viewAngle, this.aspect, this.near, this.far);
-  //this.scene.add(this.camera);
-  this.camera.position.set(16, 0.5, 119);
   window.camera = this.camera;
 
   this.renderer = new THREE.WebGLRenderer( {antialias: true} );
@@ -24,7 +22,6 @@ function ClientManager(props){
   
   this.keyboard = new THREEx.KeyboardState();
 
-  this.container = document.getElementById('container');
   this.container.appendChild(this.renderer.domElement);
 
   THREEx.WindowResize(this.renderer, this.camera);
@@ -34,12 +31,26 @@ function ClientManager(props){
   this.renderer.setClearColor(this.clearColor, 1);
 
   this.initPlayerCamera(this.player_entity);
-  document.addEventListener('mousemove', this.onMouseMove.bind(this));
+  this.initPlayerControls();
+  Utils.LockPointer();
 
   // Init lights
   this.setLights();
 };
 
+ClientManager.prototype.initPlayerControls = function(){
+  document.addEventListener('mousemove', this.onMouseMove.bind(this));
+  document.addEventListener('keypress', this.onKeyPress.bind(this));
+  document.addEventListener('keyup', this.onKeyUp.bind(this));
+};
+
+ClientManager.prototype.onKeyPress = function(){
+
+};
+
+ClientManager.prototype.onKeyUp = function(){
+
+};
 
 ClientManager.prototype.onMouseMove = function(event) {
     if(this.player_entity.attached_camera == 1) {

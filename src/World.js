@@ -8,9 +8,8 @@ const Vox = require('./Vox');
 const EntityClasses = require('./entities');
 const THREE = require('three');
 const Immutable = require('immutable');
-const is_server = (typeof process === 'object' && process + '' === '[object process]');
 
-function World(worldState) {
+function World(worldState, render_container) {
     // this.width = 0;
     // this.height = 0;
     // this.name = "Unknown";
@@ -37,13 +36,14 @@ function World(worldState) {
 
     this.importEntities(worldState.get('entities'));
 
-    this.client = new ClientManager({
-      scene: this.scene,
-      player_entity: this.entities.Guy[0]
-    });
+    if(render_container){
+      this.client = new ClientManager({
+        scene: this.scene,
+        player_entity: this.entities.Guy[0]
+      });
+    }
 
     window.guy = this.entities.Guy[0];
-//    this.client.initPlayerCamera(this.entities.Guy[0]);
 };
 
 World.prototype.buildTerrain = function(blockSize, scene, terrainChunkJSON){
@@ -51,6 +51,9 @@ World.prototype.buildTerrain = function(blockSize, scene, terrainChunkJSON){
       blockSize: blockSize,
       scene: scene
     });
+
+    window.chunkManager = chunkManager;
+
     chunkManager.processChunkList(terrainChunkJSON);
     chunkManager.BuildAllChunks(chunkManager.worldChunks);
 }

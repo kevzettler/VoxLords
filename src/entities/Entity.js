@@ -60,6 +60,8 @@ Entity.prototype.attachVox = function(vox){
 
     this.raycaster = new THREE.Raycaster(this.position);
 
+    //this.mesh.add( new THREE.ArrowHelper(this.raycaster.ray.direction, this.mesh.position, 30, 0x00FF00));
+
     this.mesh.scale.set(this.scale,this.scale,this.scale); 
 }
 

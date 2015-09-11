@@ -10,10 +10,10 @@ const async = require('async');
 
 const Game = function(props){
   this.network = props.network;
-  this.canvas = props.canvas;
+  this.render_container = props.render_container;
 
   this.getWorldState((worldState) => {
-    this.world = new World(worldState);
+    this.world = new World(worldState, render_container);
     window.world = this.world;
 
     this.loop = new GameLoop({
@@ -68,8 +68,8 @@ Game.prototype.loadEntities = function(callback){
       const entities = {
           "Guy": [
             {
-//             position:[16, 200, 119],
-             position:[76,200,107], 
+             position:[16, 200, 119],
+//             position:[76,200,107], 
              display: 'kevisazombie'
             }
           ],
@@ -118,7 +118,6 @@ Game.prototype.getWorldState = function(callback){
       mapId: 4,
       mapFile: "maps/map4.png",
       mapName: "Voxadu Beach: Home of Lord Bolvox",
-      playerModel: "player",
       fogColor: 0xeddeab,
       clearColor: 0xeddeab,
       blockSize: 0.5,

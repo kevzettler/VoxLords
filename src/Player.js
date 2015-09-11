@@ -175,6 +175,7 @@ Player.prototype.Draw = function(time, delta) {
     if(this.destruction_mode) {
         this.godMode = true;
     }
+
     if(this.godMode) {
         if(this.wf_delta < 10) {
             if(!this.destruction_mode) {
@@ -329,6 +330,7 @@ Player.prototype.UpdatePos = function(time) {
         y = game.chunkManager.GetHeight(this.mesh.position.x+this.chunk.blockSize*this.chunk.chunkSizeX/2,
                                         this.mesh.position.z+this.chunk.blockSize*this.chunk.chunkSizeX/2);
     }
+    
     if(this.jump && time != 0) {
         this.velocityY -= this.gravity;
         this.mesh.position.y += this.velocityY;
