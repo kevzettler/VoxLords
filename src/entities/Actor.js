@@ -20,6 +20,9 @@ function Actor(props){
 
   this.gravity = 1;
 
+  this.forwardVelocity = 0;
+  this.strafeVelocity = 0;
+
   this.jump = false;
   this.jumpVelocity = 1;
   this.jumpHeight = 100;  
@@ -30,7 +33,7 @@ function Actor(props){
 };
 util.inherits(Actor, Entity);
 
-Actor.prototype.update = function(delta){
+Actor.prototype.update = function(dt){
   if(!this.jump &&
       this.position.y > this.getGroundY()){
       this.position.y -= this.gravity;
@@ -46,7 +49,11 @@ Actor.prototype.update = function(delta){
        this.jump = false;
      }
   }
-  Actor.super_.prototype.update.call(this, delta);
+
+  this.mesh.translateY(this.forwardVelocity*dt);
+  this.mesh.translateX(this.strafeVelocity*dt);
+
+  Actor.super_.prototype.update.call(this, dt);
 };
 
 Actor.prototype.render = function(){

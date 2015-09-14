@@ -1,7 +1,7 @@
 module.exports = {
-    'U+0057': "FORWARD",
-    'U+0046': "RIGHT",
-    'U+0041': "LEFT",
-    'U+0053': "BACK",
-    'U+0020': "JUMP"
+    'U+0057': "Forward",
+    'U+0046': "Right",
+    'U+0041': "Left",
+    'U+0053': "Back",
+    'U+0020': "Jump"
 };

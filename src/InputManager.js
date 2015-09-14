@@ -35,11 +35,11 @@ InputManager.prototype.initPlayerControls = function(){
 
 InputManager.prototype.onKeyPress = function(event){
     console.log(event.keyIdentifier);
-    this.processCommand('START'+KeyCommandMap[event.keyIdentifier]);
+    this.processCommand('Start'+KeyCommandMap[event.keyIdentifier]);
 };
 
 InputManager.prototype.onKeyUp = function(event){
-    this.processCommand("STOP"+KeyCommandMap[event.keyIdentifier]);
+    this.processCommand("Stop"+KeyCommandMap[event.keyIdentifier]);
 };
 
 InputManager.prototype.onMouseMove = function(event) {

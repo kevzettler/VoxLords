@@ -256,6 +256,12 @@ Player.prototype.Draw = function(time, delta) {
         if ( this.keyboard.pressed("A") ) {
             this.mesh.translateX(moveDistance);
         }
+
+        if ( this.keyboard.pressed("D") ) {
+            this.mesh.translateX(-moveDistance);
+        }
+
+        
         if ( this.keyboard.pressed("K") ) {
             this.Die();
         }
@@ -294,9 +300,7 @@ Player.prototype.Draw = function(time, delta) {
         //     }
         // }
 
-        if ( this.keyboard.pressed("D") ) {
-            this.mesh.translateX(-moveDistance);
-        }
+
     }
 
     this.UpdatePos(time);
@@ -330,7 +334,7 @@ Player.prototype.UpdatePos = function(time) {
         y = game.chunkManager.GetHeight(this.mesh.position.x+this.chunk.blockSize*this.chunk.chunkSizeX/2,
                                         this.mesh.position.z+this.chunk.blockSize*this.chunk.chunkSizeX/2);
     }
-    
+
     if(this.jump && time != 0) {
         this.velocityY -= this.gravity;
         this.mesh.position.y += this.velocityY;
