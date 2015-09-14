@@ -3,7 +3,6 @@ const THREE = require('./ThreeHelpers');
 const CommandManager = require('./CommandManager');
 const KeyCommandMap = require('./consts/KeyCommandMap');
 
-
 function InputManager(props){
   this.player_entity = null;
   Object.assign(this, props);
@@ -23,16 +22,19 @@ InputManager.prototype.processCommand = function(command){
         update_tick: this.Game.update_tick,
         render_tick: this.Game.render_tick
     });
+
+
     this.commandManager.execute(command);
 };
 
 InputManager.prototype.initPlayerControls = function(){
-  document.addEventListener('mousemove', this.onMouseMove.bind(this));
+  //document.addEventListener('mousemove', this.onMouseMove.bind(this));
   document.addEventListener('keydown', this.onKeyPress.bind(this));
   document.addEventListener('keyup', this.onKeyUp.bind(this));
 };
 
 InputManager.prototype.onKeyPress = function(event){
+    console.log(event.keyIdentifier);
     this.processCommand('START'+KeyCommandMap[event.keyIdentifier]);
 };
 

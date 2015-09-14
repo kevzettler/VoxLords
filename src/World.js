@@ -99,7 +99,7 @@ World.prototype.update = function(delta){
   //this.chunkManager.Draw(delta, invMaxFps);
 
   //update all non static entities here
-  this.entities.Guy[0].update();
+  this.entities.Guy[0].update(delta);
 };
 
 World.prototype.render = function(){

@@ -15,7 +15,11 @@ const Entity = (function(){
     this.scale = 2;
     this.remove = 0;
     this.origy = 0;
-    this.gravity = 1;  
+    this.gravity = 1;
+
+    this.jump = false;
+    this.jumpVelocity = 1;
+    this.jumpHeight = 100;
     this.mesh;
 
     _.extend(this, props.toJS());
@@ -36,12 +40,26 @@ Entity.prototype.getGroundY = function(){
 
     if(intersects.length){
         return intersects[0].object.position.y + 2; //2 is supposed Guy height
+    }else{
+        return this.position.y;
     }
 };
 
-Entity.prototype.update = function(){
-    if(this.position.y > this.getGroundY()){
+Entity.prototype.update = function(dt){
+    if(!this.jump &&
+        this.position.y > this.getGroundY()){
         this.position.y -= this.gravity;
+    }
+
+    if(this.jump){
+       if(this.position.y < (this.getGroundY() + this.jumpHeight)){
+         this.position.y += (this.jumpVelocity * dt);
+         console.log("jumping");
+       }
+
+       if(this.position.y >= (this.getGroundY() + this.jumpHeight)){
+         this.jump = false;
+       }
     }
 };
 
