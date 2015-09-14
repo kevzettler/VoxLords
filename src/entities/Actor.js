@@ -1,11 +1,8 @@
 const _ = require('lodash');
 const util = require('util');
 const Entity = require('./Entity.js');
-const Actions = require('./actions');
-const normalize = require('vectors/normalize')(2);
-const mag = require('vectors/mag')(2);
-const add = require('vectors/add')(2);
-const mult = require('vectors/mult')(2);
+
+/* Actor is a moving entity */
 
 function Actor(props){
   this.waypoints = [];
@@ -21,92 +18,39 @@ function Actor(props){
   this.base_force = 5.4;
   this.base_velocity = 3;
 
+  this.gravity = 1;
+
+  this.jump = false;
+  this.jumpVelocity = 1;
+  this.jumpHeight = 100;  
+
   this.max_avoid_ahead = 30;
 
-  this.is_patrolling = false;
-
-  this.fillColor = "#EB8007";
-  
   Actor.super_.call(this, props);
 };
 util.inherits(Actor, Entity);
 
-Actor.prototype.getMaxForce = function(){
-  return this.speed * this.base_force;
-};
-
-Actor.prototype.getAhead = function(){
-  var tv = this.velocity.slice();
-  tv = normalize(tv);
-  mult(tv, (this.max_avoid_ahead * mag(this.velocity) / this.getMaxVelocity()));
-
-  var ahead = add(this.position.slice(), tv);
-  return ahead;
-};
-
-Actor.prototype.getAhead2 = function(){
-  return add(this.getAhead(), this.getAhead());
-};
-
-Actor.prototype.getMaxVelocity = function(){
-  return this.speed * this.base_velocity;
-};
-
 Actor.prototype.update = function(delta){
-  var actionClass = this.getAction();
-  var action = new actionClass();
-  action.exec(this, delta);
-};
-
-Actor.prototype.getAction = function(){
-  if(this.attack_target){
-    return Actions.Attack;
+  if(!this.jump &&
+      this.position.y > this.getGroundY()){
+      this.position.y -= this.gravity;
   }
 
-  if(this.waypoints.length > 0){
-    return Actions.Move;
+  if(this.jump){
+     if(this.position.y < (this.getGroundY() + this.jumpHeight)){
+       this.position.y += (this.jumpVelocity * dt);
+       console.log("jumping");
+     }
+
+     if(this.position.y >= (this.getGroundY() + this.jumpHeight)){
+       this.jump = false;
+     }
   }
-
-  if(!this.home){
-    return Actions.Wander;
-  }
-
-  return Actions.Idle;
-};
-
-Actor.prototype.addWayPoint = function(object){
-  var _self = this, position;
-
-  if(object.length){
-    position = object;
-  }
-
-  if(object.position){
-    position = object.position.slice();
-  }
-
-  if(!position){
-    return console.log("Tried to set a null waypoint");
-  }
-
-  this.waypoints.push({
-    position: position
-  });
-
-  if(this.is_patrolling && this.waypoints.length == 1){
-    this.waypoints.push({
-      position: _self.position.slice()
-    });
-  }
-};
-
-Actor.prototype.resetCurrentWaypoint = function(){
-  this.waypoints[this.current_waypoint].distance = null;
-  this.waypoints[this.current_waypoint].start = null;
+  Actor.super_.prototype.update.call(this, delta);
 };
 
 Actor.prototype.render = function(){
-  Actor.super_.prototype.render.apply(this);
+
 };
 
 module.exports = Actor;

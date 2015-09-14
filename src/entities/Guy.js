@@ -1,11 +1,11 @@
 const util = require('util');
-const Entity = require('./Entity');
+const Actor = require('./Actor');
 const THREE = require('three');
 
 function Guy(props){
     Guy.super_.call(this,props);
 };
-util.inherits(Guy, Entity);
+util.inherits(Guy, Actor);
 
 Guy.prototype.update = function(dt){
     Guy.super_.prototype.update.call(this, dt);
