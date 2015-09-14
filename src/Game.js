@@ -71,8 +71,8 @@ Game.prototype.loadEntities = function(callback){
       const entities = {
           "Guy": [
             {
-             position:[16, 200, 119],
-//             position:[76,200,107], 
+//             position:[16, 200, 119],
+             position:[76,200,107], 
              display: 'kevisazombie'
             }
           ],

@@ -18,7 +18,7 @@ function Actor(props){
   this.base_force = 5.4;
   this.base_velocity = 3;
 
-  this.gravity = 1;
+  this.gravity = 50;
 
   this.forwardVelocity = 0;
   this.strafeVelocity = 0;
@@ -33,22 +33,30 @@ function Actor(props){
 };
 util.inherits(Actor, Entity);
 
+
 Actor.prototype.update = function(dt){
+  const ground = this.getGround();
+
   if(!this.jump &&
-      this.position.y > this.getGroundY()){
-      this.position.y -= this.gravity;
+     ground.length &&
+     ground[0].distance > 0 ){
+      if(ground[0].distance <= (this.gravity * dt)){
+        this.position.y -= Math.floor(ground[0].distance)
+        return;
+      }
+        this.position.y -= (this.gravity*dt);
   }
 
-  if(this.jump){
-     if(this.position.y < (this.getGroundY() + this.jumpHeight)){
-       this.position.y += (this.jumpVelocity * dt);
-       console.log("jumping");
-     }
+  // if(this.jump){
+  //    if(this.position.y < (this.getGroundY() + this.jumpHeight)){
+  //      this.position.y += (this.jumpVelocity * dt);
+  //      console.log("jumping");
+  //    }
 
-     if(this.position.y >= (this.getGroundY() + this.jumpHeight)){
-       this.jump = false;
-     }
-  }
+  //    if(this.position.y >= (this.getGroundY() + this.jumpHeight)){
+  //      this.jump = false;
+  //    }
+  // }
 
   this.mesh.translateY(this.forwardVelocity*dt);
   this.mesh.translateX(this.strafeVelocity*dt);

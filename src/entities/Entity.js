@@ -15,6 +15,7 @@ const Entity = (function(){
     this.scale = 2;
     this.remove = 0;
     this.origy = 0;
+    this.groundDirection = new THREE.Vector3(0, -1, 0);
 
     
     this.mesh;
@@ -29,18 +30,20 @@ const Entity = (function(){
   };
 })();
 
-Entity.prototype.getGroundY = function(){
-    const direction = new THREE.Vector3(0, -1, 0);
-    this.raycaster.set(this.position, direction);
-
+Entity.prototype.getGround = function(){
+    this.raycaster.set(this.position, this.groundDirection);
     const intersects = this.raycaster.intersectObjects(this.scene.children);
+    return intersects;
+}
 
-    if(intersects.length){
-        return intersects[0].object.position.y + 2; //2 is supposed Guy height
-    }else{
-        return this.position.y;
-    }
-};
+// Entity.prototype.getGroundY = function(){
+//     const ground = this.getGround();
+//     if(ground.length){
+//         return this.getGround()[0].object.position.y + 2; //2 is supposed Guy height
+//     }else{
+//         return this.position.y;
+//     }
+// };
 
 Entity.prototype.update = function(dt){};
 
