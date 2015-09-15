@@ -104,7 +104,7 @@ World.prototype.update = function(delta){
 
 World.prototype.render = function(){
   if(!this.client){return;}
-  return this.client.render();
+  this.client.render();
 };
 
 module.exports = World;

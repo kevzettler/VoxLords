@@ -25,7 +25,7 @@ function Actor(props){
 
   this.jump = false;
   this.jumpVelocity = 1;
-  this.jumpHeight = 100;  
+  this.jumpHeight = 50;  
 
   this.max_avoid_ahead = 30;
 
@@ -42,21 +42,20 @@ Actor.prototype.update = function(dt){
      ground[0].distance > 0 ){
       if(ground[0].distance <= (this.gravity * dt)){
         this.position.y -= Math.floor(ground[0].distance)
-        return;
-      }
+      }else{
         this.position.y -= (this.gravity*dt);
+      }
   }
 
-  // if(this.jump){
-  //    if(this.position.y < (this.getGroundY() + this.jumpHeight)){
-  //      this.position.y += (this.jumpVelocity * dt);
-  //      console.log("jumping");
-  //    }
+  if(this.jump && ground.length){
+     debugger;
+     if(ground[0].distance <= this.jumpHeight){    
+       this.position.y += this.jumpVelocity;
+     }else if(ground[0].distance >= this.jumpHeight){
+       this.jump = false;      
+     }
+  }
 
-  //    if(this.position.y >= (this.getGroundY() + this.jumpHeight)){
-  //      this.jump = false;
-  //    }
-  // }
 
   this.mesh.translateY(this.forwardVelocity*dt);
   this.mesh.translateX(this.strafeVelocity*dt);

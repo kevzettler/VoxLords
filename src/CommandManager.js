@@ -8,7 +8,11 @@ function CommandManager(props){
 
 CommandManager.prototype.execute = function(command){
     console.log("Command Manger executing", command);
-    Commands[command](this.player_entity);
+    try{
+        Commands[command](this.player_entity);
+    }catch(ex){
+        console.error('couldnt execute input command', command);
+    }
 };
 
 
