@@ -29,42 +29,42 @@ function Actor(props){
 
   this.max_avoid_ahead = 30;
 
+  this.behaviors = ['Gravity'];
+
   Actor.super_.call(this, props);
 };
 util.inherits(Actor, Entity);
 
 
-Actor.prototype.update = function(dt){
-  const ground = this.getGround();
+// Actor.prototype.update = function(dt){
+//   this.mesh.translateY(this.forwardVelocity*dt);
+//   this.mesh.translateX(this.strafeVelocity*dt);
 
-  if(!this.jump &&
-     ground.length &&
-     ground[0].distance > 0 ){
-      if(ground[0].distance <= (this.gravity * dt)){
-        this.position.y -= Math.floor(ground[0].distance)
-      }else{
-        this.position.y -= (this.gravity*dt);
-      }
-  }
+//   const ground = this.getGround();
 
-  if(this.jump && ground.length){
-     debugger;
-     if(ground[0].distance <= this.jumpHeight){    
-       this.position.y += this.jumpVelocity;
-     }else if(ground[0].distance >= this.jumpHeight){
-       this.jump = false;      
-     }
-  }
+//   if(!this.jump &&
+//      ground.length &&
+//      ground[0].distance > 0 ){
+//       if(ground[0].distance <= (this.gravity * dt)){
+//         this.position.y -= Math.floor(ground[0].distance)
+//       }else{
+//         this.position.y -= (this.gravity*dt);
+//       }
+//   }
 
+//   if(this.jump && ground.length){
+//      if(ground[0].distance <= this.jumpHeight){    
+//        this.position.y += this.jumpVelocity;
+//      }else if(ground[0].distance >= this.jumpHeight){
+//        this.jump = false;      
+//      }
+//   }
 
-  this.mesh.translateY(this.forwardVelocity*dt);
-  this.mesh.translateX(this.strafeVelocity*dt);
+//   Actor.super_.prototype.update.call(this, dt);
+// };
 
-  Actor.super_.prototype.update.call(this, dt);
-};
+// Actor.prototype.render = function(){
 
-Actor.prototype.render = function(){
-
-};
+// };
 
 module.exports = Actor;

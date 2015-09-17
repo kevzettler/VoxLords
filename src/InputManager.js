@@ -5,6 +5,7 @@ const KeyCommandMap = require('./consts/KeyCommandMap');
 
 function InputManager(props){
   this.player_entity = null;
+  this.keys = {};
   Object.assign(this, props);
 
   this.commandManager = new CommandManager({
@@ -23,23 +24,27 @@ InputManager.prototype.processCommand = function(command){
         render_tick: this.Game.render_tick
     });
 
-
     this.commandManager.execute(command);
 };
 
 InputManager.prototype.initPlayerControls = function(){
   //document.addEventListener('mousemove', this.onMouseMove.bind(this));
-  document.addEventListener('keydown', this.onKeyPress.bind(this));
+  document.addEventListener('keydown', this.onKeyDown.bind(this));
   document.addEventListener('keyup', this.onKeyUp.bind(this));
 };
 
-InputManager.prototype.onKeyPress = function(event){
-    console.log(event.keyIdentifier);
-    this.processCommand('Start'+KeyCommandMap[event.keyIdentifier]);
+InputManager.prototype.onKeyDown = function(event){
+    if(!this.keys[event.keyIdentifier]){
+      this.processCommand('Start'+KeyCommandMap[event.keyIdentifier]);
+      this.keys[event.keyIdentifier] = true;
+    }
 };
 
 InputManager.prototype.onKeyUp = function(event){
-    this.processCommand("Stop"+KeyCommandMap[event.keyIdentifier]);
+    if(this.keys[event.keyIdentifier]){
+      this.processCommand("Stop"+KeyCommandMap[event.keyIdentifier]);
+      delete this.keys[event.keyIdentifier];
+    }
 };
 
 InputManager.prototype.onMouseMove = function(event) {

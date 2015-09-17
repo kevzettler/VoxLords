@@ -2,10 +2,10 @@
 const  _ = require('lodash');
 const Vox = require('../Vox');
 const THREE = require('three');
+const util = require("util");
+const events = require("events");
+const Behaviors = require('./behaviors');
 
-
-
-// Asyncronous constructor returns a promise
 const Entity = (function(){
   let id = 1; // wrap id in a closure increment on each instance
 
@@ -16,36 +16,39 @@ const Entity = (function(){
     this.remove = 0;
     this.origy = 0;
     this.groundDirection = new THREE.Vector3(0, -1, 0);
-
-    
     this.mesh;
 
-    _.extend(this, props.toJS());
-    this.orgiy = this.position[2];
-
+    Object.assign(this, props.toJS());
+    if(this.behaviors){
+        this.addBehaviors(this.behaviors);
+        delete this.behaviors;
+    }
 
     if(!props.id){
       id++;
     }
   };
 })();
+util.inherits(Entity, events.EventEmitter);
 
-Entity.prototype.getGround = function(){
-    this.raycaster.set(this.position, this.groundDirection);
-    const intersects = this.raycaster.intersectObjects(this.scene.children);
-    return intersects;
-}
 
-// Entity.prototype.getGroundY = function(){
-//     const ground = this.getGround();
-//     if(ground.length){
-//         return this.getGround()[0].object.position.y + 2; //2 is supposed Guy height
-//     }else{
-//         return this.position.y;
-//     }
-// };
+Entity.prototype.addBehaviors = function(possible_behaviors){
+    if(possible_behaviors instanceof Array){
+        _.each(possible_behaviors, this.addBehavior.bind(this));
+    }
 
-Entity.prototype.update = function(dt){};
+    if(possible_behaviors instanceof String){
+        this.addComponent(possible_behaviors);
+    }
+};
+
+Entity.prototype.addBehavior = function(behavior){
+    Behaviors[behavior](this);
+};
+
+Entity.prototype.update = function(dt){
+    this.emit('update', dt);
+};
 
 Entity.prototype.attachVox = function(vox){
     this.vox = vox;
