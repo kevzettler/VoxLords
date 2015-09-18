@@ -11,8 +11,12 @@ function Foo() {
 }
 
 Foo.prototype = {
-   t1: function() { return 't1'; }
+   t1: function() { return 't1'; },
+   addBehavior: function(behavior){
+        behavior.call(this);
+   }
 };
+
 
 Foo = mixin(Foo, events.EventEmitter);
 
@@ -55,10 +59,25 @@ Behavior2.prototype.behavior2Method = function(){
 };
 Foo = mixin(Foo, Behavior2);
 
+var Behavior3 = function(){
+    this.x = 3;
+    this.on('cool', function(){
+        console.log('cool33333');
+    });
+};
+
+Behavior3.prototype.behavior3Method = function(){
+    console.log('3', this.x);
+};
+
 var f = new Foo();
 f.behaviorMethod();
 f.behavior2Method();
 console.log(f.x);
+
+f.emit('cool');
+
+f.addBehavior(Behavior3);
 
 f.emit('cool');
 
