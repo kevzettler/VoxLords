@@ -35,36 +35,4 @@ function Actor(props){
 };
 util.inherits(Actor, Entity);
 
-
-// Actor.prototype.update = function(dt){
-//   this.mesh.translateY(this.forwardVelocity*dt);
-//   this.mesh.translateX(this.strafeVelocity*dt);
-
-//   const ground = this.getGround();
-
-//   if(!this.jump &&
-//      ground.length &&
-//      ground[0].distance > 0 ){
-//       if(ground[0].distance <= (this.gravity * dt)){
-//         this.position.y -= Math.floor(ground[0].distance)
-//       }else{
-//         this.position.y -= (this.gravity*dt);
-//       }
-//   }
-
-//   if(this.jump && ground.length){
-//      if(ground[0].distance <= this.jumpHeight){    
-//        this.position.y += this.jumpVelocity;
-//      }else if(ground[0].distance >= this.jumpHeight){
-//        this.jump = false;      
-//      }
-//   }
-
-//   Actor.super_.prototype.update.call(this, dt);
-// };
-
-// Actor.prototype.render = function(){
-
-// };
-
 module.exports = Actor;
