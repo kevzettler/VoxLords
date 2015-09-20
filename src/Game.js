@@ -24,6 +24,15 @@ const Game = function(props){
       render: this.render.bind(this)
     });
 
+    var stats = new Stats();
+    stats.setMode(0);
+    stats.domElement.style.position = 'absolute';
+    stats.domElement.style.left = '0px';
+    stats.domElement.style.top = '0px';
+    this.stats = stats;
+
+    this.render_container.appendChild( stats.domElement );
+
     this.loop.start();
   });
 };
@@ -140,8 +149,10 @@ Game.prototype.getWorldState = function(callback){
 };
 
 Game.prototype.update = function(dt, elapsed){
+  this.stats.begin();
   this.world.update.call(this.world, dt);
   this.update_tick++;
+  this.stats.end();
 };
 
 Game.prototype.render = function(){
