@@ -24,17 +24,29 @@ const Game = function(props){
       render: this.render.bind(this)
     });
 
-    var stats = new Stats();
-    stats.setMode(0);
-    stats.domElement.style.position = 'absolute';
-    stats.domElement.style.left = '0px';
-    stats.domElement.style.top = '0px';
-    this.stats = stats;
-
-    this.render_container.appendChild( stats.domElement );
+    this.initStats();
 
     this.loop.start();
   });
+};
+
+Game.prototype.initStats = function(){
+    let stats = {
+      begin: function(){},
+      end: function(){}
+    };
+
+    if(this.render_container){
+      stats = new Stats();
+      stats.setMode(0);
+      stats.domElement.style.position = 'absolute';
+      stats.domElement.style.left = '0px';
+      stats.domElement.style.top = '0px';
+      this.render_container.appendChild( stats.domElement );
+    }
+
+
+    this.stats = stats;
 };
 
 

@@ -43,16 +43,7 @@ Entity.prototype.addBehaviors = function(possible_behaviors){
 };
 
 Entity.prototype.addBehavior = function(behavior){
-    const Bdef = Behaviors[behavior];
-    const eventListeners = _.filter(_.keys(Bdef), function(key){return _.endsWith(key, '_')});
-    const methods = _.keys(_.keys(Bdef), eventListeners);
-    _.each(methods, (methodName) =>{
-        this[methodName] = Bdef[methodName];
-    });
-
-    _.each(eventListeners, (listenerName) => {
-        this.on(listenerName.split('L'), Bdef[listenerName].bind(this));
-    });
+    Behaviors[behavior](this);
 };
 
 Entity.prototype.update = function(dt){
