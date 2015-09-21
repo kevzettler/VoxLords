@@ -1,10 +1,7 @@
-const util = require('util');
-const Actor = require('./Actor');
-const THREE = require('three');
+const createNewEntity = require('../createNewEntity');
 
-function Guy(props){
-    Guy.super_.call(this,props);
-};
-util.inherits(Guy, Actor);
+const Gravity = createNewEntity({
+    behaviors: ['Gravity']
+});
 
-module.exports = Guy;
+module.exports = Gravity;

@@ -1,33 +1,35 @@
 var util = require("util");
 var events = require("events");
-
 var mixin = require("mixin");
+var _ = require('lodash');
 
-function Foo() {
+function Entity(props) {
     this.x = 0;
     this.on('cool', function(){
-        console.log("cool Happened");
+        console.log("cool base Entity");
     });
+    _.extend(this, props);
 }
 
-Foo.prototype = {
+Entity.prototype = {
    t1: function() { return 't1'; },
+
    addBehavior: function(behavior){
         behavior.call(this);
+        _.extend(this, behavior.prototype);
    }
+};  
+
+createNewEntity = function(entityDefinition){
+    var constructor = Entity;
+    _.each(entityDefinition.behaviors, function(behaviorName){
+        constructor = mixin(Entity, behaviorMap[behaviorName]);
+    });
+
+    return constructor(_.omit(entityDefinition, 'behaviors'));
 };
+Entity = mixin(Entity, events.EventEmitter);
 
-
-Foo = mixin(Foo, events.EventEmitter);
-
-// var Entity = function(){
-//     this.x = 0;
-// };
-// util.inherits(Entity, events.EventEmitter);
-
-// Entity.prototype = {
-//     t1: function(){ return 't1';}
-// };
 
 var Behavior = function(){
     this.x = 1;
@@ -44,9 +46,6 @@ Behavior.prototype.behaviorMethod = function(){
     console.log('whats this', this.x);
 };
 
-Foo = mixin(Foo, Behavior);
-
-
 var Behavior2 = function(){
     this.x = 2;
     this.on('cool', function(){
@@ -57,7 +56,6 @@ var Behavior2 = function(){
 Behavior2.prototype.behavior2Method = function(){
     console.log('2', this.x);
 };
-Foo = mixin(Foo, Behavior2);
 
 var Behavior3 = function(){
     this.x = 3;
@@ -70,18 +68,28 @@ Behavior3.prototype.behavior3Method = function(){
     console.log('3', this.x);
 };
 
-var f = new Foo();
-f.behaviorMethod();
-f.behavior2Method();
-console.log(f.x);
+var behaviorMap = {
+    'Behavior': Behavior,
+    'Behavior2': Behavior2,
+    'Behavior3': Behavior3
+};
 
-f.emit('cool');
+var Guy = {
+    x: 666,
+    y: 'your mom',
+    behaviors : ['Behavior', 'Behavior2']
+};
 
-f.addBehavior(Behavior3);
 
-f.emit('cool');
+var a = createNewEntity(Guy);
 
-// var e = new Entity();
+a.emit('cool');
+a.behaviorMethod();
+
+a.addBehavior(Behavior3);
+
+a.emit('cool');
+a.behavior3Method();
 
 
 

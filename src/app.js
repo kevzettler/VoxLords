@@ -19,9 +19,9 @@ const network = {
     },
 };
 
-const server = new Game({
-    network: network
-});
+// const server = new Game({
+//     network: network
+// });
 
 const client = new Game({
     network: network,
