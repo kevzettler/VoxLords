@@ -1,7 +1,5 @@
 const createNewEntity = require('../createNewEntity');
 
-const Gravity = createNewEntity({
+module.exports = createNewEntity({
     behaviors: ['Gravity']
 });
-
-module.exports = Gravity;

@@ -69,7 +69,7 @@ World.prototype.initEntityType = function(entity_entry, entity_type){
     const ent = new EntityClasses[entity_type](entity_props);
     ent.attachVox(entity_entry.get('mesh'));
     ent.scene = this.scene;
-    this.registerEntity(ent);
+    this.registerEntity(ent, entity_type);
   });
 };
 
@@ -78,8 +78,7 @@ World.prototype.importEntities = function(entity_map){
   entity_map.forEach(this.initEntityType.bind(this));
 };
 
-World.prototype.registerEntity = function(entity){
-  const entity_type = entity.constructor.name;
+World.prototype.registerEntity = function(entity, entity_type){
   this.scene.add(entity.mesh);
   if(!this.entities[entity_type]){
     this.entities[entity_type] = [];

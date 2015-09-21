@@ -10,7 +10,7 @@ const Behaviors = require('./behaviors');
 let entity_id = 0;
 
 function Entity(){
-  this.id = id;
+  this.id = entity_id;
   this.position = [0,0,0];
   this.scale = 2;
   this.remove = 0;
@@ -20,7 +20,6 @@ function Entity(){
 
   //Object.assign(this, props.toJS());
 
-  this.entity_id = entity_id;
   entity_id++;
 };
 
