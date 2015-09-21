@@ -1,5 +1,4 @@
 const THREE = require('./ThreeHelpers');
-const InputManager = require('./inputManager.js');
 
 /* responsible for rendering different clients */
 function ClientManager(props){
@@ -31,11 +30,6 @@ function ClientManager(props){
   this.renderer.setClearColor(this.clearColor, 1);
 
   this.initPlayerCamera(this.player_entity);
-
-  this.inputManager = new InputManager({
-    player_entity: this.player_entity,
-    Game: this.Game
-  });
 
   // Init lights
   this.setLights();
@@ -86,6 +80,7 @@ ClientManager.prototype.initPlayerCamera = function(player_entity){
     player_entity.attached_camera = 1;
     this.camera.position.set(0, 15, 7);
     this.camera.rotation.set(-Math.PI/2.6, 0, Math.PI);
+    player_entity.addBehavior('CaptureLocalUserInput');
 };
 
 module.exports = ClientManager;

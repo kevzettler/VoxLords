@@ -34,7 +34,7 @@ function World(worldState, Game) {
       worldState.get('terrain')
     );
 
-    this.importEntities(worldState.get('entities'));
+    this.importEntities(worldState.get('entities'), Game);
 
     if(Game.render_container){
       this.client = new ClientManager({
@@ -64,18 +64,19 @@ World.prototype.buildTerrain = function(blockSize, scene, terrainChunkJSON){
     chunkManager.BuildAllChunks(chunkManager.worldChunks);
 }
 
-World.prototype.initEntityType = function(entity_entry, entity_type){
+World.prototype.initEntityType = function(Game, entity_entry, entity_type){
   entity_entry.get('instances').forEach((entity_props) =>{
     const ent = new EntityClasses[entity_type](entity_props.toJS());
+    ent.Game = Game;
     ent.attachVox(entity_entry.get('mesh'));
     ent.scene = this.scene;
     this.registerEntity(ent, entity_type);
   });
 };
 
-World.prototype.importEntities = function(entity_map){
+World.prototype.importEntities = function(entity_map, Game){
   const entity_iterator = entity_map.entries();
-  entity_map.forEach(this.initEntityType.bind(this));
+  entity_map.forEach(this.initEntityType.bind(this, Game));
 };
 
 World.prototype.registerEntity = function(entity, entity_type){
@@ -98,7 +99,6 @@ World.prototype.update = function(delta){
   //this.chunkManager.Draw(delta, invMaxFps);
 
   //update all non static entities here
-  debugger;
   this.entities.Guy[0].update(delta);
 };
 

@@ -3,4 +3,6 @@ module.exports = {
     StopJump: require('./StopJump'),
     // StartLeft: require('./StartLeft'),
     // StartRight: require('./StartRight')
+    StartForward: require('./StartForward'),
+    StopForward: require('./StopForward')
 };

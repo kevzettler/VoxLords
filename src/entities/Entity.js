@@ -32,8 +32,8 @@ Entity.prototype.addBehaviors = function(possible_behaviors){
 };
 
 Entity.prototype.addBehavior = function(behavior){
+  _.extend(this, Behaviors[behavior].prototype);  
   Behaviors[behavior].call(this);
-  _.extend(this, Behaviors[behavior]);
 };
 
 Entity.prototype.update = function(dt){
