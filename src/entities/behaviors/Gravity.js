@@ -1,5 +1,4 @@
 const Gravity = function(props){
-    console.log("wtf is this from gravity", this);
     this.gravity = 50;
 
     this.forwardVelocity = 0;
