@@ -7,38 +7,13 @@ function Tree(props) {
 };
 util.inherits(Tree, Entity);
 
-Tree.prototype.update = function(dt){
-    // var y = game.chunkManager.GetHeight(this.mesh.position.x+this.chunk.blockSize*this.chunk.chunkSizeX/2,
-    //                                     this.mesh.position.z+this.chunk.blockSize*this.chunk.chunkSizeX/2);
-    
-    // // Explode tree if ground breaks.
-    //  if(y < this.origy) {
-    //    // this.Hit(0,0);
-    //  }
-};
-
-Tree.prototype.render = function(dt) {
-    Tree.super_.prototype.render.call(this, dt);
-};
-
-Tree.prototype.hit = function(data, dmg) {
-    this.chunk.Explode(this.mesh.position, this.scale);
-    this.remove = 1;
-    game.scene.remove(this.mesh);
-    console.log("TREE HIT!");
-};
-
-// Tree.prototype.create = function(x,y,z, scale, type) {
-//     this.chunk = game.voxLoader.GetModel(type);
-//     this.mesh = this.chunk.mesh;
-//     this.mesh.geometry.computeBoundingBox();
-//     this.mesh.position.set(x,y,z);
-//     this.mesh.that = this;
-//     game.targets.push(this.mesh);
-//     this.mesh.scale.set(scale,scale,scale);
-//     game.scene.add(this.mesh);
-//     this.origy = y;
+// Tree.prototype.hit = function(data, dmg) {
+//     this.chunk.Explode(this.mesh.position, this.scale);
+//     this.remove = 1;
+//     game.scene.remove(this.mesh);
+//     console.log("TREE HIT!");
 // };
+
 
 
 module.exports = Tree;

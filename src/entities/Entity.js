@@ -18,8 +18,6 @@ function Entity(){
   this.groundDirection = new THREE.Vector3(0, -1, 0);
   this.mesh;
 
-  //Object.assign(this, props.toJS());
-
   entity_id++;
 };
 
@@ -49,6 +47,7 @@ Entity.prototype.attachVox = function(vox){
   this.mesh = vox.getMesh();
   this.mesh.geometry.center();
   this.mesh.geometry.computeBoundingBox();
+  debugger;
   this.mesh.position.set(this.position[0], this.position[1], this.position[2]);
 
   //unsafe mutation of the classes position

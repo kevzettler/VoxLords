@@ -12,9 +12,9 @@ const createNewEntity = function(entityDefinition){
     });
 
     //return a mixinBase wrapped in a constructor that sets the params
-    return function(){
+    return function(props){
         const mixin = new mixinBase();
-        _.extend(mixin, _.omit(entityDefinition, 'behaviors'));
+        _.extend(mixin, _.omit(entityDefinition, 'behaviors'), props);
         return mixin;
     }
 

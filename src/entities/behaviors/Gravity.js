@@ -1,6 +1,14 @@
-const Gravity = function(){
+const Gravity = function(props){
     console.log("wtf is this from gravity", this);
+    this.gravity = 50;
+
+    this.forwardVelocity = 0;
+    this.strafeVelocity = 0;
+
     this.jump = false;
+    this.jumpVelocity = 1;
+    this.jumpHeight = 50;  
+    
     this.on('update', this.updateHandler.bind(this));
 };
 
