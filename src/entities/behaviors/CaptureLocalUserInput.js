@@ -30,7 +30,6 @@ CaptureLocalUserInput.prototype.initPlayerControls = function(){
 };
 
 CaptureLocalUserInput.prototype.onKeyDown = function(event){
-  console.log(event.keyIdentifier);
     if(!this.keys[event.keyIdentifier]){
       this.processCommand('Start'+KeyCommandMap[event.keyIdentifier]);
       this.keys[event.keyIdentifier] = true;
