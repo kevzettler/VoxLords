@@ -3,32 +3,31 @@ var events = require("events");
 var mixin = require("mixin");
 var _ = require('lodash');
 
-function Entity(props) {
+function Entity() {
     this.x = 0;
     this.on('cool', function(){
         console.log("cool base Entity");
     });
-    _.extend(this, props);
 }
 
 Entity.prototype = {
    t1: function() { return 't1'; },
 
    addBehavior: function(behavior){
-        behavior.call(this);
         _.extend(this, behavior.prototype);
+        behavior.call(this);        
    }
 };  
+Entity = mixin(Entity, events.EventEmitter);
 
-createNewEntity = function(entityDefinition){
+var createNewEntity = function(entityDefinition){
     var constructor = Entity;
     _.each(entityDefinition.behaviors, function(behaviorName){
-        constructor = mixin(Entity, behaviorMap[behaviorName]);
+        constructor = mixin(constructor, behaviorMap[behaviorName]);
     });
 
-    return constructor(_.omit(entityDefinition, 'behaviors'));
+    return constructor;
 };
-Entity = mixin(Entity, events.EventEmitter);
 
 
 var Behavior = function(){
@@ -37,9 +36,11 @@ var Behavior = function(){
         console.log("What happened");
     });
 
-    this.on('cool', function(){
+    this.on('cool', this.coolHandler.bind(this));
+};
+
+Behavior.prototype.coolHandler = function(){
         console.log(('cool from behavior'));
-    });
 };
 
 Behavior.prototype.behaviorMethod = function(){
@@ -48,9 +49,11 @@ Behavior.prototype.behaviorMethod = function(){
 
 var Behavior2 = function(){
     this.x = 2;
-    this.on('cool', function(){
-        console.log('cool');
-    });
+    //this.on('cool', this.coolHandler.bind(this));
+};
+
+Behavior2.prototype.coolHandler = function(){
+    console.log('cool');    
 };
 
 Behavior2.prototype.behavior2Method = function(){
@@ -59,10 +62,12 @@ Behavior2.prototype.behavior2Method = function(){
 
 var Behavior3 = function(){
     this.x = 3;
-    this.on('cool', function(){
-        console.log('cool33333');
-    });
+    this.on('cool', this.coolHandler.bind(this));
 };
+
+Behavior3.prototype.coolHandler = function(){
+    console.log('cool33333');   
+}
 
 Behavior3.prototype.behavior3Method = function(){
     console.log('3', this.x);
@@ -81,15 +86,15 @@ var Guy = {
 };
 
 
-var a = createNewEntity(Guy);
+var a = new createNewEntity(Guy);
 
 a.emit('cool');
 a.behaviorMethod();
 
-a.addBehavior(Behavior3);
+// a.addBehavior(Behavior3);
 
-a.emit('cool');
-a.behavior3Method();
+// a.emit('cool');
+// a.behavior3Method();
 
 
 

@@ -1,50 +1,53 @@
-const Utils = require('../../Utils');
-const THREE = require('../../ThreeHelpers');
-const CommandManager = require('../../CommandManager');
-const KeyCommandMap = require('../../consts/KeyCommandMap');
+const Utils = require('./Utils');
+const THREE = require('./ThreeHelpers');
+const CommandManager = require('./CommandManager');
+const KeyCommandMap = require('./consts/KeyCommandMap');
 
-function CaptureLocalUserInput(props){
+function InputManager(props){
+  this.player_entity = null;
   this.keys = {};
+  Object.assign(this, props);
 
   this.commandManager = new CommandManager({
     Game: this.Game,
-    player_entity: this
+    player_entity: this.player_entity
   });
 
   this.initPlayerControls();
+  //Utils.LockPointer();
 }
 
-CaptureLocalUserInput.prototype.processCommand = function(command){
-    // this.Game.network.send('user_input', {
-    //     command: command,
-    //     update_tick: this.Game.update_tick,
-    //     render_tick: this.Game.render_tick
-    // });
+InputManager.prototype.processCommand = function(command){
+    this.Game.network.send('user_input', {
+        command: command,
+        update_tick: this.Game.update_tick,
+        render_tick: this.Game.render_tick
+    });
 
     this.commandManager.execute(command);
 };
 
-CaptureLocalUserInput.prototype.initPlayerControls = function(){
+InputManager.prototype.initPlayerControls = function(){
+  //document.addEventListener('mousemove', this.onMouseMove.bind(this));
   document.addEventListener('keydown', this.onKeyDown.bind(this));
   document.addEventListener('keyup', this.onKeyUp.bind(this));
 };
 
-CaptureLocalUserInput.prototype.onKeyDown = function(event){
-  console.log(event.keyIdentifier);
+InputManager.prototype.onKeyDown = function(event){
     if(!this.keys[event.keyIdentifier]){
       this.processCommand('Start'+KeyCommandMap[event.keyIdentifier]);
       this.keys[event.keyIdentifier] = true;
     }
 };
 
-CaptureLocalUserInput.prototype.onKeyUp = function(event){
+InputManager.prototype.onKeyUp = function(event){
     if(this.keys[event.keyIdentifier]){
       this.processCommand("Stop"+KeyCommandMap[event.keyIdentifier]);
       delete this.keys[event.keyIdentifier];
     }
 };
 
-CaptureLocalUserInput.prototype.onMouseMove = function(event) {
+InputManager.prototype.onMouseMove = function(event) {
     if(this.player_entity.attached_camera == 1) {
         var movementX = event.movementX || event.mozMovementX || event.webkitMovementX ||0;
         var movementY = event.movementY || event.mozMovementY || event.webkitMovementY || 0;
@@ -56,4 +59,4 @@ CaptureLocalUserInput.prototype.onMouseMove = function(event) {
     }
 };
 
-module.exports = CaptureLocalUserInput;
+module.exports = InputManager;
