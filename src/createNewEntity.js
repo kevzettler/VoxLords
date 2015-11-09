@@ -3,10 +3,9 @@ const _ = require('lodash');
 const mixin = require('mixin');
 const behaviorMap = require('./entities/behaviors');
 
-let mixinBase = Entity;
-let entityDefinition;
-
 const createNewEntity = function(entityDefinition){ 
+    let mixinBase = Entity;
+
     _.each(entityDefinition.behaviors, function(behaviorName){
         mixinBase = mixin(mixinBase, behaviorMap[behaviorName]);
     });

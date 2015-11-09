@@ -21,6 +21,8 @@ function Entity(){
   entity_id++;
 };
 
+Entity.behaviors = [];
+
 Entity.prototype.addBehaviors = function(possible_behaviors){
   if(possible_behaviors instanceof Array){
     _.each(possible_behaviors, this.addBehavior.bind(this));

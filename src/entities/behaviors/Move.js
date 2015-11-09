@@ -1,5 +1,5 @@
 const Move = function(){
-    this.on('update', this.updateHandler.bind(this));
+    this.on('update', Move.prototype.updateHandler.bind(this));
 }
 
 Move.prototype.updateHandler = function(){

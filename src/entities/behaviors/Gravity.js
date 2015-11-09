@@ -6,9 +6,9 @@ const Gravity = function(props){
 
     this.jump = false;
     this.jumpVelocity = 1;
-    this.jumpHeight = 50;  
+    this.jumpHeight = 50;
     
-    this.on('update', this.updateHandler.bind(this));
+    this.on('update', Gravity.prototype.updateHandler.bind(this));
 };
 
 Gravity.prototype.updateHandler = function(dt){
