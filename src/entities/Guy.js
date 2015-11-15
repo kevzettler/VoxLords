@@ -1,5 +1,5 @@
-const createNewEntity = require('../createNewEntity');
+const Entity = require('./Entity');
 
-module.exports = createNewEntity({
-    behaviors: ['Gravity', 'Move']
+module.exports = Entity.create({
+    traits: ['Gravity', 'Move']
 });

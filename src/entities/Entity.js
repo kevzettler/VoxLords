@@ -1,66 +1,145 @@
-// Base class for anything that lives on the terrain
-const  _ = require('lodash');
-const Vox = require('../Vox');
-const THREE = require('three');
-const util = require("util");
-const mixin = require('mixin');
-const events = require("events");
-const Behaviors = require('./behaviors');
+var Trait = require('simple-traits');
+var events = require('events');
+var util = require("util");
+var _ = require('lodash');
 
-let entity_id = 0;
+var Entity = {
 
-function Entity(){
-  this.id = entity_id;
-  this.position = [0,0,0];
-  this.scale = 2;
-  this.remove = 0;
-  this.origy = 0;
-  this.groundDirection = new THREE.Vector3(0, -1, 0);
-  this.mesh;
+    create: function(entityDef){
+        var traits = entityDef.traits.splice(0);
 
-  entity_id++;
-};
+        //resolve conflicts.
+        var resolveObj = this.resolveConflicts(traits);
 
-Entity.behaviors = [];
+        // compose
+        var trait = Trait.compose.apply(this, resolveObj);
 
-Entity.prototype.addBehaviors = function(possible_behaviors){
-  if(possible_behaviors instanceof Array){
-    _.each(possible_behaviors, this.addBehavior.bind(this));
-  }
+        function EntityCons(extenedProps){
+            var props = Object.assign({}, entityDef, extenedProps);
+            var entity = trait.create(EntityCons.prototype, props);
+            entity.on('update', entity.updateHandler.bind(entity));
+            return entity;
+        };
+        util.inherits(EntityCons, events.EventEmitter);
 
-  if(possible_behaviors instanceof String){
-    this.addBehavior(possible_behaviors);
-  }
-};
+        EntityCons.prototype.updateHandler = function(){
+            _.each(this, function(value, key){
+                if(key.match('_updateHandler')){
+                    value.apply(this, arguments);
+                };
+            });
+        };
 
-Entity.prototype.addBehavior = function(behavior){
-  _.extend(this, Behaviors[behavior].prototype);  
-  Behaviors[behavior].call(this);
-};
+        EntityCons.prototype.attachVox = function(vox){
+          this.vox = vox;
+          this.chunk = vox.getChunk();
+          this.chunk.Rebuild();
+          this.mesh = vox.getMesh();
+          this.mesh.geometry.center();
+          this.mesh.geometry.computeBoundingBox();
+          this.mesh.position.set(this.position[0], this.position[1], this.position[2]);
 
-Entity.prototype.update = function(dt){
-  this.emit('update', dt);
-};
+          //unsafe mutation of the classes position
+          //helpful for moving mesh through the class
+          this.position = this.mesh.position;
 
-Entity.prototype.attachVox = function(vox){
-  this.vox = vox;
-  this.chunk = vox.getChunk();
-  this.chunk.Rebuild();
-  this.mesh = vox.getMesh();
-  this.mesh.geometry.center();
-  this.mesh.geometry.computeBoundingBox();
-  this.mesh.position.set(this.position[0], this.position[1], this.position[2]);
+          this.raycaster = new THREE.Raycaster(this.position);
+          //this.mesh.add( new THREE.ArrowHelper(this.raycaster.ray.direction, this.mesh.position, 30, 0x00FF00));
 
-  //unsafe mutation of the classes position
-  //helpful for moving mesh through the class
-  this.position = this.mesh.position;
+          this.mesh.scale.set(this.scale,this.scale,this.scale); 
+        }
 
-  this.raycaster = new THREE.Raycaster(this.position);
-  //this.mesh.add( new THREE.ArrowHelper(this.raycaster.ray.direction, this.mesh.position, 30, 0x00FF00));
+        return EntityCons;
+    },
 
-  this.mesh.scale.set(this.scale,this.scale,this.scale); 
+
+    findConflictMethodNames: function(conflictMap){
+        return _.compact(_.map(conflictMap, function(value, key, result){
+            if(value.length > 1){
+                return key;
+            }
+        }));
+    },
+
+    getConflictMethodMap:function(traits){
+        var conflictMap = {};
+        var Trait;
+
+        _.each(traits, function(traitName){
+            Trait = traitMap[traitName];
+            _.each(Trait, function(value, key){
+                if(value.value && !value.required){
+                    if(conflictMap[key]){
+                        conflictMap[key].push(traitName)
+                    }else{
+                        conflictMap[key] = [traitName];
+                    }
+                }
+            });
+        });
+
+        return conflictMap;
+    },
+
+    reverseConflictMap: function(conflictMap){
+        var resolveMap = {};
+        _.each(conflictMap, function(traitNames, propConflict){
+            if(conflictMap[propConflict].length > 1){
+                _.each(traitNames, function(traitName){
+                    if(resolveMap[traitName]){
+                        resolveMap[traitName].push(propConflict);
+                    }else{
+                        resolveMap[traitName] = [propConflict];
+                    }
+                });
+            }
+        });
+
+        return resolveMap;
+    },
+
+    findConflicts: function(traits){
+        var conflictMap = this.getConflictMethodMap(traits);
+        var reversedConflictMap = this.reverseConflictMap(conflictMap);
+        return reversedConflictMap;
+    },
+
+    resolveConflicts: function(traits){
+        var reversedConflictMap = this.findConflicts(traits);
+        var resolveObj = _.map(reversedConflictMap, function(propsToResolve, traitName){
+            if(!propsToResolve.length){
+                return traitMap[traitName];
+            }else{
+                var resolveObj = {};
+                _.map(propsToResolve, function(prop){
+                    resolveObj[prop] = traitName + "_" + prop;
+                });
+                return traitMap[traitName].resolve(resolveObj);
+            }
+        });
+
+        return resolveObj;
+    },
 }
 
-Entity = mixin(Entity, events.EventEmitter);
+// Entity.prototype.attachVox = function(vox){
+//   this.vox = vox;
+//   this.chunk = vox.getChunk();
+//   this.chunk.Rebuild();
+//   this.mesh = vox.getMesh();
+//   this.mesh.geometry.center();
+//   this.mesh.geometry.computeBoundingBox();
+//   this.mesh.position.set(this.position[0], this.position[1], this.position[2]);
+
+//   //unsafe mutation of the classes position
+//   //helpful for moving mesh through the class
+//   this.position = this.mesh.position;
+
+//   this.raycaster = new THREE.Raycaster(this.position);
+//   //this.mesh.add( new THREE.ArrowHelper(this.raycaster.ray.direction, this.mesh.position, 30, 0x00FF00));
+
+//   this.mesh.scale.set(this.scale,this.scale,this.scale); 
+// }
+
 
 module.exports = Entity;
