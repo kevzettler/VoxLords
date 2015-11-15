@@ -80,7 +80,7 @@ ClientManager.prototype.initPlayerCamera = function(player_entity){
     player_entity.attached_camera = 1;
     this.camera.position.set(0, 15, 7);
     this.camera.rotation.set(-Math.PI/2.6, 0, Math.PI);
-    player_entity.addBehavior('CaptureLocalUserInput');
+    //player_entity.addBehavior('CaptureLocalUserInput');
 };
 
 module.exports = ClientManager;

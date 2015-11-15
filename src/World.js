@@ -48,7 +48,6 @@ function World(worldState, Game) {
       });
     }
 
-
     window.guy = this.entities.Guy[0];
 };
 
@@ -99,7 +98,7 @@ World.prototype.update = function(delta){
   //this.chunkManager.Draw(delta, invMaxFps);
 
   //update all non static entities here
-  this.entities.Guy[0].update(delta);
+  this.entities.Guy[0].emit('update');
 };
 
 World.prototype.render = function(){

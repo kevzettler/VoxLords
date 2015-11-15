@@ -1,10 +1,19 @@
-const Move = function(){
-    this.on('update', Move.prototype.updateHandler.bind(this));
-}
+var Trait = require('simple-traits');
+var _ = require('lodash');
 
-Move.prototype.updateHandler = function(dt){
-    this.mesh.translateY(this.forwardVelocity*dt);
-    this.mesh.translateX(this.strafeVelocity*dt);
-};
+module.exports = Trait({
+    updateHandler: function(dt){
+       this.mesh.translateY(this.forwardVelocity*dt);
+       this.mesh.translateX(this.strafeVelocity*dt);
+    },
 
-module.exports = Move;
+});
+
+// const Move = function(){
+//     this.on('update', Move.prototype.updateHandler.bind(this));
+// }
+
+// Move.prototype.updateHandler = function(dt){
+//     this.mesh.translateY(this.forwardVelocity*dt);
+//     this.mesh.translateX(this.strafeVelocity*dt);
+// };

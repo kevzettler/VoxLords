@@ -17,9 +17,8 @@
 
 
 // module.exports = Tree;
+const Entity = require('./Entity');
 
-const createNewEntity = require('../createNewEntity');
-
-module.exports = createNewEntity({
-    behaviors: ['Move']
+module.exports = Entity.create({
+    traits: ['Move']
 });

@@ -2,6 +2,9 @@ var Trait = require('simple-traits');
 var events = require('events');
 var util = require("util");
 var _ = require('lodash');
+var THREE = require('three');
+
+var traitMap = require('./traits');
 
 var Entity = {
 
@@ -27,7 +30,7 @@ var Entity = {
                 if(key.match('_updateHandler')){
                     value.apply(this, arguments);
                 };
-            });
+            }.bind(this));
         };
 
         EntityCons.prototype.attachVox = function(vox){
