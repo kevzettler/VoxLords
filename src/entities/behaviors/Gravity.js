@@ -12,9 +12,6 @@ const Gravity = function(props){
 };
 
 Gravity.prototype.updateHandler = function(dt){
-  this.mesh.translateY(this.forwardVelocity*dt);
-  this.mesh.translateX(this.strafeVelocity*dt);
-
   const ground = this.getGround();
 
   if(!this.jump &&

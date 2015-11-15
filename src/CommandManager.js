@@ -11,7 +11,7 @@ CommandManager.prototype.execute = function(command){
     try{
         Commands[command](this.player_entity);
     }catch(ex){
-        //console.error('couldnt execute input command', command);
+        //console.debug('couldnt execute input command', command);
     }
 };
 

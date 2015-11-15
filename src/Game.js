@@ -45,7 +45,6 @@ Game.prototype.initStats = function(){
       this.render_container.appendChild( stats.domElement );
     }
 
-
     this.stats = stats;
 };
 
@@ -92,23 +91,23 @@ Game.prototype.loadEntities = function(callback){
       const entities = {
           "Guy": [
             {
-//             position:[16, 200, 119],
-             position:[76,200,107], 
+             position:[16, 200, 119],
+//             position:[76,200,107], 
              display: 'kevisazombie'
             }
           ],
 
-          //"Tree": [
-            //{position:[8,2,110], scale:2},
-            // {position:[45,2,60], scale:2},
-            // {position:[59,2,35], scale:2},
-            // {position:[17,2,13], scale:2},
-            // {position:[33,2,13], scale:2},
-            // {position:[110,2.5,16], scale:2},
-            // {position:[107,2.5,27], scale:2},
-            // {position:[92,3.5,109], scale:2},
-            // {position:[86,3.5,107], scale:2}
-          //],
+          "Tree": [
+            {position:[8,2,110], scale:2},
+            {position:[45,2,60], scale:2},
+            {position:[59,2,35], scale:2},
+            {position:[17,2,13], scale:2},
+            {position:[33,2,13], scale:2},
+            {position:[110,2.5,16], scale:2},
+            {position:[107,2.5,27], scale:2},
+            {position:[92,3.5,109], scale:2},
+            {position:[86,3.5,107], scale:2}
+          ],
 
           // "Cloud": [
           //   {position:[16, 20, 110], scale:2},
