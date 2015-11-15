@@ -1,11 +1,12 @@
 var Trait = require('simple-traits');
 var _ = require('lodash');
+var THREE = require('three');
 
 var Gravity = Trait({
     gravity: 50,
+    groundDirection: new THREE.Vector3(0, -1, 0),
 
-    updateHandler: function(){
-      console.log("Gravity update", this);
+    updateHandler: function(dt){
       const ground = this.getGround();
 
       if(!this.jump &&
@@ -20,7 +21,6 @@ var Gravity = Trait({
     },
 
     getGround: function(){
-      console.log("wtf is this", this.position, this.groundDirection);
       this.raycaster.set(this.position, this.groundDirection);
       const intersects = this.raycaster.intersectObjects(this.scene.children);
       return intersects;
