@@ -14,6 +14,8 @@ var Gravity = Trait({
     jumpVelocity: 1,
     jumpHeight: 50,
 
+    position: Trait.required,
+
     updateHandler: function(dt){
       const ground = this.getGround();
 

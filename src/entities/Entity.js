@@ -33,6 +33,7 @@ var Entity = {
             }.bind(this));
         };
 
+        //TODO move this to a trait?
         EntityCons.prototype.attachVox = function(vox){
           this.vox = vox;
           this.chunk = vox.getChunk();
@@ -49,9 +50,10 @@ var Entity = {
           this.raycaster = new THREE.Raycaster(this.position);
           //this.mesh.add( new THREE.ArrowHelper(this.raycaster.ray.direction, this.mesh.position, 30, 0x00FF00));
 
-          this.scale = 2;
+          if(!this.scale){
+            this.scale = 2;
+          }
           this.mesh.scale.set(this.scale,this.scale,this.scale); 
-          debugger;
         }
 
         return EntityCons;
