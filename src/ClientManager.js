@@ -77,6 +77,7 @@ ClientManager.prototype.initPlayerCamera = function(player_entity){
     player_entity.camera_obj = new THREE.Object3D();
     player_entity.mesh.add(player_entity.camera_obj);
     player_entity.camera_obj.add(this.camera);
+    window.camera = this.camera;
     player_entity.attached_camera = 1;
     this.camera.position.set(0, 15, 7);
     this.camera.rotation.set(-Math.PI/2.6, 0, Math.PI);
