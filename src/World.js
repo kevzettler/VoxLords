@@ -37,6 +37,7 @@ function World(worldState, Game) {
     this.importEntities(worldState.get('entities'), Game);
 
     if(Game.render_container){
+      console.log("new client manager and guy", this.entities.Guy[0]);
       this.client = new ClientManager({
         scene: this.scene,
         player_entity: this.entities.Guy[0],

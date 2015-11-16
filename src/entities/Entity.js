@@ -25,10 +25,10 @@ var Entity = {
         };
         util.inherits(EntityCons, events.EventEmitter);
 
-        EntityCons.prototype.updateHandler = function(){
-            _.each(this, function(value, key){
-                if(key.match('_updateHandler')){
-                    value.apply(this, arguments);
+        EntityCons.prototype.updateHandler = function(dt){
+              _.each(this, function(updateHandler, methodName){
+                if(methodName.match('_updateHandler')){
+                    updateHandler.call(this, dt);
                 };
             }.bind(this));
         };

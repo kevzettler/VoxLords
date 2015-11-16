@@ -4,7 +4,15 @@ var THREE = require('three');
 
 var Gravity = Trait({
     gravity: 50,
+
     groundDirection: new THREE.Vector3(0, -1, 0),
+
+    forwardVelocity: 0,
+    strafeVelocity: 0,
+
+    jump: false,
+    jumpVelocity: 1,
+    jumpHeight: 50,
 
     updateHandler: function(dt){
       const ground = this.getGround();
@@ -17,6 +25,14 @@ var Gravity = Trait({
           }else{
             this.position.y -= (this.gravity*dt);
           }
+      }
+
+      if(this.jump && ground.length){
+         if(ground[0].distance <= this.jumpHeight){    
+           this.position.y += this.jumpVelocity;
+         }else if(ground[0].distance >= this.jumpHeight){
+           this.jump = false;      
+         }
       }
     },
 
