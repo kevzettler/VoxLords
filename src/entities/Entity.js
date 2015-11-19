@@ -2,7 +2,7 @@ var Trait = require('simple-traits');
 var events = require('events');
 var util = require("util");
 var _ = require('lodash');
-var THREE = require('three');
+var THREE = require('../ThreeHelpers');
 
 var traitMap = require('./traits');
 
@@ -31,6 +31,8 @@ var Entity = {
                     updateHandler.call(this, dt);
                 };
             }.bind(this));
+            
+            this.bbox.update();
         };
 
         //TODO move this to a trait?
@@ -41,14 +43,16 @@ var Entity = {
           this.mesh = vox.getMesh();
           this.mesh.geometry.center();
           this.mesh.geometry.computeBoundingBox();
-          this.mesh.position.set(this.position[0], this.position[1], this.position[2]);
+          this.mesh.position.set(this.position[0], this.position[1], this.position[2]);          
+
+          this.bbox = new THREE.BoundingBoxHelper(this.mesh, 0xff0000);
+          this.bbox.update();
 
           //unsafe mutation of the classes position
           //helpful for moving mesh through the class
           this.position = this.mesh.position;
 
           this.raycaster = new THREE.Raycaster(this.position);
-          //this.mesh.add( new THREE.ArrowHelper(this.raycaster.ray.direction, this.mesh.position, 30, 0x00FF00));
 
           if(!this.scale){
             this.scale = 2;

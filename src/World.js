@@ -81,6 +81,7 @@ World.prototype.importEntities = function(entity_map, Game){
 
 World.prototype.registerEntity = function(entity, entity_type){
   this.scene.add(entity.mesh);
+  this.scene.add(entity.bbox);
   if(!this.entities[entity_type]){
     this.entities[entity_type] = [];
   }

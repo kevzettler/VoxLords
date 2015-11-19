@@ -29,18 +29,19 @@ var Gravity = Trait({
           }
       }
 
-      if(this.jump && ground.length){
-         if(ground[0].distance <= this.jumpHeight){    
-           this.position.y += this.jumpVelocity;
-         }else if(ground[0].distance >= this.jumpHeight){
-           this.jump = false;      
-         }
-      }
+      // if(this.jump && ground.length){
+      //    if(ground[0].distance <= this.jumpHeight){    
+      //      this.position.y += this.jumpVelocity;
+      //    }else if(ground[0].distance >= this.jumpHeight){
+      //      this.jump = false;      
+      //    }
+      // }
     },
 
     getGround: function(){
       this.raycaster.set(this.position, this.groundDirection);
       const intersects = this.raycaster.intersectObjects(this.scene.children);
+      debugger;
       return intersects;
     }
 });
