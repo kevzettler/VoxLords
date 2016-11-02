@@ -1,0 +1,11 @@
+# COMMENT OF SCRIPT HERE
+# you can make as many tabs as you wish...
+# tab names are actually arbitrary at this point too.
+
+before { run 'cd /Users/kevzettler/plebland/client' }
+run "npm run web"
+tab "./node_modules/.bin/webpack --watch --progress --config webpack/client.config.js"
+tab "./node_modules/.bin/signalhub listen -p 8080"
+tab "npm run debug-server"
+tab "open http://localhost:8888; subl ."
+

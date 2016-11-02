@@ -1,0 +1,194 @@
+	Exporter version: 4.5.1, Blender version: 2.76 (sub 0)
+========= Conversion from Blender to Babylon.js =========
+	Scene settings used:
+		selected layers only:  false
+		flat shading entire scene:  false
+		inline textures:  false
+		texture directory:  /Users/kevzettler/plebland/client/models/MechSniper/chunks/
+	Python World class constructor completed
+	processing begun of skeleton:  Armature, id:  0
+		processing begun of bone:  Bone, index:  0
+		processing begun of bone:  Head, index:  1
+		processing begun of bone:  Bone.002, index:  2
+		processing begun of bone:  Bone_L.006, index:  3
+		processing begun of bone:  Bone_L.007, index:  4
+		processing begun of bone:  Bone_L.008, index:  5
+		processing begun of bone:  Bone_L.009, index:  6
+		processing begun of bone:  Bone_L.010, index:  7
+		processing begun of bone:  Bone_R.006, index:  8
+		processing begun of bone:  Bone_R.007, index:  9
+		processing begun of bone:  Bone_R.008, index:  10
+		processing begun of bone:  Bone_R.009, index:  11
+		processing begun of bone:  Bone_R.010, index:  12
+		processing begun of bone:  Bone_L, index:  13
+		processing begun of bone:  Bone_L.001, index:  14
+		processing begun of bone:  Bone_L.002, index:  15
+		processing begun of bone:  Bone_L.003, index:  16
+		processing begun of bone:  Bone_L.004, index:  17
+		processing begun of bone:  Bone_R, index:  18
+		processing begun of bone:  Bone_R.001, index:  19
+		processing begun of bone:  Bone_R.002, index:  20
+		processing begun of bone:  Bone_R.003, index:  21
+		processing begun of bone:  Bone_R.004, index:  22
+		processing action ArmatureAction.001:  in[1 - 20], out[0 - 20]
+	processing begun of camera (FreeCamera):  Camera
+	processing begun of mesh:  head
+		processing begun of Standard material:  lambert0.005
+			Diffuse texture found "Texture.005"
+				Image texture found, type:  diffuseTexture, mapped using: "Plane-tex-mesh-uvs"
+	WARNING: Error encountered processing image file:  , Error:  '/Users/kevzettler/plebland/client/models/MechSniper/chunks/head_texture0.png' and '/Users/kevzettler/plebland/client/models/MechSniper/chunks/head_texture0.png' are the same file
+		num positions      :  352
+		num normals        :  352
+		num uvs            :  704
+		num uvs2           :  0
+		num colors         :  0
+		num indices        :  372
+	processing begun of mesh:  hand.L
+		processing begun of Standard material:  lambert0.012
+			Diffuse texture found "Texture.012"
+				Image texture found, type:  diffuseTexture, mapped using: "Plane-tex-mesh-uvs"
+	WARNING: Error encountered processing image file:  , Error:  '/Users/kevzettler/plebland/client/models/MechSniper/chunks/hand_texture0.png' and '/Users/kevzettler/plebland/client/models/MechSniper/chunks/hand_texture0.png' are the same file
+		num positions      :  450
+		num normals        :  450
+		num uvs            :  900
+		num uvs2           :  0
+		num colors         :  0
+		num indices        :  492
+	processing begun of mesh:  arm.L
+		processing begun of Standard material:  lambert0.006
+			Diffuse texture found "Texture.006"
+				Image texture found, type:  diffuseTexture, mapped using: "Plane-tex-mesh-uvs"
+	WARNING: Error encountered processing image file:  , Error:  '/Users/kevzettler/plebland/client/models/MechSniper/chunks/arm_texture0.png' and '/Users/kevzettler/plebland/client/models/MechSniper/chunks/arm_texture0.png' are the same file
+		num positions      :  190
+		num normals        :  190
+		num uvs            :  380
+		num uvs2           :  0
+		num colors         :  0
+		num indices        :  210
+	processing begun of mesh:  bicep.L
+		processing begun of Standard material:  lambert0.011
+			Diffuse texture found "Texture.011"
+				Image texture found, type:  diffuseTexture, mapped using: "Plane-tex-mesh-uvs"
+	WARNING: Error encountered processing image file:  , Error:  '/Users/kevzettler/plebland/client/models/MechSniper/chunks/bicep_texture0.png' and '/Users/kevzettler/plebland/client/models/MechSniper/chunks/bicep_texture0.png' are the same file
+		num positions      :  467
+		num normals        :  467
+		num uvs            :  934
+		num uvs2           :  0
+		num colors         :  0
+		num indices        :  492
+	processing begun of mesh:  shoulder.L
+		processing begun of Standard material:  lambert0.007
+			Diffuse texture found "Texture.007"
+				Image texture found, type:  diffuseTexture, mapped using: "Plane-tex-mesh-uvs"
+	WARNING: Error encountered processing image file:  , Error:  '/Users/kevzettler/plebland/client/models/MechSniper/chunks/shoulder_texture0.png' and '/Users/kevzettler/plebland/client/models/MechSniper/chunks/shoulder_texture0.png' are the same file
+		num positions      :  314
+		num normals        :  314
+		num uvs            :  628
+		num uvs2           :  0
+		num colors         :  0
+		num indices        :  324
+	processing begun of mesh:  foot.L
+		processing begun of Standard material:  lambert0.010
+			Diffuse texture found "Texture.010"
+				Image texture found, type:  diffuseTexture, mapped using: "Plane-tex-mesh-uvs"
+	WARNING: Error encountered processing image file:  , Error:  '/Users/kevzettler/plebland/client/models/MechSniper/chunks/foot_texture0.png' and '/Users/kevzettler/plebland/client/models/MechSniper/chunks/foot_texture0.png' are the same file
+		num positions      :  143
+		num normals        :  143
+		num uvs            :  286
+		num uvs2           :  0
+		num colors         :  0
+		num indices        :  156
+	processing begun of mesh:  knee.L
+		processing begun of Standard material:  lambert0.009
+			Diffuse texture found "Texture.009"
+				Image texture found, type:  diffuseTexture, mapped using: "Plane-tex-mesh-uvs"
+	WARNING: Error encountered processing image file:  , Error:  '/Users/kevzettler/plebland/client/models/MechSniper/chunks/knee_texture0.png' and '/Users/kevzettler/plebland/client/models/MechSniper/chunks/knee_texture0.png' are the same file
+		num positions      :  282
+		num normals        :  282
+		num uvs            :  564
+		num uvs2           :  0
+		num colors         :  0
+		num indices        :  300
+	processing begun of mesh:  leg.L
+		processing begun of Standard material:  lambert0.008
+			Diffuse texture found "Texture.008"
+				Image texture found, type:  diffuseTexture, mapped using: "Plane-tex-mesh-uvs"
+	WARNING: Error encountered processing image file:  , Error:  '/Users/kevzettler/plebland/client/models/MechSniper/chunks/leg_texture0.png' and '/Users/kevzettler/plebland/client/models/MechSniper/chunks/leg_texture0.png' are the same file
+		num positions      :  68
+		num normals        :  68
+		num uvs            :  136
+		num uvs2           :  0
+		num colors         :  0
+		num indices        :  72
+	processing begun of mesh:  foot.R
+		registered as also a user of material:  lambert0.010
+		num positions      :  143
+		num normals        :  143
+		num uvs            :  286
+		num uvs2           :  0
+		num colors         :  0
+		num indices        :  156
+	processing begun of mesh:  knee.R
+		registered as also a user of material:  lambert0.009
+		num positions      :  282
+		num normals        :  282
+		num uvs            :  564
+		num uvs2           :  0
+		num colors         :  0
+		num indices        :  300
+	processing begun of mesh:  leg.R
+		registered as also a user of material:  lambert0.008
+		num positions      :  68
+		num normals        :  68
+		num uvs            :  136
+		num uvs2           :  0
+		num colors         :  0
+		num indices        :  72
+	processing begun of mesh:  hand.R
+		registered as also a user of material:  lambert0.012
+		num positions      :  450
+		num normals        :  450
+		num uvs            :  900
+		num uvs2           :  0
+		num colors         :  0
+		num indices        :  492
+	processing begun of mesh:  arm.R
+		registered as also a user of material:  lambert0.006
+		num positions      :  190
+		num normals        :  190
+		num uvs            :  380
+		num uvs2           :  0
+		num colors         :  0
+		num indices        :  210
+	processing begun of mesh:  bicep.R
+		registered as also a user of material:  lambert0.011
+		num positions      :  467
+		num normals        :  467
+		num uvs            :  934
+		num uvs2           :  0
+		num colors         :  0
+		num indices        :  492
+	processing begun of mesh:  shoulder.R
+		registered as also a user of material:  lambert0.007
+		num positions      :  314
+		num normals        :  314
+		num uvs            :  628
+		num uvs2           :  0
+		num colors         :  0
+		num indices        :  324
+	processing begun of mesh:  body
+		processing begun of Standard material:  lambert0.003
+			Diffuse texture found "Texture.003"
+				Image texture found, type:  diffuseTexture, mapped using: "Plane-tex-mesh-uvs"
+	WARNING: Error encountered processing image file:  , Error:  '/Users/kevzettler/plebland/client/models/MechSniper/chunks/body_texture0.png' and '/Users/kevzettler/plebland/client/models/MechSniper/chunks/body_texture0.png' are the same file
+		num positions      :  3135
+		num normals        :  3135
+		num uvs            :  6270
+		num uvs2           :  0
+		num colors         :  0
+		num indices        :  3312
+	processing begun of light (HEMI):  Hemi
+========= Writing of scene file started =========
+========= Writing of scene file completed =========
+========= end of processing =========
+elapsed time:  0 min, 0.1805 secs
