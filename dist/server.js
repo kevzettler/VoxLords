@@ -101,7 +101,7 @@ require("source-map-support").install();
 	var BaseEnv = __webpack_require__(10);
 	var DesktopInputManager = __webpack_require__(49);
 	var signalHub = __webpack_require__(61);
-	var SIGNALHUB_HOST = (undefined) || 'localhost';
+	var SIGNALHUB_HOST = "104.236.185.123" || 'localhost';
 	
 	function ClientEnv(props) {
 	  var _this = this;
@@ -6115,7 +6115,7 @@ require("source-map-support").install();
 	var CommandManager = __webpack_require__(50);
 	var TerrainLoader = __webpack_require__(63);
 	var signalHub = __webpack_require__(61);
-	var SIGNALHUB_HOST = (undefined) || 'localhost';
+	var SIGNALHUB_HOST = "104.236.185.123" || 'localhost';
 	
 	function ServerEnv(props) {
 	  var _this = this;

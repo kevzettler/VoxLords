@@ -46897,7 +46897,7 @@
 	var BaseEnv = __webpack_require__(251);
 	var DesktopInputManager = __webpack_require__(333);
 	var signalHub = __webpack_require__(345);
-	var SIGNALHUB_HOST = (undefined) || 'localhost';
+	var SIGNALHUB_HOST = ("104.236.185.123") || 'localhost';
 
 	function ClientEnv(props) {
 	  var _this = this;
@@ -91657,7 +91657,7 @@
 	var CommandManager = __webpack_require__(334);
 	var TerrainLoader = __webpack_require__(374);
 	var signalHub = __webpack_require__(345);
-	var SIGNALHUB_HOST = (undefined) || 'localhost';
+	var SIGNALHUB_HOST = ("104.236.185.123") || 'localhost';
 
 	function ServerEnv(props) {
 	  var _this = this;
