@@ -137,7 +137,7 @@ Vox.prototype.LoadModel = function(callback) {
       });
     }else{
       var oReq = new XMLHttpRequest();
-      oReq.open("GET", "models/"+this.filename, true);
+      oReq.open("GET", ".models/"+this.filename, true);
       oReq.responseType = "arraybuffer";
       oReq.onload = this.onLoadHandler.bind(this, callback);
       oReq.send(null);
